@@ -13,6 +13,7 @@ const flagGradients = [
   "nonbinary-flag-gradient",
 ]
 
+// Updated to match the exact flag colors from the main page flags array
 const flagColors = [
   ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"], // Pride
   ["#5bcefa", "#f5a9b8", "#ffffff", "#f5a9b8", "#5bcefa"], // Trans
@@ -53,7 +54,7 @@ export default function HeroSection() {
             className="aurora-flag"
             numOfColumns={200}
             staggeredDelay={20}
-            billow={.05}
+            billow={0.05}
           />
         </div>
       </div>

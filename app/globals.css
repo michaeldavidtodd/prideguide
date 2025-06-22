@@ -47,6 +47,40 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.5% 48%;
   }
+
+  .chillwave {
+    --background: 270 60% 12%; /* Deep purple */
+    --foreground: 300 100% 90%; /* Light pink/lavender */
+    --card: 275 50% 18%; /* Darker purple */
+    --card-foreground: 300 100% 90%;
+    --popover: 275 50% 15%; /* Even darker purple for popovers */
+    --popover-foreground: 300 100% 90%;
+    --primary: 330 100% 65%; /* Vibrant pink */
+    --primary-foreground: 270 60% 12%; /* Deep purple for contrast on primary */
+    --secondary: 25 100% 60%; /* Warm orange */
+    --secondary-foreground: 270 60% 12%; /* Deep purple for contrast on secondary */
+    --muted: 275 40% 25%; /* Muted purple */
+    --muted-foreground: 300 80% 75%; /* Lighter muted pink/lavender */
+    --accent: 50 100% 60%; /* Glowing yellow/gold */
+    --accent-foreground: 270 60% 12%; /* Deep purple for contrast on accent */
+    --destructive: 0 80% 60%; /* Red (standard destructive) */
+    --destructive-foreground: 0 0% 100%;
+    --border: 280 40% 30%; /* Purple border */
+    --input: 280 40% 22%; /* Dark purple input */
+    --ring: 330 100% 65%; /* Vibrant pink for ring */
+    --radius: 0.5rem;
+
+    /* Chillwave specific effects */
+    --chillwave-main-gradient: linear-gradient(
+      to bottom right,
+      hsl(270, 60%, 12%),
+      hsl(290, 60%, 20%),
+      hsl(320, 70%, 30%)
+    );
+    --chillwave-card-glow: 0 0 15px hsl(var(--primary) / 0.5), 0 0 30px hsl(var(--primary) / 0.3);
+    --chillwave-hero-text-glow: 0 0 8px hsl(var(--primary) / 0.7), 0 0 12px hsl(var(--primary) / 0.5), 0 0 20px
+      hsl(var(--primary) / 0.3);
+  }
 }
 
 @layer base {
@@ -326,4 +360,68 @@
 .dark .main-content {
   background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
   box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Chillwave theme adjustments */
+.chillwave .main-content {
+  background: var(--chillwave-main-gradient);
+  box-shadow: 0 -10px 30px hsl(var(--primary) / 0.3); /* Pink glow from bottom */
+}
+
+.chillwave .hero-text-subtitle {
+  color: hsl(var(--foreground) / 0.7);
+}
+
+.chillwave .theme-button-active {
+  background-color: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+/* Chillwave Card Glow */
+.chillwave .card {
+  box-shadow: var(--chillwave-card-glow);
+  border-color: hsl(var(--primary) / 0.3); /* Subtle pink border to complement glow */
+}
+.chillwave .card:hover {
+  box-shadow: 0 0 20px hsl(var(--primary) / 0.7), 0 0 40px hsl(var(--primary) / 0.5); /* Intensify glow on hover */
+}
+
+/* Chillwave Hero Text Glow */
+.chillwave .hero-text .flag-text-mask {
+  text-shadow: var(--chillwave-hero-text-glow);
+  /* Ensure the gradient mask still applies */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* This is important for the gradient mask */
+}
+/* We need to apply the glow to the overlay text as well */
+.chillwave .hero-text-overlay .flag-text-mask {
+  text-shadow: var(--chillwave-hero-text-glow);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Adjustments for specific components in Chillwave theme */
+.chillwave .tabs-list {
+  /* Example for TabsList, adjust as needed */
+  background-color: hsl(var(--card) / 0.5); /* Semi-transparent card background */
+  border-color: hsl(var(--border) / 0.5);
+}
+.chillwave .tabs-trigger[data-state="active"] {
+  background-color: hsl(var(--primary) / 0.8);
+  color: var(--primary-foreground);
+  box-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+}
+.chillwave .button--primary {
+  /* If you have specific button variants */
+  background-color: hsl(var(--primary));
+  color: var(--primary-foreground);
+  box-shadow: 0 0 10px hsl(var(--primary) / 0.4);
+}
+.chillwave .button--secondary {
+  background-color: hsl(var(--secondary));
+  color: var(--secondary-foreground);
+  box-shadow: 0 0 10px hsl(var(--secondary) / 0.4);
 }
