@@ -1,0 +1,355 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.5% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Dark mode adjustments for the main content area */
+.dark .bg-gradient-to-br {
+  background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
+}
+
+/* Ensure hero section stays black in all themes */
+.hero-container {
+  background-color: black !important;
+}
+
+@keyframes flagAnimation {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.flag-text-mask {
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: flagAnimation 10s ease infinite;
+  display: inline-block;
+  width: 100%;
+}
+
+.hero-text-container {
+  position: relative;
+}
+
+.hero-text-layer {
+  width: 100%;
+}
+
+.hero-text-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 800ms ease-in-out;
+}
+
+.pride-flag-gradient {
+  background-image: linear-gradient(
+    to right,
+    #e40303 0%,
+    #ff8c00 16.6%,
+    #ffed00 33.3%,
+    #008026 50%,
+    #004dff 66.6%,
+    #750787 83.3%,
+    #e40303 100%
+  );
+}
+
+.trans-flag-gradient {
+  background-image: linear-gradient(
+    to right,
+    #5bcefa 0%,
+    #5bcefa 20%,
+    #f5a9b8 20%,
+    #f5a9b8 40%,
+    #ffffff 40%,
+    #ffffff 60%,
+    #f5a9b8 60%,
+    #f5a9b8 80%,
+    #5bcefa 80%,
+    #5bcefa 100%
+  );
+}
+
+.bi-flag-gradient {
+  background-image: linear-gradient(
+    to right,
+    #d60270 0%,
+    #d60270 33.3%,
+    #9b4f96 33.3%,
+    #9b4f96 66.6%,
+    #0038a8 66.6%,
+    #0038a8 100%
+  );
+}
+
+.pan-flag-gradient {
+  background-image: linear-gradient(
+    to right,
+    #ff218c 0%,
+    #ff218c 33.3%,
+    #ffd800 33.3%,
+    #ffd800 66.6%,
+    #21b1ff 66.6%,
+    #21b1ff 100%
+  );
+}
+
+.lesbian-flag-gradient {
+  background-image: linear-gradient(
+    to right,
+    #d52d00 0%,
+    #ef7627 20%,
+    #ff9a56 40%,
+    #ffffff 50%,
+    #d162a4 60%,
+    #b55690 80%,
+    #a30262 100%
+  );
+}
+
+.nonbinary-flag-gradient {
+  background-image: linear-gradient(
+    to right,
+    #fcf434 0%,
+    #fcf434 25%,
+    #ffffff 25%,
+    #ffffff 50%,
+    #9c59d1 50%,
+    #9c59d1 75%,
+    #222222 75%,
+    #222222 100%
+  );
+}
+
+.hero-container {
+  background-color: black;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-text {
+  font-family: "Inter", sans-serif;
+  font-weight: 900;
+  font-size: clamp(3rem, 15vw, 12rem);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-align: center;
+  transform-origin: center center;
+  width: 100%;
+}
+
+.hero-text-subtitle {
+  font-size: clamp(0.8rem, 2vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+/* Josh Comeau's flag animation technique */
+@keyframes oscillate {
+  from {
+    transform: translateY(var(--billow));
+  }
+  to {
+    transform: translateY(calc(var(--billow) * -1));
+  }
+}
+
+.animated-flag {
+  display: flex;
+  aspect-ratio: 3 / 2;
+  overflow: visible;
+}
+
+.flag-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: oscillate 500ms alternate infinite ease-in-out both;
+}
+
+.animated-flag .flag-column:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.animated-flag .flag-column:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Pause animation on hover for better UX */
+.flag-container:hover .flag-column {
+  animation-play-state: paused;
+}
+
+/* Aurora Flag Background Effect - Enhanced Glow */
+.aurora-flag-container {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 60vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.aurora-flag-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* Vertical opacity fade from top to bottom */
+  mask: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.6) 30%,
+    rgba(0, 0, 0, 0.3) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  -webkit-mask: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.6) 30%,
+    rgba(0, 0, 0, 0.3) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.aurora-flag {
+  width: 100%;
+  height: 100%;
+  /* Enhanced brightness and saturation for stronger glow */
+  filter: brightness(1.5) saturate(1.6) contrast(1.1);
+  /* Multiple layered box shadows for intense aurora glow */
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), 0 0 60px rgba(255, 255, 255, 0.15), 0 0 120px rgba(255, 255, 255, 0.1),
+    0 0 200px rgba(255, 255, 255, 0.05);
+
+  /* Enhanced glow animation with more dramatic changes */
+  animation: aurora-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-glow {
+  0% {
+    filter: brightness(1.5) saturate(1.6) contrast(1.1);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), 0 0 60px rgba(255, 255, 255, 0.15), 0 0 120px
+      rgba(255, 255, 255, 0.1), 0 0 200px rgba(255, 255, 255, 0.05);
+  }
+  100% {
+    filter: brightness(1.7) saturate(1.8) contrast(1.2);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.25), 0 0 80px rgba(255, 255, 255, 0.18), 0 0 160px
+      rgba(255, 255, 255, 0.12), 0 0 300px rgba(255, 255, 255, 0.07);
+  }
+}
+
+/* Ensure text stays above aurora */
+.hero-container > .text-center {
+  position: relative;
+  z-index: 10;
+}
+
+/* Footer Reveal Scroll Effect */
+.page-container {
+  position: relative;
+}
+
+.hero-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1;
+}
+
+.content-overlay {
+  position: relative;
+  z-index: 2;
+}
+
+.content-spacer {
+  height: 100vh;
+}
+
+.main-content {
+  background: linear-gradient(to bottom right, rgb(252 231 243), rgb(233 213 255), rgb(219 234 254));
+  min-height: 100vh;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode adjustments for main content */
+.dark .main-content {
+  background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.3);
+}
