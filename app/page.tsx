@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { FlagCardTransition } from "@/components/flag-card-transition"
 import { AnimatedFlag } from "@/components/animated-flag"
 
-// Flag data with colors and information
+// Expanded flag data with more flags
 const flags = [
   {
     id: "pride",
@@ -117,6 +117,78 @@ const flags = [
     significance: "Validates asexual identities and promotes awareness.",
     category: "Sexual Orientation",
   },
+  {
+    id: "aromantic",
+    name: "Aromantic Pride Flag",
+    colors: ["#3da542", "#a7d379", "#ffffff", "#a9a9a9", "#000000"],
+    description: "Represents aromantic identity and the spectrum of romantic attraction.",
+    history:
+      "Created in 2014. Green for aromanticism, light green for the aromantic spectrum, white for platonic relationships, grey for grey-aromantic and demiromantic people, black for the sexuality spectrum.",
+    significance: "Validates aromantic identities and promotes understanding of romantic orientation diversity.",
+    category: "Sexual Orientation",
+  },
+  {
+    id: "demisexual",
+    name: "Demisexual Pride Flag",
+    colors: ["#000000", "#a3a3a3", "#ffffff", "#800080"],
+    description:
+      "Represents demisexual identity, experiencing sexual attraction only after forming strong emotional bonds.",
+    history:
+      "Created in 2010. Black for asexuality, grey for grey-asexuality and demisexuality, white for sexuality, purple for community.",
+    significance: "Validates demisexual experiences and promotes understanding of the asexual spectrum.",
+    category: "Sexual Orientation",
+  },
+  {
+    id: "genderfluid",
+    name: "Genderfluid Pride Flag",
+    colors: ["#ff75a2", "#ffffff", "#be18d6", "#000000", "#333ebd"],
+    description: "Represents genderfluid identity and fluctuating gender expression.",
+    history:
+      "Created by JJ Poole in 2012. Pink for femininity, white for lack of gender, purple for combination of masculinity and femininity, black for lack of gender, blue for masculinity.",
+    significance: "Celebrates the fluidity of gender identity and expression.",
+    category: "Gender Identity",
+  },
+  {
+    id: "agender",
+    name: "Agender Pride Flag",
+    colors: ["#000000", "#c4c4c4", "#ffffff", "#b7f684", "#ffffff", "#c4c4c4", "#000000"],
+    description: "Represents agender identity and the absence of gender.",
+    history:
+      "Created by Salem X in 2014. Black and white for absence of gender, grey for semi-genderlessness, green for non-binary genders.",
+    significance: "Validates agender experiences and promotes understanding of gender diversity.",
+    category: "Gender Identity",
+  },
+  {
+    id: "polysexual",
+    name: "Polysexual Pride Flag",
+    colors: ["#f714ba", "#01d66a", "#1594f6"],
+    description: "Represents polysexual identity and attraction to multiple, but not all, genders.",
+    history:
+      "Created in 2012. Pink represents attraction to women, green represents attraction to non-binary people, blue represents attraction to men.",
+    significance: "Distinguishes polysexuality from pansexuality and celebrates attraction to multiple genders.",
+    category: "Sexual Orientation",
+  },
+  {
+    id: "omnisexual",
+    name: "Omnisexual Pride Flag",
+    colors: ["#fe9ace", "#ff6cab", "#ffffff", "#7902aa", "#ff6cab"],
+    description:
+      "Represents omnisexual identity and attraction to all genders with gender playing a role in attraction.",
+    history:
+      "Created in the 2010s. Pink shades represent attraction to femininity and women, white represents attraction to non-binary and gender non-conforming people, purple represents attraction to masculinity and men.",
+    significance: "Distinguishes omnisexuality from pansexuality by acknowledging gender in attraction.",
+    category: "Sexual Orientation",
+  },
+  {
+    id: "intersex",
+    name: "Intersex Pride Flag",
+    colors: ["#ffd800", "#7902aa"],
+    description: "Represents intersex people and their rights.",
+    history:
+      "Created by Morgan Carpenter in 2013. Yellow and purple were chosen as colors that are not associated with traditional gender binaries.",
+    significance: "Advocates for intersex rights and bodily autonomy.",
+    category: "General",
+  },
 ]
 
 const allyTips = [
@@ -184,6 +256,7 @@ export default function LGBTQIAFlagGuide() {
     return Math.max(baseHeight, 600) // Minimum 600px
   }, [])
 
+  // Expanded quiz questions
   const quizQuestions = [
     {
       question: "Which flag was created by Gilbert Baker in 1978?",
@@ -202,6 +275,53 @@ export default function LGBTQIAFlagGuide() {
       options: ["Daniel Quasar", "Monica Helms", "Michael Page", "Kye Rowan"],
       correct: 1,
       flag: "transgender",
+    },
+    {
+      question: "What does the white stripe represent on the Transgender Pride Flag?",
+      options: ["Peace", "Those transitioning or non-binary", "Unity", "Purity"],
+      correct: 1,
+      flag: "transgender",
+    },
+    {
+      question: "Which flag features only yellow and purple colors?",
+      options: ["Non-Binary Flag", "Intersex Flag", "Agender Flag", "Genderfluid Flag"],
+      correct: 1,
+      flag: "intersex",
+    },
+    {
+      question: "What year was the Progress Pride Flag created?",
+      options: ["2015", "2017", "2018", "2020"],
+      correct: 2,
+      flag: "progress",
+    },
+    {
+      question: "Which flag represents attraction to multiple, but not all, genders?",
+      options: ["Pansexual", "Bisexual", "Polysexual", "Omnisexual"],
+      correct: 2,
+      flag: "polysexual",
+    },
+    {
+      question: "What does the black stripe represent on the Asexual Pride Flag?",
+      options: ["Darkness", "Asexuality", "Mystery", "Strength"],
+      correct: 1,
+      flag: "asexual",
+    },
+    {
+      question: "Which flag was created by Kye Rowan in 2014?",
+      options: ["Genderfluid Flag", "Non-Binary Flag", "Agender Flag", "Aromantic Flag"],
+      correct: 1,
+      flag: "nonbinary",
+    },
+    {
+      question: "What distinguishes omnisexuality from pansexuality?",
+      options: [
+        "Number of genders attracted to",
+        "Gender plays a role in attraction",
+        "Age of the identity",
+        "Color of the flag",
+      ],
+      correct: 1,
+      flag: "omnisexual",
     },
   ]
 
@@ -295,9 +415,11 @@ export default function LGBTQIAFlagGuide() {
             <p className="text-muted-foreground mb-4">
               {quizScore === quizQuestions.length
                 ? "Perfect! You're a flag expert! 🏳️‍🌈"
-                : quizScore >= quizQuestions.length / 2
-                  ? "Great job! Keep learning! 🌟"
-                  : "Good start! Try exploring more flags! 💪"}
+                : quizScore >= quizQuestions.length * 0.8
+                  ? "Excellent! You know your flags! 🌟"
+                  : quizScore >= quizQuestions.length * 0.6
+                    ? "Great job! Keep learning! 💪"
+                    : "Good start! Try exploring more flags! 📚"}
             </p>
             <Button onClick={resetQuiz} className="w-full">
               Try Again
@@ -499,8 +621,8 @@ export default function LGBTQIAFlagGuide() {
                     <div className="space-y-2">
                       <h4 className="font-semibold">Features:</h4>
                       <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• Comprehensive flag directory</li>
-                        <li>• Interactive learning quiz</li>
+                        <li>• Comprehensive flag directory with {flags.length} flags</li>
+                        <li>• Interactive learning quiz with {quizQuestions.length} questions</li>
                         <li>• Ally guidance and tips</li>
                         <li>• Historical context and meanings</li>
                       </ul>
