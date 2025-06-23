@@ -297,6 +297,15 @@
   );
 }
 
+/* Aurora Flag Overlay for Transitions */
+.aurora-flag-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 /* Ensure text stays above aurora */
 .hero-container > .text-center {
   position: relative;

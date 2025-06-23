@@ -28,15 +28,17 @@ export default function HeroSection() {
   const [nextGradient, setNextGradient] = useState(1)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [currentFlagIndex, setCurrentFlagIndex] = useState(0)
+  const [nextFlagIndex, setNextFlagIndex] = useState(1)
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true)
       setNextGradient((currentGradient + 1) % flagGradients.length)
-      setCurrentFlagIndex((currentFlagIndex + 1) % heroFlagsDisplayData.length)
+      setNextFlagIndex((currentFlagIndex + 1) % heroFlagsDisplayData.length)
 
       setTimeout(() => {
         setCurrentGradient((currentGradient + 1) % flagGradients.length)
+        setCurrentFlagIndex((currentFlagIndex + 1) % heroFlagsDisplayData.length)
         setIsTransitioning(false)
       }, 800)
     }, 5000)
@@ -46,12 +48,37 @@ export default function HeroSection() {
 
   return (
     <section className="hero-container">
-      {/* Aurora Flag Background */}
+      {/* Aurora Flag Background with Fade Transition */}
       <div className="aurora-flag-container">
-        <div className="aurora-flag-wrapper">
+        {/* Current Flag */}
+        <div
+          className="aurora-flag-wrapper"
+          style={{
+            opacity: isTransitioning ? 0 : 1,
+            transition: "opacity 800ms ease-in-out",
+          }}
+        >
           <AnimatedFlag
             backgroundColors={heroFlagsDisplayData[currentFlagIndex].stripes || []}
             svgForeground={heroFlagsDisplayData[currentFlagIndex].svgForeground}
+            className="aurora-flag"
+            numOfColumns={200}
+            staggeredDelay={20}
+            billow={0.05}
+          />
+        </div>
+
+        {/* Next Flag - for transition */}
+        <div
+          className="aurora-flag-wrapper aurora-flag-overlay"
+          style={{
+            opacity: isTransitioning ? 1 : 0,
+            transition: "opacity 800ms ease-in-out",
+          }}
+        >
+          <AnimatedFlag
+            backgroundColors={heroFlagsDisplayData[nextFlagIndex].stripes || []}
+            svgForeground={heroFlagsDisplayData[nextFlagIndex].svgForeground}
             className="aurora-flag"
             numOfColumns={200}
             staggeredDelay={20}
