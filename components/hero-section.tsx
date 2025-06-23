@@ -14,13 +14,13 @@ const flagGradients = [
 ]
 
 // Updated to match the exact flag colors from the main page flags array
-const flagColors = [
-  ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"], // Pride
-  ["#5bcefa", "#f5a9b8", "#ffffff", "#f5a9b8", "#5bcefa"], // Trans
-  ["#d60270", "#9b59b6", "#0038a8"], // Bisexual
-  ["#ff218c", "#ffd800", "#21b1ff"], // Pansexual
-  ["#d52d00", "#ef7627", "#ff9a56", "#ffffff", "#d162a4", "#b55690", "#a30262"], // Lesbian
-  ["#fcf434", "#ffffff", "#9c59d1", "#000000"], // Non-binary
+const heroFlagsDisplayData = [
+  { stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"] }, // Pride
+  { stripes: ["#5bcefa", "#f5a9b8", "#ffffff", "#f5a9b8", "#5bcefa"] }, // Trans
+  { stripes: ["#d60270", "#9b59b6", "#0038a8"] }, // Bisexual
+  { stripes: ["#ff218c", "#ffd800", "#21b1ff"] }, // Pansexual
+  { stripes: ["#d52d00", "#ef7627", "#ff9a56", "#ffffff", "#d162a4", "#b55690", "#a30262"] }, // Lesbian
+  { stripes: ["#fcf434", "#ffffff", "#9c59d1", "#000000"] }, // Non-binary
 ]
 
 export default function HeroSection() {
@@ -33,7 +33,7 @@ export default function HeroSection() {
     const interval = setInterval(() => {
       setIsTransitioning(true)
       setNextGradient((currentGradient + 1) % flagGradients.length)
-      setCurrentFlagIndex((currentFlagIndex + 1) % flagColors.length)
+      setCurrentFlagIndex((currentFlagIndex + 1) % heroFlagsDisplayData.length)
 
       setTimeout(() => {
         setCurrentGradient((currentGradient + 1) % flagGradients.length)
@@ -50,7 +50,8 @@ export default function HeroSection() {
       <div className="aurora-flag-container">
         <div className="aurora-flag-wrapper">
           <AnimatedFlag
-            colors={flagColors[currentFlagIndex]}
+            backgroundColors={heroFlagsDisplayData[currentFlagIndex].stripes || []}
+            svgForeground={heroFlagsDisplayData[currentFlagIndex].svgForeground}
             className="aurora-flag"
             numOfColumns={200}
             staggeredDelay={20}

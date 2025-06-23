@@ -14,12 +14,42 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { FlagCardTransition } from "@/components/flag-card-transition"
 import { AnimatedFlag } from "@/components/animated-flag"
 
-// Expanded flag data with more flags
-const flags = [
+// At the top of the file, near other type definitions if any, or before 'flags'
+interface SvgPathDefinition {
+  id: string
+  d: string
+  fill: string
+  transform?: string
+  stroke?: string
+  strokeWidth?: string
+}
+
+interface FlagDisplayData {
+  stripes?: string[]
+  svgForeground?: {
+    viewBox: string
+    paths: SvgPathDefinition[]
+  }
+}
+
+interface FlagDefinition {
+  id: string
+  name: string
+  display: FlagDisplayData
+  description: string
+  history: string
+  significance: string
+  category: string
+}
+
+// New flags constant
+const flags: FlagDefinition[] = [
   {
     id: "pride",
     name: "Pride Flag",
-    colors: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"],
+    display: {
+      stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"],
+    },
     description: "The original Pride flag represents the LGBTQIA+ community as a whole.",
     history:
       "Created by Gilbert Baker in 1978, each color has meaning: red for life, orange for healing, yellow for sunlight, green for nature, blue for harmony, and purple for spirit.",
@@ -29,19 +59,40 @@ const flags = [
   {
     id: "progress",
     name: "Progress Pride Flag",
-    colors: [
-      "#ffffff",
-      "#f5a9b8",
-      "#5bcefa",
-      "#000000",
-      "#8b4513",
-      "#e40303",
-      "#ff8c00",
-      "#ffed00",
-      "#008018",
-      "#004cff",
-      "#732982",
-    ],
+    display: {
+      stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"],
+      svgForeground: {
+        viewBox: "0 0 1025 654", // From your SVG example
+        paths: [
+          // Paths from your SVG, ordered for correct layering (bottom to top)
+          {
+            id: "progress-black-chevron",
+            d: "M492 327.5L167.169 652H1V2H166.168L492 327.5Z",
+            fill: "#000000",
+          },
+          {
+            id: "progress-brown-chevron",
+            d: "M410 327.5L84.1016 653H1V2H84.1016L410 327.5Z",
+            fill: "#613915", // More accurate brown from your SVG
+          },
+          {
+            id: "progress-lightblue-triangle",
+            d: "M0.53418 0.0341797L327.534 326.534L0.53418 653.034V0.0341797Z",
+            fill: "#5BCEFA", // Keeping color consistent with Trans flag
+          },
+          {
+            id: "progress-pink-triangle",
+            d: "M0.53418 82.5339L245.534 326.534L0.53418 570.534V82.5339Z",
+            fill: "#F5A9B8", // Keeping color consistent with Trans flag
+          },
+          {
+            id: "progress-white-triangle",
+            d: "M1.06836 164.034L163.068 326.534L1.06836 489.034V164.034Z",
+            fill: "#FFFFFF", // Keeping color consistent with Trans flag
+          },
+        ],
+      },
+    },
     description: "An inclusive redesign that centers marginalized communities within the LGBTQIA+ movement.",
     history:
       "Created by Daniel Quasar in 2018, adding black and brown stripes for people of color, and trans pride colors.",
@@ -51,7 +102,9 @@ const flags = [
   {
     id: "transgender",
     name: "Transgender Pride Flag",
-    colors: ["#5bcefa", "#f5a9b8", "#ffffff", "#f5a9b8", "#5bcefa"],
+    display: {
+      stripes: ["#5bcefa", "#f5a9b8", "#ffffff", "#f5a9b8", "#5bcefa"],
+    },
     description: "Represents the transgender community and gender identity.",
     history:
       "Created by Monica Helms in 1999. Light blue for boys, pink for girls, white for those transitioning or non-binary.",
@@ -61,7 +114,9 @@ const flags = [
   {
     id: "bisexual",
     name: "Bisexual Pride Flag",
-    colors: ["#d60270", "#9b59b6", "#0038a8"],
+    display: {
+      stripes: ["#d60270", "#9b59b6", "#0038a8"],
+    },
     description: "Represents bisexual identity and attraction to multiple genders.",
     history:
       "Created by Michael Page in 1998. Pink represents same-sex attraction, blue represents opposite-sex attraction, purple represents attraction to all genders.",
@@ -71,7 +126,9 @@ const flags = [
   {
     id: "lesbian",
     name: "Lesbian Pride Flag",
-    colors: ["#d52d00", "#ef7627", "#ff9a56", "#ffffff", "#d162a4", "#b55690", "#a30262"],
+    display: {
+      stripes: ["#d52d00", "#ef7627", "#ff9a56", "#ffffff", "#d162a4", "#b55690", "#a30262"],
+    },
     description: "Represents lesbian identity and women loving women.",
     history:
       "The current design was created in 2018, featuring orange for gender non-conformity, white for unique relationships, and pink for femininity.",
@@ -81,7 +138,9 @@ const flags = [
   {
     id: "gay",
     name: "Gay Men Pride Flag",
-    colors: ["#078d70", "#26ceaa", "#98e8c1", "#ffffff", "#7bade2", "#5049cc", "#3d1a78"],
+    display: {
+      stripes: ["#078d70", "#26ceaa", "#98e8c1", "#ffffff", "#7bade2", "#5049cc", "#3d1a78"],
+    },
     description: "Represents gay men and their community.",
     history:
       "Created in 2019, featuring shades of green, blue, and purple to represent different aspects of gay male identity.",
@@ -91,7 +150,9 @@ const flags = [
   {
     id: "nonbinary",
     name: "Non-Binary Pride Flag",
-    colors: ["#fcf434", "#ffffff", "#9c59d1", "#000000"],
+    display: {
+      stripes: ["#fcf434", "#ffffff", "#9c59d1", "#222222"],
+    },
     description: "Represents non-binary gender identities.",
     history:
       "Created by Kye Rowan in 2014. Yellow for those outside the gender binary, white for many or all genders, purple for mixed genders, black for lack of gender.",
@@ -101,7 +162,9 @@ const flags = [
   {
     id: "pansexual",
     name: "Pansexual Pride Flag",
-    colors: ["#ff218c", "#ffd800", "#21b1ff"],
+    display: {
+      stripes: ["#ff218c", "#ffd800", "#21b1ff"],
+    },
     description: "Represents pansexual identity and attraction regardless of gender.",
     history: "Created in 2010. Pink represents attraction to women, yellow to non-binary people, and blue to men.",
     significance: "Celebrates attraction to all genders and challenges the gender binary.",
@@ -110,7 +173,9 @@ const flags = [
   {
     id: "asexual",
     name: "Asexual Pride Flag",
-    colors: ["#000000", "#a3a3a3", "#ffffff", "#800080"],
+    display: {
+      stripes: ["#222222", "#a3a3a3", "#ffffff", "#800080"],
+    },
     description: "Represents asexual identity and the spectrum of asexuality.",
     history:
       "Created in 2010. Black for asexuality, grey for grey-asexuality and demisexuality, white for non-asexual partners, purple for community.",
@@ -118,9 +183,38 @@ const flags = [
     category: "Sexual Orientation",
   },
   {
+    id: "intersex",
+    name: "Intersex Pride Flag",
+    display: {
+      stripes: ["#ffd800"], // Solid yellow background
+      svgForeground: {
+        viewBox: "0 0 900 600", // Changed to match other flags' 3:2 aspect ratio
+        paths: [
+          // Circle centered in the 3:2 aspect ratio flag
+          {
+            id: "intersex-ring",
+            d: "M450,300 m-110,0 a110,110 0 1,0 220,0 a110,110 0 1,0 -220,0", // Centered at y=300 instead of y=225
+            stroke: "#7902AA",
+            strokeWidth: "30",
+            fill: "none",
+          },
+        ],
+      },
+    },
+    description: "Represents intersex people and their rights.",
+    history:
+      "Created by Morgan Carpenter in 2013. Yellow and purple were chosen as colors that are not associated with traditional gender binaries.",
+    significance: "Advocates for intersex rights and bodily autonomy.",
+    category: "General",
+  },
+  // ... (other flags from previous version, ensure they follow the new structure)
+  // Example for a stripe-only flag:
+  {
     id: "aromantic",
     name: "Aromantic Pride Flag",
-    colors: ["#3da542", "#a7d379", "#ffffff", "#a9a9a9", "#000000"],
+    display: {
+      stripes: ["#3da542", "#a7d379", "#ffffff", "#a9a9a9", "#222222"],
+    },
     description: "Represents aromantic identity and the spectrum of romantic attraction.",
     history:
       "Created in 2014. Green for aromanticism, light green for the aromantic spectrum, white for platonic relationships, grey for grey-aromantic and demiromantic people, black for the sexuality spectrum.",
@@ -130,7 +224,9 @@ const flags = [
   {
     id: "demisexual",
     name: "Demisexual Pride Flag",
-    colors: ["#000000", "#a3a3a3", "#ffffff", "#800080"],
+    display: {
+      stripes: ["#222222", "#a3a3a3", "#ffffff", "#800080"], // Note: Same colors as Asexual flag, design often includes a black triangle. For simplicity, keeping as stripes for now unless a specific SVG design is requested.
+    },
     description:
       "Represents demisexual identity, experiencing sexual attraction only after forming strong emotional bonds.",
     history:
@@ -141,7 +237,9 @@ const flags = [
   {
     id: "genderfluid",
     name: "Genderfluid Pride Flag",
-    colors: ["#ff75a2", "#ffffff", "#be18d6", "#000000", "#333ebd"],
+    display: {
+      stripes: ["#ff75a2", "#ffffff", "#be18d6", "#222222", "#333ebd"],
+    },
     description: "Represents genderfluid identity and fluctuating gender expression.",
     history:
       "Created by JJ Poole in 2012. Pink for femininity, white for lack of gender, purple for combination of masculinity and femininity, black for lack of gender, blue for masculinity.",
@@ -151,7 +249,9 @@ const flags = [
   {
     id: "agender",
     name: "Agender Pride Flag",
-    colors: ["#000000", "#c4c4c4", "#ffffff", "#b7f684", "#ffffff", "#c4c4c4", "#000000"],
+    display: {
+      stripes: ["#222222", "#c4c4c4", "#ffffff", "#b7f684", "#ffffff", "#c4c4c4", "#000000"],
+    },
     description: "Represents agender identity and the absence of gender.",
     history:
       "Created by Salem X in 2014. Black and white for absence of gender, grey for semi-genderlessness, green for non-binary genders.",
@@ -161,7 +261,9 @@ const flags = [
   {
     id: "polysexual",
     name: "Polysexual Pride Flag",
-    colors: ["#f714ba", "#01d66a", "#1594f6"],
+    display: {
+      stripes: ["#f714ba", "#01d66a", "#1594f6"],
+    },
     description: "Represents polysexual identity and attraction to multiple, but not all, genders.",
     history:
       "Created in 2012. Pink represents attraction to women, green represents attraction to non-binary people, blue represents attraction to men.",
@@ -171,23 +273,15 @@ const flags = [
   {
     id: "omnisexual",
     name: "Omnisexual Pride Flag",
-    colors: ["#fe9ace", "#ff6cab", "#ffffff", "#7902aa", "#ff6cab"],
+    display: {
+      stripes: ["#fe9ace", "#ff6cab", "#ffffff", "#7902aa", "#ff6cab"], // Simplified to stripes for now. Actual flag has more distinct color blocks.
+    },
     description:
       "Represents omnisexual identity and attraction to all genders with gender playing a role in attraction.",
     history:
       "Created in the 2010s. Pink shades represent attraction to femininity and women, white represents attraction to non-binary and gender non-conforming people, purple represents attraction to masculinity and men.",
     significance: "Distinguishes omnisexuality from pansexuality by acknowledging gender in attraction.",
     category: "Sexual Orientation",
-  },
-  {
-    id: "intersex",
-    name: "Intersex Pride Flag",
-    colors: ["#ffd800", "#7902aa"],
-    description: "Represents intersex people and their rights.",
-    history:
-      "Created by Morgan Carpenter in 2013. Yellow and purple were chosen as colors that are not associated with traditional gender binaries.",
-    significance: "Advocates for intersex rights and bodily autonomy.",
-    category: "General",
   },
 ]
 
@@ -337,7 +431,12 @@ export default function LGBTQIAFlagGuide() {
       onClick={(event) => handleCardClick(flag, event)}
     >
       <CardHeader className="pb-2">
-        <AnimatedFlag colors={flag.colors} className="h-24 rounded-lg overflow-hidden mb-2" speed={0.8} />
+        <AnimatedFlag
+          backgroundColors={flag.display.stripes || []}
+          svgForeground={flag.display.svgForeground}
+          className="h-24 rounded-lg overflow-hidden mb-2"
+          speed={0.8} // This prop seems to be unused in AnimatedFlag, consider removing or implementing
+        />
         <CardTitle className="text-lg flex items-center gap-2">
           <Flag className="w-5 h-5" />
           {flag.name}
@@ -442,7 +541,14 @@ export default function LGBTQIAFlagGuide() {
             <Progress value={(currentQuizQuestion / quizQuestions.length) * 100} className="w-24" />
           </div>
           <CardTitle className="text-lg">{question.question}</CardTitle>
-          {relatedFlag && <AnimatedFlag colors={relatedFlag.colors} className="h-16 rounded-lg mt-2" speed={0.6} />}
+          {relatedFlag && (
+            <AnimatedFlag
+              backgroundColors={relatedFlag.display.stripes || []}
+              svgForeground={relatedFlag.display.svgForeground}
+              className="h-16 rounded-lg mt-2"
+              speed={0.6} // This prop seems to be unused in AnimatedFlag
+            />
+          )}
         </CardHeader>
         <CardContent>
           <div className="space-y-2">

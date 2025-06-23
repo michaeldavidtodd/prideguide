@@ -116,7 +116,11 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
           >
             <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flag-container">
               <CardHeader className="pb-2">
-                <AnimatedFlag colors={flag.colors} className="h-24 rounded-lg overflow-hidden mb-2" speed={0.8} />
+                <AnimatedFlag
+                  backgroundColors={flag.display.stripes || []}
+                  svgForeground={flag.display.svgForeground}
+                  className="h-24 rounded-lg overflow-hidden mb-2"
+                />
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Flag className="w-5 h-5" />
                   {flag.name}

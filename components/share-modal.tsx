@@ -12,7 +12,6 @@ interface ShareModalProps {
     id: string
     name: string
     description: string
-    colors: string[]
   }
   isOpen: boolean
   onClose: () => void
