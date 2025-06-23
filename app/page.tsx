@@ -45,15 +45,27 @@ interface FlagDefinition {
 // New flags constant
 const flags: FlagDefinition[] = [
   {
+    id: "original-pride",
+    name: "Original Pride Flag",
+    display: {
+      stripes: ["#FF69B4", "#FF0000", "#FF8E00", "#FFFF00", "#008E00", "#00C0C0", "#400098", "#8E008E"],
+    },
+    description: "The original 8-color Pride flag that started the movement.",
+    history:
+      "Created by Gilbert Baker in 1978 with 8 colors: hot pink for sex, red for life, orange for healing, yellow for sunlight, green for nature, turquoise for magic/art, indigo for serenity, and violet for spirit. The hot pink and turquoise were later removed due to fabric availability.",
+    significance: "The foundational symbol of LGBTQIA+ pride that inspired all subsequent pride flags.",
+    category: "General",
+  },
+  {
     id: "pride",
     name: "Pride Flag",
     display: {
       stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"],
     },
-    description: "The original Pride flag represents the LGBTQIA+ community as a whole.",
+    description: "The widely recognized 6-color Pride flag representing the LGBTQIA+ community.",
     history:
-      "Created by Gilbert Baker in 1978, each color has meaning: red for life, orange for healing, yellow for sunlight, green for nature, blue for harmony, and purple for spirit.",
-    significance: "A universal symbol of LGBTQIA+ pride, diversity, and unity.",
+      "The simplified 6-color version became standard after 1979. Red for life, orange for healing, yellow for sunlight, green for nature, blue for harmony, and purple for spirit.",
+    significance: "The most recognized symbol of LGBTQIA+ pride, diversity, and unity worldwide.",
     category: "General",
   },
   {
@@ -353,10 +365,10 @@ export default function LGBTQIAFlagGuide() {
   // Expanded quiz questions
   const quizQuestions = [
     {
-      question: "Which flag was created by Gilbert Baker in 1978?",
-      options: ["Pride Flag", "Transgender Flag", "Bisexual Flag", "Lesbian Flag"],
+      question: "Which flag was created by Gilbert Baker in 1978 with 8 original colors?",
+      options: ["Original Pride Flag", "Transgender Flag", "Bisexual Flag", "Lesbian Flag"],
       correct: 0,
-      flag: "pride",
+      flag: "original-pride",
     },
     {
       question: "What do the colors pink, yellow, and blue represent on the Pansexual flag?",
@@ -407,15 +419,15 @@ export default function LGBTQIAFlagGuide() {
       flag: "nonbinary",
     },
     {
-      question: "What distinguishes omnisexuality from pansexuality?",
+      question: "What distinguishes the Original Pride Flag from the standard 6-color Pride Flag?",
       options: [
-        "Number of genders attracted to",
-        "Gender plays a role in attraction",
-        "Age of the identity",
-        "Color of the flag",
+        "Different creator",
+        "Has 8 colors including hot pink and turquoise",
+        "Different year created",
+        "Different meaning",
       ],
       correct: 1,
-      flag: "omnisexual",
+      flag: "original-pride",
     },
   ]
 
