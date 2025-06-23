@@ -139,9 +139,10 @@
   transition: opacity 800ms ease-in-out;
 }
 
+/* Updated smooth gradient versions of all flag gradients */
 .pride-flag-gradient {
   background-image: linear-gradient(
-    to right,
+    45deg,
     #e40303 0%,
     #ff8c00 16.6%,
     #ffed00 33.3%,
@@ -154,69 +155,41 @@
 
 .trans-flag-gradient {
   background-image: linear-gradient(
-    to right,
+    45deg,
     #5bcefa 0%,
     #5bcefa 20%,
-    #f5a9b8 20%,
-    #f5a9b8 40%,
-    #ffffff 40%,
-    #ffffff 60%,
-    #f5a9b8 60%,
-    #f5a9b8 80%,
+    #f5a9b8 35%,
+    #ffffff 50%,
+    #f5a9b8 65%,
     #5bcefa 80%,
     #5bcefa 100%
   );
 }
 
 .bi-flag-gradient {
-  background-image: linear-gradient(
-    to right,
-    #d60270 0%,
-    #d60270 33.3%,
-    #9b4f96 33.3%,
-    #9b4f96 66.6%,
-    #0038a8 66.6%,
-    #0038a8 100%
-  );
+  background-image: linear-gradient(45deg, #d60270 0%, #d60270 30%, #9b4f96 50%, #0038a8 70%, #0038a8 100%);
 }
 
 .pan-flag-gradient {
-  background-image: linear-gradient(
-    to right,
-    #ff218c 0%,
-    #ff218c 33.3%,
-    #ffd800 33.3%,
-    #ffd800 66.6%,
-    #21b1ff 66.6%,
-    #21b1ff 100%
-  );
+  background-image: linear-gradient(45deg, #ff218c 0%, #ff218c 30%, #ffd800 50%, #21b1ff 70%, #21b1ff 100%);
 }
 
 .lesbian-flag-gradient {
   background-image: linear-gradient(
-    to right,
+    45deg,
     #d52d00 0%,
-    #ef7627 20%,
-    #ff9a56 40%,
-    #ffffff 50%,
-    #d162a4 60%,
-    #b55690 80%,
-    #a30262 100%
+    #ef7627 14.3%,
+    #ff9a56 28.6%,
+    #ffffff 42.9%,
+    #d162a4 57.1%,
+    #b55690 71.4%,
+    #a30262 85.7%,
+    #d52d00 100%
   );
 }
 
 .nonbinary-flag-gradient {
-  background-image: linear-gradient(
-    to right,
-    #fcf434 0%,
-    #fcf434 25%,
-    #ffffff 25%,
-    #ffffff 50%,
-    #9c59d1 50%,
-    #9c59d1 75%,
-    #222222 75%,
-    #222222 100%
-  );
+  background-image: linear-gradient(45deg, #fcf434 0%, #fcf434 20%, #ffffff 35%, #9c59d1 65%, #000000 80%, #000000 100%);
 }
 
 .hero-container {
