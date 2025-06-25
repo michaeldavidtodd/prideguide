@@ -27,9 +27,9 @@ interface AnimatedFlagProps {
 export function AnimatedFlag({
   backgroundColors,
   className = "",
-  numOfColumns = 100, // Increased default for smoother waves on complex designs
-  staggeredDelay = 20,
-  billow = 0.02, // This is now an increment per column for the wave effect
+  numOfColumns = 15, // 100. Increased default for smoother waves on complex designs
+  staggeredDelay = 150, // 20
+  billow = .8, // 0.02. This is now an increment per column for the wave effect
   svgForeground,
 }: AnimatedFlagProps) {
   const gradientString = useMemo(() => {

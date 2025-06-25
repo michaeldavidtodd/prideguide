@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Share2, Twitter, Facebook, Mail, Copy, Check, ExternalLink } from "lucide-react"
+import { Share2, Twitter, Facebook, Mail, Copy, Check, ExternalLink, MessageCircle, Users } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface ShareModalProps {
@@ -32,6 +32,8 @@ export function ShareModal({ flag, isOpen, onClose }: ShareModalProps) {
   // Social media sharing URLs
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(shareUrl)}&hashtags=${hashtags}`
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareTitle + " " + shareText)}`
+  const tumblrUrl = `https://www.tumblr.com/widgets/share/tool?posttype=link&title=${encodeURIComponent(shareTitle)}&caption=${encodeURIComponent(shareText)}&content=${encodeURIComponent(shareUrl)}&canonicalUrl=${encodeURIComponent(shareUrl)}&tags=${encodeURIComponent(hashtags.replace(/,/g, ","))}`
+  const redditUrl = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}`
   const emailSubject = encodeURIComponent(shareTitle)
   const emailBody = encodeURIComponent(`${shareText}\n\nLearn more: ${shareUrl}`)
   const emailUrl = `mailto:?subject=${emailSubject}&body=${emailBody}`
@@ -82,6 +84,18 @@ export function ShareModal({ flag, isOpen, onClose }: ShareModalProps) {
       icon: Facebook,
       action: () => handleSocialShare(facebookUrl, "Facebook"),
       color: "hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-900/20",
+    },
+    {
+      name: "Tumblr",
+      icon: MessageCircle,
+      action: () => handleSocialShare(tumblrUrl, "Tumblr"),
+      color: "hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/20",
+    },
+    {
+      name: "Reddit",
+      icon: Users,
+      action: () => handleSocialShare(redditUrl, "Reddit"),
+      color: "hover:bg-orange-50 hover:text-orange-600 dark:hover:bg-orange-900/20",
     },
     {
       name: "Email",
@@ -141,7 +155,7 @@ export function ShareModal({ flag, isOpen, onClose }: ShareModalProps) {
             {/* Share Options */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Share via</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {shareOptions.map((option) => {
                   const Icon = option.icon
                   return (
