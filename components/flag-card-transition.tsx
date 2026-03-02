@@ -58,6 +58,7 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
   const centerY = window.innerHeight / 2
   const dialogWidth = Math.min(500, window.innerWidth - 32)
   const dialogHeight = Math.min(600, window.innerHeight - 32)
+  const phase: "scaling" | "content" | "closing" = animationPhase
 
   return (
     <AnimatePresence>
@@ -66,7 +67,7 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: animationPhase === "closing" ? 0 : 1 }}
+            animate={{ opacity: phase === "closing" ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 bg-black/50 z-50"
@@ -77,16 +78,16 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
           <motion.div
             initial={{ opacity: 0 }}
             animate={{
-              opacity: animationPhase === "content" && animationPhase !== "closing" ? 1 : 0,
+              opacity: phase === "content" ? 1 : 0,
             }}
             transition={{
-              duration: animationPhase === "closing" ? 0.2 : 0.3,
-              delay: animationPhase === "closing" ? 0 : 0.2,
+              duration: phase === "closing" ? 0.2 : 0.3,
+              delay: phase === "closing" ? 0 : 0.2,
             }}
             className="fixed z-50"
             style={{
-              left: animationPhase === "closing" ? cardRect.left + cardRect.width - 40 : centerX + dialogWidth / 2 - 40,
-              top: animationPhase === "closing" ? cardRect.top + 8 : centerY - dialogHeight / 2 + 8,
+              left: phase === "closing" ? cardRect.left + cardRect.width - 40 : centerX + dialogWidth / 2 - 40,
+              top: phase === "closing" ? cardRect.top + 8 : centerY - dialogHeight / 2 + 8,
             }}
           >
             <Button variant="ghost" size="icon" onClick={handleClose}>
@@ -104,10 +105,10 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
               height: cardRect.height,
             }}
             animate={{
-              left: animationPhase === "closing" ? cardRect.left : centerX - dialogWidth / 2,
-              top: animationPhase === "closing" ? cardRect.top : centerY - dialogHeight / 2,
-              width: animationPhase === "closing" ? cardRect.width : dialogWidth,
-              height: animationPhase === "closing" ? cardRect.height : "auto",
+              left: phase === "closing" ? cardRect.left : centerX - dialogWidth / 2,
+              top: phase === "closing" ? cardRect.top : centerY - dialogHeight / 2,
+              width: phase === "closing" ? cardRect.width : dialogWidth,
+              height: phase === "closing" ? cardRect.height : "auto",
             }}
             transition={{
               duration: 0.6,
@@ -133,16 +134,16 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{
-                    height: animationPhase === "content" && animationPhase !== "closing" ? "auto" : 0,
-                    opacity: animationPhase === "content" && animationPhase !== "closing" ? 1 : 0,
+                    height: phase === "content" ? "auto" : 0,
+                    opacity: phase === "content" ? 1 : 0,
                   }}
                   transition={{
                     duration: 0.4,
-                    delay: animationPhase === "closing" ? 0 : 0.2,
+                    delay: phase === "closing" ? 0 : 0.2,
                   }}
                   className="overflow-hidden"
                   style={{
-                    marginBottom: animationPhase === "content" && animationPhase !== "closing" ? "8px" : "0px",
+                    marginBottom: phase === "content" ? "8px" : "0px",
                   }}
                 >
                   <div className="space-y-4">
@@ -167,8 +168,8 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
                     variant="outline"
                     onClick={handleShare}
                     style={{
-                      opacity: animationPhase === "content" && animationPhase !== "closing" ? 1 : 0,
-                      pointerEvents: animationPhase === "content" && animationPhase !== "closing" ? "auto" : "none",
+                      opacity: phase === "content" ? 1 : 0,
+                      pointerEvents: phase === "content" ? "auto" : "none",
                     }}
                   >
                     <Share2 className="w-4 h-4 mr-1" />

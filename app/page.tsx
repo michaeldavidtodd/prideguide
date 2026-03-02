@@ -1,5 +1,6 @@
 "use client"
 
+import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -325,8 +326,8 @@ const allyTips = [
 ]
 
 export default function LGBTQIAFlagGuide() {
-  const [selectedFlag, setSelectedFlag] = useState(null)
-  const [cardRect, setCardRect] = useState(null)
+  const [selectedFlag, setSelectedFlag] = useState<FlagDefinition | null>(null)
+  const [cardRect, setCardRect] = useState<DOMRect | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [quizScore, setQuizScore] = useState(0)
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0)
@@ -431,13 +432,13 @@ export default function LGBTQIAFlagGuide() {
     },
   ]
 
-  const handleCardClick = (flag, event) => {
+  const handleCardClick = (flag: FlagDefinition, event: ReactMouseEvent<HTMLElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
     setCardRect(rect)
     setSelectedFlag(flag)
   }
 
-  const FlagCard = ({ flag }) => (
+  const FlagCard = ({ flag }: { flag: FlagDefinition }) => (
     <Card
       className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flag-container"
       onClick={(event) => handleCardClick(flag, event)}
@@ -447,7 +448,6 @@ export default function LGBTQIAFlagGuide() {
           backgroundColors={flag.display.stripes || []}
           svgForeground={flag.display.svgForeground}
           className="h-24 rounded-lg overflow-hidden mb-2"
-          speed={0.8} // This prop seems to be unused in AnimatedFlag, consider removing or implementing
         />
         <CardTitle className="text-lg flex items-center gap-2">
           <Flag className="w-5 h-5" />
@@ -479,10 +479,10 @@ export default function LGBTQIAFlagGuide() {
   )
 
   const QuizComponent = () => {
-    const [selectedAnswer, setSelectedAnswer] = useState(null)
+    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
     const [answered, setAnswered] = useState(false)
 
-    const handleAnswer = (answerIndex) => {
+    const handleAnswer = (answerIndex: number) => {
       if (answered) return
       setSelectedAnswer(answerIndex)
       setAnswered(true)
@@ -558,7 +558,6 @@ export default function LGBTQIAFlagGuide() {
               backgroundColors={relatedFlag.display.stripes || []}
               svgForeground={relatedFlag.display.svgForeground}
               className="h-16 rounded-lg mt-2"
-              speed={0.6} // This prop seems to be unused in AnimatedFlag
             />
           )}
         </CardHeader>

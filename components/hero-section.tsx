@@ -14,8 +14,12 @@ const flagGradients = [
   "nonbinary-flag-gradient",
 ]
 
+type HeroFlagDisplay = {
+  stripes: string[]
+  svgForeground?: { viewBox: string; paths: { id: string; d: string; fill: string; transform?: string; stroke?: string; strokeWidth?: string }[] }
+}
 // Updated to match the exact flag colors from the main page flags array
-const heroFlagsDisplayData = [
+const heroFlagsDisplayData: HeroFlagDisplay[] = [
   { stripes: ["#FF69B4", "#FF0000", "#FF8E00", "#FFFF00", "#008E00", "#00C0C0", "#400098", "#8E008E"] }, // Original Pride
   { stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"] }, // Pride
   { stripes: ["#5bcefa", "#f5a9b8", "#ffffff", "#f5a9b8", "#5bcefa"] }, // Trans
