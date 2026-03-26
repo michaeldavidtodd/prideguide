@@ -923,32 +923,29 @@ export default function LGBTQIAFlagGuide() {
           </div>
 
           {activeTab === "flags" && (
-            <>
-              <div className="relative left-1/2 right-1/2 w-screen -ml-[50vw] -mr-[50vw] overflow-visible">
-                {filteredFlags.length === 0 ? (
-                  <Card className="mx-auto my-6 max-w-md py-12 text-center">
-                    <CardContent>
-                      <p className="text-muted-foreground">No flags found matching your search.</p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <FlagRingCarousel flags={filteredFlags} onSelect={handleCardClick} />
-                )}
-              </div>
-              <div className="h-52 sm:h-56" aria-hidden />
-            </>
+            <div className="relative left-1/2 right-1/2 w-screen -ml-[50vw] -mr-[50vw] overflow-visible">
+              {filteredFlags.length === 0 ? (
+                <Card className="mx-auto my-6 max-w-md py-12 text-center">
+                  <CardContent>
+                    <p className="text-muted-foreground">No flags found matching your search.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <FlagRingCarousel flags={filteredFlags} onSelect={handleCardClick} />
+              )}
+            </div>
           )}
 
         </div>
       </div>
       {activeTab === "flags" && (
         <div
-                  className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 px-4 sm:px-6 transition-all duration-300 ${
+            className={`fixed bottom-6 inset-x-0 z-50  px-4 sm:px-6 transition-all duration-300 ${
             isMainContentInView ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
           }`}
         >
           <motion.div
-            className="mx-auto max-w-3xl space-y-3 rounded-xl border border-border/80 bg-background/85 p-3 shadow-lg backdrop-blur-md sm:p-4"
+            className="mx-auto w-full max-w-4xl space-y-3 rounded-xl border border-border/80 bg-background/85 p-3 shadow-lg backdrop-blur-md sm:p-4"
             initial={shouldReduceMotion ? false : { scale: 0.98, opacity: 0 }}
             animate={shouldReduceMotion ? {} : { scale: 1, opacity: 1 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}

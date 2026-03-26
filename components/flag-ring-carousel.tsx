@@ -51,7 +51,7 @@ function RingItem<F extends RingFlag>({ keyId, flag, angle, radius, rotationY, o
   return (
     <motion.div
       key={keyId}
-      className="absolute -left-[14rem] -top-[13.5rem] w-[28rem] [backface-visibility:hidden] [transform-style:preserve-3d]"
+      className="absolute left-0 -top-[13.5rem] w-[28rem] min-w-[8.5rem] max-w-[32vw] -translate-x-1/2 [backface-visibility:hidden] [transform-style:preserve-3d]"
       style={{
         transform: `rotateY(${angle}deg) translateZ(${radius}px) rotateY(180deg)`,
         zIndex,
@@ -71,7 +71,7 @@ function RingItem<F extends RingFlag>({ keyId, flag, angle, radius, rotationY, o
           svgForeground={flag.display.svgForeground}
           className="h-64 w-full overflow-hidden"
         />
-        <p className="mt-2 truncate text-3xl font-semibold tracking-tight">{flag.name}</p>
+        <p className="mt-4 text-xl font-semibold tracking-tight leading-none sm:text-3xl">{flag.name}</p>
       </button>
     </motion.div>
   )
@@ -79,21 +79,32 @@ function RingItem<F extends RingFlag>({ keyId, flag, angle, radius, rotationY, o
 
 export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRingCarouselProps<F>) {
   const [isLowPowerMode, setIsLowPowerMode] = useState(false)
+  const [viewportWidth, setViewportWidth] = useState(1280)
   const rotationY = useMotionValue(0)
   const targetRotationRef = useRef(0)
   const currentRotationRef = useRef(0)
   const isDraggingRef = useRef(false)
   const lastFrameTimeRef = useRef(0)
   const shouldReduceMotion = useReducedMotion()
+  const isMobile = viewportWidth < 768
   const autoRotateSpeed = isLowPowerMode ? 0.0036 : 0.006
   const dragSensitivity = isLowPowerMode ? 0.24 : 0.32
   const ringScale = isLowPowerMode ? 1.45 : 1.8
 
   useEffect(() => {
-    const cores = typeof navigator !== "undefined" ? navigator.hardwareConcurrency ?? 8 : 8
-    const memory = typeof navigator !== "undefined" ? (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8 : 8
-    const smallViewport = typeof window !== "undefined" ? window.innerWidth < 900 : false
-    setIsLowPowerMode(smallViewport || cores <= 6 || memory <= 4)
+    const updateViewport = () => {
+      const width = window.innerWidth
+      setViewportWidth(width)
+      const cores = navigator.hardwareConcurrency ?? 8
+      const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8
+      setIsLowPowerMode(width < 900 || cores <= 6 || memory <= 4)
+    }
+
+    updateViewport()
+    window.addEventListener("resize", updateViewport)
+    return () => {
+      window.removeEventListener("resize", updateViewport)
+    }
   }, [])
 
   useAnimationFrame((time) => {
@@ -132,9 +143,18 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
     const count = Math.max(ringItems.length, 1)
     const arcSpan = 360
     const step = arcSpan / count
-    const radius = isLowPowerMode ? Math.max(700, Math.min(1200, count * 52)) : Math.max(900, Math.min(1800, count * 65))
+    const cardWidthPx = Math.max(136, Math.min(448, viewportWidth * 0.32))
+    const widthScale = cardWidthPx / 448
+    const baseRadius = isLowPowerMode ? count * 52 : count * 65
+    const mobileSpacingBoost = isMobile ? 1.18 : 1
+    const scaledRadius = baseRadius * widthScale * mobileSpacingBoost
+    const minRadiusByFormula = (cardWidthPx * count * (isMobile ? 0.9 : 0.78)) / (2 * Math.PI)
+    const computedRadius = isLowPowerMode
+      ? Math.max(isMobile ? 420 : 320, Math.min(1200, scaledRadius))
+      : Math.max(isMobile ? 520 : 420, Math.min(1800, scaledRadius))
+    const radius = Math.max(computedRadius, minRadiusByFormula)
     return { step, radius, arcSpan }
-  }, [ringItems.length, isLowPowerMode])
+  }, [ringItems.length, isLowPowerMode, viewportWidth, isMobile])
 
   return (
     <div className="relative h-[58vh] min-h-[28rem] max-h-[52rem] w-full overflow-hidden [perspective:2600px]">
