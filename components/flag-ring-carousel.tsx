@@ -53,10 +53,22 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   const lastTRef = useRef<number | null>(null)
   const draggingRef = useRef(false)
   const reducedRef = useRef(false)
+  /** Drag only on `sm+` (≥640px). Narrow viewports = “mobile layout”; avoid fighting scroll. */
+  const dragEnabledRef = useRef(true)
 
   const [isDragging, setIsDragging] = useState(false)
 
   reducedRef.current = prefersReducedMotion === true
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)")
+    const sync = () => {
+      dragEnabledRef.current = mq.matches
+    }
+    sync()
+    mq.addEventListener("change", sync)
+    return () => mq.removeEventListener("change", sync)
+  }, [])
 
   const tickerItems = useMemo(() => {
     if (flags.length === 0) return [] as { key: string; flag: F }[]
@@ -107,7 +119,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   }, [])
 
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!trackRef.current) return
+    if (!trackRef.current || !dragEnabledRef.current) return
     dragRef.current.pointerId = event.pointerId
     dragRef.current.startX = event.clientX
     dragRef.current.dragStartOffset = dragXRef.current
@@ -118,7 +130,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   }
 
   const onDragMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (dragRef.current.pointerId !== event.pointerId) return
+    if (!dragEnabledRef.current || dragRef.current.pointerId !== event.pointerId) return
     const deltaX = event.clientX - dragRef.current.startX
     if (Math.abs(deltaX) > 6) dragRef.current.moved = true
     dragXRef.current = dragRef.current.dragStartOffset + deltaX
@@ -189,7 +201,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
               <AnimatedFlag
                 backgroundColors={flag.display.stripes || []}
                 svgForeground={flag.display.svgForeground}
-                className="h-36 rounded-md"
+                className="h-36 w-full rounded-md"
               />
               <p className="mt-2 text-sm font-semibold leading-tight tracking-tight sm:text-xl">{flag.name}</p>
             </div>
@@ -200,11 +212,11 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   )
 
   return (
-    // <div className="h-fit min-h-[20rem] max-h-[34rem] w-full">
+    <div className="relative h-fit min-h-[20rem] max-h-[34rem] w-full">
       <div className="">
         <div
           ref={trackRef}
-          className={`flex pt-4 pb-40 md:py-20 w-max will-change-transform ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          className={`flex pt-4 pb-40 md:py-20 w-max will-change-transform max-sm:cursor-default ${isDragging ? "sm:cursor-grabbing" : "sm:cursor-grab"}`}
           style={
             {
               touchAction: "pan-y",
@@ -218,6 +230,6 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
           {Array.from({ length: STRIP_COUNT }, (_, i) => renderStrip(i))}
         </div>
       </div>
-    // </div>
+    </div>
   )
 }
