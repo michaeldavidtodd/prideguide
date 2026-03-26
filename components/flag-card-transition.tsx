@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { Fragment, useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -63,9 +63,10 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <Fragment key="flag-card-overlay">
           {/* Backdrop */}
           <motion.div
+            key="flag-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: phase === "closing" ? 0 : 1 }}
             exit={{ opacity: 0 }}
@@ -76,6 +77,7 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
 
           {/* Close button - positioned relative to the animated card container */}
           <motion.div
+            key="flag-close"
             initial={{ opacity: 0 }}
             animate={{
               opacity: phase === "content" ? 1 : 0,
@@ -97,6 +99,7 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
 
           {/* Animated Card - EXACT COPY OF ORIGINAL */}
           <motion.div
+            key="flag-dialog"
             className="fixed z-50 pointer-events-auto"
             initial={{
               left: cardRect.left,
@@ -179,10 +182,15 @@ export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCard
               </CardContent>
             </Card>
           </motion.div>
-        </>
+        </Fragment>
       )}
       {/* Share Modal - now shows on all devices */}
-      <ShareModal flag={flag} isOpen={showShareModal} onClose={() => setShowShareModal(false)} />
+      <ShareModal
+        key="flag-share-modal"
+        flag={flag}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </AnimatePresence>
   )
 }
