@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { Heart, Search, BookOpen, Trophy, Flag, Info } from "lucide-react"
+import { Heart, Search, BookOpen, Trophy, Flag, Info, ChevronDown, SlidersHorizontal } from "lucide-react"
 import HeroSection from "@/components/hero-section"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { FlagCardTransition } from "@/components/flag-card-transition"
@@ -338,6 +338,7 @@ export default function LGBTQIAFlagGuide() {
   const [quizSelectedAnswer, setQuizSelectedAnswer] = useState<number | null>(null)
   const [quizAnswered, setQuizAnswered] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState("All")
+  const [isMobileFiltersExpanded, setIsMobileFiltersExpanded] = useState(false)
   const [isMainContentInView, setIsMainContentInView] = useState(false)
   const shouldReduceMotion = useReducedMotion()
 
@@ -369,6 +370,14 @@ export default function LGBTQIAFlagGuide() {
   }, [searchTerm])
   const getCategoryCount = (category: string) => categoryCounts[category as keyof typeof categoryCounts] ?? 0
   const tabOrder = ["flags", "quiz", "ally", "about"] as const
+  const tabItems: { value: (typeof tabOrder)[number]; label: string; Icon: typeof Flag }[] = [
+    { value: "flags", label: "Flags", Icon: Flag },
+    { value: "quiz", label: "Quiz", Icon: Trophy },
+    { value: "ally", label: "Ally", Icon: Heart },
+    { value: "about", label: "About", Icon: Info },
+  ]
+  const tabsTriggerClassName =
+    "min-h-11 rounded-lg border border-transparent px-1.5 py-2.5 flex items-center gap-2 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
   const activeTabIndex = Math.max(0, tabOrder.indexOf(activeTab as (typeof tabOrder)[number]))
 
   useEffect(() => {
@@ -384,6 +393,12 @@ export default function LGBTQIAFlagGuide() {
       window.removeEventListener("resize", updateMainContentVisibility)
     }
   }, [])
+
+  useEffect(() => {
+    if (activeTab !== "flags") {
+      setIsMobileFiltersExpanded(false)
+    }
+  }, [activeTab])
 
   const triggerCelebration = useCallback(() => {
     if (shouldReduceMotion) return
@@ -684,33 +699,33 @@ export default function LGBTQIAFlagGuide() {
         <div className="main-content pointer-events-auto">
           <div className="container mx-auto px-4 py-12 sm:px-6">
             {/* Header — editorial, left-weighted; no gradient-text / sparkle trope */}
-            <header className="relative mb-12 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-2xl text-left">
+            <header className="relative mb-8 flex flex-col gap-4 sm:mb-14 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+              <div className="max-w-2xl pr-14 text-left sm:pr-0">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
                   Prism · queer flag wiki
                 </p>
-                <h2 className="font-display text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+                <h2 className="font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
                   Pride Guide
                 </h2>
                 <span
-                  className="mt-4 block h-2 w-40 max-w-full sm:w-56"
+                  className="mt-3 block h-2 w-36 max-w-full sm:mt-4 sm:w-56"
                   style={{
                     background:
                       "linear-gradient(90deg, #e40303 0%, #ff8c00 16.6%, #ffed00 33.3%, #008018 50%, #004cff 66.6%, #732982 83.3%, #e40303 100%)",
                   }}
                   aria-hidden
                 />
-                <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg text-balance">
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground text-balance sm:mt-5 sm:text-lg">
                   Learn the symbols for real. History and meaning—loud, clear, and unapologetic.
                 </p>
               </div>
-              <div className="flex shrink-0 justify-start sm:justify-end sm:pb-1">
+              <div className="absolute right-0 top-0 flex shrink-0 justify-end sm:static sm:justify-end sm:pb-1">
                 <ThemeToggle />
               </div>
             </header>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="relative mb-8 grid h-auto w-full max-w-none grid-cols-4 gap-1 rounded-xl border border-border/70 bg-muted/40 p-1">
+              <TabsList className="relative mb-6 grid h-auto w-full max-w-none grid-cols-4 gap-1 rounded-xl border border-border/70 bg-muted/40 p-1 sm:mb-8">
                 <motion.div
                   aria-hidden
                   className="pointer-events-none absolute bottom-0 left-0 w-1/4"
@@ -719,34 +734,12 @@ export default function LGBTQIAFlagGuide() {
                 >
                   <div className="mx-auto h-0.5 w-1/2 bg-gradient-to-r from-[#e40303] via-[#ffed00] to-[#004cff] [mask-image:linear-gradient(to_right,transparent,black_18%,black_82%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_18%,black_82%,transparent)]" />
                 </motion.div>
-                <TabsTrigger
-                  value="flags"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
-                >
-                  <Flag className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span>Flags</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="quiz"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
-                >
-                  <Trophy className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span>Quiz</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="ally"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
-                >
-                  <Heart className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span>Ally</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="about"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
-                >
-                  <Info className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span>About</span>
-                </TabsTrigger>
+                {tabItems.map(({ value, label, Icon }) => (
+                  <TabsTrigger key={value} value={value} className={tabsTriggerClassName}>
+                    <Icon className="size-4" />
+                    <span className="hidden min-[390px]:inline">{label}</span>
+                  </TabsTrigger>
+                ))}
               </TabsList>
 
               <TabsContent value="flags" className="hidden" />
@@ -942,60 +935,92 @@ export default function LGBTQIAFlagGuide() {
       </div>
       {activeTab === "flags" && (
         <div
-            className={`fixed bottom-6 inset-x-0 z-50  px-4 sm:px-6 transition-all duration-300 ${
+          className={`fixed inset-x-0 z-50 px-3 pb-[env(safe-area-inset-bottom)] sm:px-6 transition-all duration-300 ${
             isMainContentInView ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
           }`}
+          style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
         >
           <motion.div
-            className="mx-auto w-full max-w-4xl space-y-3 rounded-xl border border-border/80 bg-background/85 p-3 shadow-lg backdrop-blur-md sm:p-4"
+            className="mx-auto w-full max-w-4xl space-y-2 rounded-xl border border-border/80 bg-background/90 p-2.5 text-[0.95rem] shadow-lg backdrop-blur-md sm:space-y-3 sm:p-4 sm:text-sm"
             initial={shouldReduceMotion ? false : { scale: 0.98, opacity: 0 }}
             animate={shouldReduceMotion ? {} : { scale: 1, opacity: 1 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Filter flags</p>
-                <p className="text-xs text-muted-foreground">
-                  Showing <span className="font-semibold text-foreground">{filteredFlags.length}</span> result
+              <div className="hidden flex-wrap items-center justify-between gap-2 sm:flex">
+                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Filter flags</p>
+                <p className="text-base font-medium text-muted-foreground sm:text-sm">
+                  Showing <span className="font-semibold tabular-nums text-foreground">{filteredFlags.length}</span> result
                   {filteredFlags.length === 1 ? "" : "s"}
                 </p>
               </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
-                <Input
-                  placeholder="Search flags..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-10 pl-10"
-                  aria-label="Search flags by name or description"
-                />
-              </div>
-              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by category">
-                {categories.map((category) => {
-                  const isActive = selectedCategory === category
-                  return (
-                    <Button
-                      key={category}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedCategory(category)}
-                      className={`h-9 whitespace-nowrap rounded-full border px-3 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
-                        isActive
-                          ? "border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background"
-                          : "border-border bg-background text-foreground hover:bg-muted"
+              <div className="sm:hidden">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMobileFiltersExpanded((prev) => !prev)}
+                  className="h-9 w-full justify-between rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground hover:bg-muted"
+                  aria-expanded={isMobileFiltersExpanded}
+                  aria-controls="mobile-flag-filters"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <SlidersHorizontal className="h-4 w-4" />
+                    {isMobileFiltersExpanded ? "Hide filters" : "Filters"}
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground tabular-nums">
+                      {filteredFlags.length} flags
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isMobileFiltersExpanded ? "rotate-180" : "rotate-0"
                       }`}
-                      aria-pressed={isActive}
-                    >
-                      <span>{category}</span>
-                      <span
-                        className={`ml-2 inline-flex min-w-6 items-center justify-center rounded-full px-1.5 text-[11px] leading-none ${
-                          isActive ? "bg-background/25 text-background" : "bg-muted text-muted-foreground"
+                    />
+                  </span>
+                </Button>
+              </div>
+              <div
+                id="mobile-flag-filters"
+                className={`${isMobileFiltersExpanded ? "space-y-3" : "hidden"} sm:block sm:space-y-3`}
+              >
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                  <Input
+                    placeholder="Search flags..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="h-11 pl-10 text-base placeholder:text-sm sm:h-10 sm:text-sm"
+                    aria-label="Search flags by name or description"
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by category">
+                  {categories.map((category) => {
+                    const isActive = selectedCategory === category
+                    return (
+                      <Button
+                        key={category}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedCategory(category)}
+                        className={`h-9 whitespace-nowrap rounded-full border px-3 text-sm font-semibold tracking-tight transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
+                          isActive
+                            ? "border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+                            : "border-border bg-background text-foreground hover:bg-muted"
                         }`}
+                        aria-pressed={isActive}
                       >
-                        {getCategoryCount(category)}
-                      </span>
-                    </Button>
-                  )
-                })}
+                        <span>{category}</span>
+                        <span
+                          className={`ml-2 inline-flex min-w-6 items-center justify-center rounded-full px-1.5 py-1 text-xs font-semibold leading-none tabular-nums ${
+                            isActive ? "bg-background/25 text-background" : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {getCategoryCount(category)}
+                        </span>
+                      </Button>
+                    )
+                  })}
+                </div>
               </div>
           </motion.div>
         </div>
