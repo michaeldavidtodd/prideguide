@@ -292,14 +292,7 @@ html {
   animation-play-state: paused;
 }
 
-@keyframes tickerScroll {
-  from {
-    transform: translate3d(var(--ticker-drag-offset, 0px), -50%, 0);
-  }
-  to {
-    transform: translate3d(calc(-50% + var(--ticker-drag-offset, 0px)), -50%, 0);
-  }
-}
+/* Flag ticker scroll: implemented in components/flag-ring-carousel.tsx (rAF + translateX). */
 
 @keyframes tickerBob {
   0%,
@@ -322,15 +315,6 @@ html {
   65% {
     transform: translateY(calc(var(--bob-amp, 8px) * -0.8)) rotate(var(--bob-tilt, 1.5deg));
   }
-}
-
-.flag-ticker-track {
-  animation: tickerScroll 40s linear infinite;
-  will-change: transform;
-}
-
-.flag-ticker-track--reduced {
-  animation: none;
 }
 
 .flag-ticker-card-bob {
