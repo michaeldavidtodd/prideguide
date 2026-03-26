@@ -1,12 +1,11 @@
 "use client"
 
 import type { MouseEvent as ReactMouseEvent } from "react"
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Heart, Search, BookOpen, Trophy, Flag, Info } from "lucide-react"
@@ -335,6 +334,7 @@ export default function LGBTQIAFlagGuide() {
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0)
   const [showQuizResult, setShowQuizResult] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState("All")
+  const [isMainContentInView, setIsMainContentInView] = useState(false)
 
   const categories = ["All", "General", "Sexual Orientation", "Gender Identity"]
 
@@ -362,6 +362,21 @@ export default function LGBTQIAFlagGuide() {
       "Gender Identity": flags.filter((flag) => flag.category === "Gender Identity" && matchesSearch(flag)).length,
     }
   }, [searchTerm])
+  const getCategoryCount = (category: string) => categoryCounts[category as keyof typeof categoryCounts] ?? 0
+
+  useEffect(() => {
+    const updateMainContentVisibility = () => {
+      setIsMainContentInView(window.scrollY >= window.innerHeight - 500)
+    }
+
+    updateMainContentVisibility()
+    window.addEventListener("scroll", updateMainContentVisibility, { passive: true })
+    window.addEventListener("resize", updateMainContentVisibility)
+    return () => {
+      window.removeEventListener("scroll", updateMainContentVisibility)
+      window.removeEventListener("resize", updateMainContentVisibility)
+    }
+  }, [])
 
   // Expanded quiz questions
   const quizQuestions = [
@@ -564,7 +579,7 @@ export default function LGBTQIAFlagGuide() {
 
         {/* Main Content */}
         <div className="main-content pointer-events-auto">
-          <div className="container mx-auto max-w-[min(100rem,calc(100vw-1.5rem))] px-4 py-12 sm:px-6">
+          <div className="container mx-auto px-4 py-12 sm:px-6">
             {/* Header — editorial, left-weighted; no gradient-text / sparkle trope */}
             <header className="relative mb-12 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
               <div className="max-w-xl text-left">
@@ -592,73 +607,38 @@ export default function LGBTQIAFlagGuide() {
             </header>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="mb-10 grid h-auto w-full max-w-none grid-cols-4 gap-0 rounded-none border-2 border-foreground/15 bg-transparent p-0 shadow-none">
+              <TabsList className="mb-8 grid h-auto w-full max-w-none grid-cols-4 gap-1 rounded-xl border border-border/70 bg-muted/40 p-1">
                 <TabsTrigger
                   value="flags"
-                  className="rounded-none border-0 border-r border-border/80 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Flag className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Flags</span>
+                  <span>Flags</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="quiz"
-                  className="rounded-none border-0 border-r border-border/80 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Trophy className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Quiz</span>
+                  <span>Quiz</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="ally"
-                  className="rounded-none border-0 border-r border-border/80 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Heart className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Ally</span>
+                  <span>Ally</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="about"
-                  className="rounded-none border-0 border-r-0 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Info className="mr-1.5 h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">About</span>
+                  <span>About</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="flags" className="space-y-6 overflow-visible">
-                {/* Search and filter — sticky while scrolling the flags tab */}
-                <div
-                  className="sticky top-0 z-30 -mx-4 mb-2 border-b border-border/50 bg-gradient-to-b from-background/95 to-background/90 py-4 backdrop-blur-md supports-[backdrop-filter]:from-background/80 supports-[backdrop-filter]:to-background/75 dark:from-background/92 dark:to-background/88 sm:-mx-6 sm:px-6 px-4"
-                >
-                  <div className="mx-auto max-w-md space-y-4">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
-                      <Input
-                        placeholder="Search flags..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                        aria-label="Search flags by name or description"
-                      />
-                    </div>
-
-                    <ScrollArea className="w-full">
-                      <div className="flex gap-2 pb-2" role="group" aria-label="Filter by category">
-                        {categories.map((category) => (
-                          <Button
-                            key={category}
-                            variant={selectedCategory === category ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSelectedCategory(category)}
-                            className="whitespace-nowrap"
-                          >
-                            {category} ({categoryCounts[category as keyof typeof categoryCounts]})
-                          </Button>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </div>
-                </div>
-
-              </TabsContent>
+              <TabsContent value="flags" className="hidden" />
 
               <TabsContent value="quiz" className="space-y-6">
                 <div className="mb-6 max-w-md mx-auto text-center">
@@ -807,8 +787,64 @@ export default function LGBTQIAFlagGuide() {
               )}
             </div>
           )}
+
         </div>
       </div>
+      {activeTab === "flags" && (
+        <div
+          className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 px-4 sm:px-6 transition-all duration-300 ${
+            isMainContentInView ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
+          }`}
+        >
+          <div className="mx-auto max-w-3xl space-y-3 rounded-xl border border-border/80 bg-background/85 p-3 shadow-lg backdrop-blur-md sm:p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Filter flags</p>
+                <p className="text-xs text-muted-foreground">
+                  Showing <span className="font-semibold text-foreground">{filteredFlags.length}</span> result
+                  {filteredFlags.length === 1 ? "" : "s"}
+                </p>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                <Input
+                  placeholder="Search flags..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-10 pl-10"
+                  aria-label="Search flags by name or description"
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by category">
+                {categories.map((category) => {
+                  const isActive = selectedCategory === category
+                  return (
+                    <Button
+                      key={category}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedCategory(category)}
+                      className={`h-9 whitespace-nowrap rounded-full border px-3 transition-colors ${
+                        isActive
+                          ? "border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+                          : "border-border bg-background text-foreground hover:bg-muted"
+                      }`}
+                      aria-pressed={isActive}
+                    >
+                      <span>{category}</span>
+                      <span
+                        className={`ml-2 inline-flex min-w-6 items-center justify-center rounded-full px-1.5 text-[11px] leading-none ${
+                          isActive ? "bg-background/25 text-background" : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {getCategoryCount(category)}
+                      </span>
+                    </Button>
+                  )
+                })}
+              </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -85,7 +85,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   }, [ringItems.length])
 
   return (
-    <div className="relative h-[60rem] w-full overflow-hidden [perspective:2600px]">
+    <div className="relative h-[50vh] max-h-[50rem] w-full overflow-hidden [perspective:2600px]">
       <motion.div
         onPanStart={() => {
           isDraggingRef.current = true
