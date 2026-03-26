@@ -1,0 +1,94 @@
+Design critique (design-director pass)
+Grounded in .impeccable.md and the frontend-design skill (DO/DON’T / AI slop test). Reviewed app/page.tsx, components/hero-section.tsx, app/globals.css, app/layout.tsx, components/theme-toggle.tsx.
+
+Anti-patterns verdict
+Fail (for the main app chrome). Someone could reasonably say “AI/template site” for everything after the hero.
+
+Specific tells from the skill:
+
+Tell	Where it shows up
+Inter everywhere
+layout.tsx + skill: Inter called out as overused default
+Gradient text “for impact”
+“Pride Guide” title uses bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text — explicit DON’T
+Purple / pink / sparkle combo
+Sparkles + purple–pink gradient = classic “AI SaaS” palette signal
+Identical card grid
+Same card pattern repeated for every flag (icon + title + body + badge) — skill: endless same-sized cards
+Everything in cards
+Flags, quiz, ally tips, about — skill: not everything needs a container
+Centered, symmetrical header block
+Main content header centered; skill warns center-everything reads generic
+Generic shadows / safe chrome
+hover:shadow-lg, default shadcn surfaces — “rounded rectangles + soft shadow” tell
+Partial pass: Hero is not generic—black field, animated column flags, gradient-masked “PRIDE / GUIDE,” scroll reveal. That’s closer to your juxtaposition brief than the tabbed app below it.
+
+Chillwave risks the skill’s “dark + glowing accents” cliché if it becomes the default association; as one theme among three it’s more defensible.
+
+Overall impression
+The top of the funnel feels intentional; the product surface feels like a v0/shadcn default dropped onto a strong hero. Biggest opportunity: make the main experience as opinionated as the hero (type, layout, motion, pixel-read language) so it matches celebration / non-conformity / individuality instead of dashboard starter.
+
+What’s working
+Hero narrative — Full-bleed black, aurora flags, typographic scale, “BY PRISM,” clear “Explore Flags” CTA. Hierarchy is obvious: read the wordmark, then scroll.
+Flag treatment as content — Accurate stripes, animated columns, hover-to-pause respects both vibe and .impeccable motion guidance.
+IA skeleton — Flags / Quiz / Ally / About is learnable in one glance; search + category chips support the primary task.
+Priority issues
+What: Main UI reads safe SaaS, not experimental queer activist.
+Why: Undercuts brand and .impeccable; users who love the hero may feel a letdown.
+Fix: Break symmetry (offset grids, varied card sizes, editorial type), introduce a display face, retire gradient-title-as-brand for something with teeth (texture, pixel frame, brutalist scale).
+Command: /bolder + /typeset (or a focused experimental pass).
+
+What: Typography is one weight system (Inter) for everything.
+Why: Skill explicitly flags Inter; hierarchy relies on size alone, not voice.
+Fix: Pair one sharp display (headlines, hero-adjacent UI) with a neutral UI body font—not necessarily Inter.
+Command: /typeset
+
+What: Primary action after scroll is unclear—no single “do this next” in the main chrome.
+Why: Competes with tabs, search, and corner theme toggle for attention.
+Fix: One dominant line (“Browse flags” / “Test yourself”) or a sticky sub-CTA on first visit.
+Command: /arrange + /clarify
+
+What: Detail pattern (FlagCardTransition / overlay) — skill is skeptical of modals; here it’s closer to lightbox / expansion (could be great with shared-element motion).
+Why: If it feels like “generic dialog,” it wastes the flag art.
+Fix: Morph from card to detail (see Overdrive B).
+Command: /animate + /overdrive (after you pick a direction)
+
+What: Reduced motion is not systematically applied to hero interval, Framer entrance, and flag columns.
+Why: Conflicts with “maximize accessibility + full experience for others.”
+Fix: prefers-reduced-motion: static hero flag, shorter/no entrance, static columns.
+Command: /harden
+
+Minor observations
+Invisible “Share” on cards is a layout hack—replace with real share or remove the slot.
+Quiz copy mixes emoji feedback; fine for tone, but ensure it doesn’t feel flippant next to serious flag history.
+ThemeToggle top-right on a centered header is easy to miss; consider integrating theme into a settings strip or icon row with clearer affordance.
+Questions to consider
+What if only the hero stayed “spectacle” and the main app went editorial / zine (asymmetry, big type, fewer boxes)?
+What if one tab (e.g. Quiz) were the “arcade” surface and Flags were museum-calm—same brand, two temperatures?
+Does gradient text on “Pride Guide” earn its place, or is it decoration that signals “template”?
+Overdrive — propose before build
+Per the overdrive skill: no code until you choose. Here are three directions that fit .impeccable (pixel × hyper-modern × activist energy), with trade-offs.
+
+Direction A — Scroll cinema (CSS-first)
+Feel: Main sheet doesn’t just slide up—it ** choreographs**: section borders that look like scanlines / pixel steps, progress-linked opacity on the hero, tab panels that enter with @starting-style or staged opacity/transform. Optional scroll-driven parallax on a decorative pixel grid (animation-timeline: scroll() where supported).
+
+Pros: No heavy JS; good performance; aligns “hyper-modern” with motion tied to user scroll.
+Cons: Scroll-driven CSS needs Firefox fallback (static layout still strong).
+Cost: Medium complexity in CSS, lots of visual tuning in browser.
+Direction B — Flag detail as morph (View Transitions API)
+Feel: Tap a flag card → the same flag graphic travels and grows into the detail surface (FLIP-style). Feels impossible for a website, very on-brand for “non-conformity.”
+
+Pros: Huge wow-per-pixel; matches functional UI “wow” from the skill.
+Cons: Same-document only for broad support; careful with accessibility (reduced motion = crossfade only); polish takes iterations.
+Cost: Higher JS + CSS naming discipline (view-transition-name).
+Direction C — Live pixel layer (Canvas 2D / low-res pass)
+Feel: A chunky pixel buffer (or CSS image-rendering: pixelated + stepped sampling) drives edges of sections, dividers, or a live “CRT window” around the flag strip—not the whole UI. Hyper-modern typography and layout sit around it (juxtaposition).
+
+Pros: Strongest literal 8-bit × modern metaphor; unique.
+Cons: GPU/CPU budget and mid-range phones; must lazy-init and pause off-screen; reduced-motion = static bitmap or off.
+Cost: Highest engineering + tuning; browser automation essential.
+What I need from you
+Pick A, B, C, or a combo (e.g. A + B: scroll choreography + card morph).
+Scope: Hero only, main content only, or full page.
+Any hard no (e.g. no Canvas, no experimental CSS)?
+After you confirm, I’ll implement with prefers-reduced-motion, @supports fallbacks where needed, and browser checks to close the gap between “works” and “extraordinary.”
