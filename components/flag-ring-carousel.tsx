@@ -46,7 +46,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     const track = trackRef.current
     if (!track) return
-    track.setPointerCapture(event.pointerId)
+    // Do not setPointerCapture on the track — it steals pointerup from child buttons and breaks click → drawer.
     dragRef.current.pointerId = event.pointerId
     dragRef.current.startX = event.clientX
     dragRef.current.dragStartOffset = dragOffset
@@ -65,10 +65,6 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
 
   const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     if (dragRef.current.pointerId !== event.pointerId) return
-    const track = trackRef.current
-    if (track && track.hasPointerCapture(event.pointerId)) {
-      track.releasePointerCapture(event.pointerId)
-    }
     dragRef.current.pointerId = null
     setIsDragging(false)
     window.setTimeout(() => {
