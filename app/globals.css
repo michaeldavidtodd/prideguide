@@ -456,6 +456,22 @@ html {
   animation: quizAnswerClickPop 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes quizAnswerSelectedPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.quiz-answer-selected-pop {
+  animation: quizAnswerSelectedPop 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .flag-text-mask {
     animation: none;

@@ -3,6 +3,7 @@
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState, useMemo, useCallback, useEffect } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import confetti from "canvas-confetti"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -384,6 +385,55 @@ export default function LGBTQIAFlagGuide() {
     }
   }, [])
 
+  const triggerCelebration = useCallback(() => {
+    if (shouldReduceMotion) return
+
+    const colors = ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982", "#ffffff"]
+    const durationMs = 2200
+    const endTime = Date.now() + durationMs
+
+    const shoot = () => {
+      confetti({
+        particleCount: 6,
+        startVelocity: 45,
+        spread: 65,
+        ticks: 320,
+        gravity: 0.95,
+        scalar: 1.1,
+        colors,
+        origin: { x: 0.5, y: 0.18 },
+      })
+      confetti({
+        particleCount: 4,
+        angle: 60,
+        spread: 70,
+        startVelocity: 42,
+        ticks: 320,
+        gravity: 0.88,
+        scalar: 0.9,
+        colors,
+        origin: { x: 0.08, y: 0.2 },
+      })
+      confetti({
+        particleCount: 4,
+        angle: 120,
+        spread: 70,
+        startVelocity: 42,
+        ticks: 320,
+        gravity: 0.88,
+        scalar: 0.9,
+        colors,
+        origin: { x: 0.92, y: 0.2 },
+      })
+
+      if (Date.now() < endTime) {
+        window.requestAnimationFrame(shoot)
+      }
+    }
+
+    shoot()
+  }, [shouldReduceMotion])
+
   // Expanded quiz questions
   const quizQuestions = [
     {
@@ -460,20 +510,8 @@ export default function LGBTQIAFlagGuide() {
   }
 
   const QuizComponent = () => {
-    const handleAnswer = (answerIndex: number, event: ReactMouseEvent<HTMLButtonElement>) => {
+    const handleAnswer = (answerIndex: number) => {
       if (quizAnswered) return
-
-      event.currentTarget.animate(
-        [
-          { transform: "translateX(0px) scale(1)", filter: "brightness(1)" },
-          { transform: "translateX(0px) scale(1.12)", filter: "brightness(1.2)" },
-          { transform: "translateX(0px) scale(1)", filter: "brightness(1)" },
-        ],
-        {
-          duration: 520,
-          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-        }
-      )
 
       setQuizSelectedAnswer(answerIndex)
       setQuizAnswered(true)
@@ -488,6 +526,11 @@ export default function LGBTQIAFlagGuide() {
           setQuizSelectedAnswer(null)
           setQuizAnswered(false)
         } else {
+          const finalScore =
+            answerIndex === quizQuestions[currentQuizQuestion].correct ? quizScore + 1 : quizScore
+          if (finalScore === quizQuestions.length) {
+            triggerCelebration()
+          }
           setShowQuizResult(true)
         }
       }, 1500)
@@ -499,6 +542,10 @@ export default function LGBTQIAFlagGuide() {
       setQuizSelectedAnswer(null)
       setQuizAnswered(false)
       setShowQuizResult(false)
+    }
+
+    const retriggerCelebration = () => {
+      triggerCelebration()
     }
 
     if (showQuizResult) {
@@ -523,8 +570,13 @@ export default function LGBTQIAFlagGuide() {
                     ? "Great job! Keep learning! 💪"
                     : "Good start! Try exploring more flags! 📚"}
             </p>
+            {quizScore === quizQuestions.length && (
+              <Button onClick={retriggerCelebration} variant="secondary" className="mb-3 w-full">
+                Celebrate Again
+              </Button>
+            )}
             <Button onClick={resetQuiz} className="w-full">
-              Try Again
+              Take the quick again
             </Button>
           </CardContent>
         </Card>
@@ -560,7 +612,10 @@ export default function LGBTQIAFlagGuide() {
           <CardContent>
             <div className="space-y-2">
               {question.options.map((option, index) => (
-                <div key={index}>
+                <div
+                  key={index}
+                  className={quizAnswered && quizSelectedAnswer === index ? "quiz-answer-selected-pop" : ""}
+                >
                   {(() => {
                     const isCorrect = quizAnswered && index === question.correct
                     const isWrongSelection = quizAnswered && quizSelectedAnswer === index && index !== question.correct
@@ -592,9 +647,9 @@ export default function LGBTQIAFlagGuide() {
                     return (
                   <Button
                     variant="outline"
-                    className={`w-full justify-start ${quizAnswered && quizSelectedAnswer === index ? "quiz-answer-click-pop" : ""}`}
+                    className="w-full justify-start"
                     style={answerStyle}
-                    onClick={(event) => handleAnswer(index, event)}
+                    onClick={() => handleAnswer(index)}
                     aria-disabled={quizAnswered}
                     tabIndex={quizAnswered ? -1 : 0}
                   >
