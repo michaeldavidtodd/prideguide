@@ -1,7 +1,7 @@
 "use client"
 
 import type { MouseEvent as ReactMouseEvent } from "react"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,11 +9,13 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { Heart, Search, BookOpen, Trophy, Flag, Info, Share2 } from "lucide-react"
+import { Heart, Search, BookOpen, Trophy, Flag, Info } from "lucide-react"
 import HeroSection from "@/components/hero-section"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { FlagCardTransition } from "@/components/flag-card-transition"
 import { AnimatedFlag } from "@/components/animated-flag"
+import { FlagMosaicCard } from "@/components/flag-mosaic-card"
+import { FlagShuffleGrid } from "@/components/flag-shuffle-grid"
 
 // At the top of the file, near other type definitions if any, or before 'flags'
 interface SvgPathDefinition {
@@ -336,32 +338,34 @@ export default function LGBTQIAFlagGuide() {
 
   const categories = ["All", "General", "Sexual Orientation", "Gender Identity"]
 
-  const filteredFlags = flags.filter((flag) => {
-    const matchesSearch =
-      flag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      flag.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "All" || flag.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  const matchesFilter = useCallback(
+    (flag: FlagDefinition) => {
+      const q = searchTerm.toLowerCase()
+      const matchesSearch =
+        flag.name.toLowerCase().includes(q) || flag.description.toLowerCase().includes(q)
+      const matchesCategory = selectedCategory === "All" || flag.category === selectedCategory
+      return matchesSearch && matchesCategory
+    },
+    [searchTerm, selectedCategory]
+  )
 
-  // Calculate consistent grid height based on total flags
+  const filteredFlags = useMemo(() => flags.filter(matchesFilter), [matchesFilter])
+
+  const isFullMosaic = selectedCategory === "All" && searchTerm.trim() === ""
+
+  // Min height: full mosaic needs slack; filtered view uses Shuffle (sets its own container height)
   const gridHeight = useMemo(() => {
-    // Estimate card height: ~280px per card + gap
-    const cardHeight = 280
-    const gap = 24
-    const totalFlags = flags.length
-
-    // Calculate rows needed for all flags in different breakpoints
-    const mobileRows = Math.ceil(totalFlags / 1) // 1 column on mobile
-    const tabletRows = Math.ceil(totalFlags / 2) // 2 columns on tablet
-    const desktopRows = Math.ceil(totalFlags / 3) // 3 columns on desktop
-    const largeRows = Math.ceil(totalFlags / 4) // 4 columns on large screens
-
-    // Use the desktop calculation as base (3 columns)
-    const baseHeight = desktopRows * (cardHeight + gap)
-
-    return Math.max(baseHeight, 600) // Minimum 600px
-  }, [])
+    const cardHeight = 300
+    const rowGapMosaic = 140
+    if (isFullMosaic) {
+      const n = flags.length
+      const desktopRows = Math.ceil(n / 3)
+      return Math.max(desktopRows * (cardHeight + rowGapMosaic) * 1.65, 960)
+    }
+    const n = filteredFlags.length
+    if (n === 0) return 360
+    return Math.max(n * 200 + 480, 720)
+  }, [isFullMosaic, filteredFlags.length])
 
   // Expanded quiz questions
   const quizQuestions = [
@@ -436,48 +440,6 @@ export default function LGBTQIAFlagGuide() {
     const rect = event.currentTarget.getBoundingClientRect()
     setCardRect(rect)
     setSelectedFlag(flag)
-  }
-
-  const FlagCard = ({ flag, index }: { flag: FlagDefinition; index: number }) => {
-    const accent = flag.display.stripes?.[0] ?? "hsl(var(--primary))"
-    const shapeClass = index % 2 === 0 ? "rounded-2xl" : "rounded-md"
-    return (
-    <Card
-      className={`flag-container cursor-pointer overflow-hidden border-2 border-foreground/10 bg-card/90 shadow-none transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-md hover:border-foreground/20 ${shapeClass}`}
-      style={{ borderLeftWidth: 4, borderLeftColor: accent }}
-      onClick={(event) => handleCardClick(flag, event)}
-    >
-      <CardHeader className="pb-2">
-        <AnimatedFlag
-          backgroundColors={flag.display.stripes || []}
-          svgForeground={flag.display.svgForeground}
-          className="mb-2 h-24 overflow-hidden rounded-sm"
-        />
-        <CardTitle className="font-display text-lg font-semibold tracking-tight">{flag.name}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-2">{flag.description}</p>
-
-        {/* Card footer with badge and invisible share button for consistent height */}
-        <div className="flex items-center justify-between">
-          <Badge variant="secondary">{flag.category}</Badge>
-
-          {/* Invisible share button to maintain consistent footer height */}
-          <Button
-            size="sm"
-            variant="outline"
-            style={{
-              opacity: 0,
-              pointerEvents: "none",
-            }}
-          >
-            <Share2 className="w-4 h-4 mr-1" />
-            Share
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
   }
 
   const QuizComponent = () => {
@@ -606,7 +568,7 @@ export default function LGBTQIAFlagGuide() {
 
         {/* Main Content */}
         <div className="main-content pointer-events-auto">
-          <div className="container mx-auto px-4 py-12 max-w-7xl">
+          <div className="container mx-auto max-w-[min(100rem,calc(100vw-1.5rem))] px-4 py-12 sm:px-6">
             {/* Header — editorial, left-weighted; no gradient-text / sparkle trope */}
             <header className="relative mb-12 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
               <div className="max-w-xl text-left">
@@ -665,43 +627,57 @@ export default function LGBTQIAFlagGuide() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="flags" className="space-y-6">
-                {/* Search and Filter */}
-                <div className="space-y-4 max-w-md mx-auto">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      placeholder="Search flags..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-
-                  <ScrollArea className="w-full">
-                    <div className="flex gap-2 pb-2">
-                      {categories.map((category) => (
-                        <Button
-                          key={category}
-                          variant={selectedCategory === category ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setSelectedCategory(category)}
-                          className="whitespace-nowrap"
-                        >
-                          {category}
-                        </Button>
-                      ))}
+              <TabsContent value="flags" className="space-y-6 overflow-visible">
+                {/* Search and filter — sticky while scrolling the flags tab */}
+                <div
+                  className="sticky top-0 z-30 -mx-4 mb-2 border-b border-border/50 bg-gradient-to-b from-background/95 to-background/90 py-4 backdrop-blur-md supports-[backdrop-filter]:from-background/80 supports-[backdrop-filter]:to-background/75 dark:from-background/92 dark:to-background/88 sm:-mx-6 sm:px-6 px-4"
+                >
+                  <div className="mx-auto max-w-md space-y-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                      <Input
+                        placeholder="Search flags..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                        aria-label="Search flags by name or description"
+                      />
                     </div>
-                  </ScrollArea>
+
+                    <ScrollArea className="w-full">
+                      <div className="flex gap-2 pb-2" role="group" aria-label="Filter by category">
+                        {categories.map((category) => (
+                          <Button
+                            key={category}
+                            variant={selectedCategory === category ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setSelectedCategory(category)}
+                            className="whitespace-nowrap"
+                          >
+                            {category}
+                          </Button>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
                 </div>
 
-                {/* Flag Grid - Fixed height container based on total flags */}
-                <div style={{ minHeight: `${gridHeight}px` }} className="relative">
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredFlags.map((flag, index) => (
-                      <FlagCard key={flag.id} flag={flag} index={index} />
-                    ))}
-                  </div>
+                {/* Flag Grid — layout animation when filter/search changes */}
+                <div style={{ minHeight: `${gridHeight}px` }} className="relative overflow-visible">
+                  {isFullMosaic ? (
+                    <div className="grid grid-cols-1 gap-12 overflow-visible sm:grid-cols-6 sm:gap-x-10 sm:gap-y-20 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-36">
+                      {flags.map((flag, globalIndex) => (
+                        <FlagMosaicCard
+                          key={flag.id}
+                          flag={flag}
+                          globalIndex={globalIndex}
+                          onSelect={handleCardClick}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <FlagShuffleGrid flags={flags} matchesFilter={matchesFilter} onSelect={handleCardClick} />
+                  )}
 
                   {filteredFlags.length === 0 && (
                     <div className="absolute inset-0 flex items-center justify-center">

@@ -92,6 +92,18 @@
   }
 }
 
+/*
+ * Parallax tiles use transforms; without this, Chromium’s scroll anchoring can
+ * “correct” scroll position as layout shifts, which feels like snap points.
+ */
+html {
+  overflow-anchor: none;
+}
+
+.mosaic-parallax-tile {
+  overflow-anchor: none;
+}
+
 /* Dark mode adjustments for the main content area */
 .dark .bg-gradient-to-br {
   background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
