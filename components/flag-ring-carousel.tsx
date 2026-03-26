@@ -185,11 +185,11 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
               }
               onSelect(flag, event)
             }}
-            className="group mx-3 w-[52vw] min-w-[12rem] max-w-[20rem] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mx-4 sm:w-[24rem] sm:max-w-[24rem]"
+            className="group mx-3 w-[52vw] min-w-[12rem] max-w-[20rem] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:mx-4 sm:w-[24rem] sm:max-w-[24rem]"
             aria-label={`Open details for ${flag.name}`}
           >
             <div
-              className="flag-ticker-card-bob"
+              className="flag-ticker-card-bob transition-transform duration-200 ease-out motion-reduce:transition-none sm:duration-300 sm:ease-[cubic-bezier(0.22,1,0.36,1)] sm:group-hover:[animation-play-state:paused] sm:group-hover:-translate-y-1.5"
               style={{
                 ["--bob-amp" as string]: `${bobAmplitude}px`,
                 ["--bob-tilt" as string]: `${bobTilt}deg`,
@@ -198,12 +198,20 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
                 animationDuration: `${bobDuration}s`,
               }}
             >
-              <AnimatedFlag
-                backgroundColors={flag.display.stripes || []}
-                svgForeground={flag.display.svgForeground}
-                className="h-36 w-full rounded-md"
-              />
-              <p className="mt-2 text-sm font-semibold leading-tight tracking-tight sm:text-xl">{flag.name}</p>
+              <div
+                className="origin-bottom transition-[filter,transform] duration-200 ease-out motion-reduce:transition-none sm:duration-300 sm:ease-[cubic-bezier(0.22,1,0.36,1)] drop-shadow-[0_3px_10px_hsl(var(--foreground)/0.14)] sm:group-hover:scale-[1.02] sm:group-hover:drop-shadow-[0_14px_32px_hsl(var(--foreground)/0.28)]"
+              >
+                <div className="overflow-hidden rounded-md">
+                  <AnimatedFlag
+                    backgroundColors={flag.display.stripes || []}
+                    svgForeground={flag.display.svgForeground}
+                    className="h-36 w-full rounded-md"
+                  />
+                </div>
+              </div>
+              <p className="mt-2 text-sm font-semibold leading-tight tracking-tight sm:text-xl">
+                {flag.name}
+              </p>
             </div>
           </button>
         )
@@ -212,7 +220,36 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   )
 
   return (
-    <div className="relative h-fit min-h-[20rem] max-h-[34rem] w-full">
+    <section
+      className="relative h-fit min-h-[20rem] max-h-[34rem] w-full"
+      aria-label="Scrolling flag ribbon"
+      aria-describedby="flag-ring-carousel-hint"
+    >
+      <header
+        id="flag-ring-carousel-hint"
+        className="pointer-events-none mx-auto max-w-3xl px-4 pb-6 text-left sm:px-6 sm:pb-8"
+      >
+        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          Flag guide
+        </p>
+        <div className="mt-3 flex gap-4 sm:mt-4 sm:gap-6">
+          <span
+            className="mt-1 w-px shrink-0 self-stretch bg-gradient-to-b from-foreground/35 via-foreground/15 to-transparent sm:mt-1.5 sm:w-0.5"
+            aria-hidden
+          />
+          <div className="min-w-0">
+            <h3 className="font-display text-[1.65rem] font-bold leading-[1.1] tracking-tight text-foreground sm:text-3xl sm:leading-[1.08]">
+              Explore the flags
+            </h3>
+            <p className="mt-2 max-w-[28rem] text-pretty text-sm leading-relaxed text-muted-foreground sm:mt-3 sm:text-base sm:leading-relaxed">
+              <span className="sm:hidden">Select a flag to learn about it.</span>
+              <span className="hidden sm:inline">
+                Select a flag to learn more. Drag a flag to control the flow.
+              </span>
+            </p>
+          </div>
+        </div>
+      </header>
       <div className="">
         <div
           ref={trackRef}
@@ -230,6 +267,6 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
           {Array.from({ length: STRIP_COUNT }, (_, i) => renderStrip(i))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }
