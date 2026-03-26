@@ -189,7 +189,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
               <AnimatedFlag
                 backgroundColors={flag.display.stripes || []}
                 svgForeground={flag.display.svgForeground}
-                className="h-36 w-full rounded-md sm:h-56"
+                className="h-36 rounded-md"
               />
               <p className="mt-2 text-sm font-semibold leading-tight tracking-tight sm:text-xl">{flag.name}</p>
             </div>
@@ -200,11 +200,11 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   )
 
   return (
-    <div className="relative h-fit min-h-[20rem] max-h-[34rem] w-full">
-      <div className="absolute left-0 top-[58%] w-max -translate-y-1/2">
+    // <div className="h-fit min-h-[20rem] max-h-[34rem] w-full">
+      <div className="">
         <div
           ref={trackRef}
-          className={`flex w-max will-change-transform ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+          className={`flex pt-4 pb-40 md:py-20 w-max will-change-transform ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
           style={
             {
               touchAction: "pan-y",
@@ -218,6 +218,6 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
           {Array.from({ length: STRIP_COUNT }, (_, i) => renderStrip(i))}
         </div>
       </div>
-    </div>
+    // </div>
   )
 }
