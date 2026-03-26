@@ -1,6 +1,5 @@
 "use client"
 
-import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState, useMemo, useCallback, useEffect } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import confetti from "canvas-confetti"
@@ -330,7 +329,6 @@ const allyTips = [
 export default function LGBTQIAFlagGuide() {
   const [activeTab, setActiveTab] = useState("flags")
   const [selectedFlag, setSelectedFlag] = useState<FlagDefinition | null>(null)
-  const [cardRect, setCardRect] = useState<DOMRect | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [quizScore, setQuizScore] = useState(0)
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0)
@@ -518,9 +516,7 @@ export default function LGBTQIAFlagGuide() {
     },
   ]
 
-  const handleCardClick = (flag: FlagDefinition, event: ReactMouseEvent<HTMLElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect()
-    setCardRect(rect)
+  const handleCardClick = (flag: FlagDefinition) => {
     setSelectedFlag(flag)
   }
 
@@ -908,11 +904,9 @@ export default function LGBTQIAFlagGuide() {
             {/* Flag Card Transition */}
             <FlagCardTransition
               flag={selectedFlag}
-              cardRect={cardRect}
               isOpen={!!selectedFlag}
               onClose={() => {
                 setSelectedFlag(null)
-                setCardRect(null)
               }}
             />
           </div>

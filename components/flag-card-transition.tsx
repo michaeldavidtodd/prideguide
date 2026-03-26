@@ -2,195 +2,149 @@
 
 import type React from "react"
 
-import { Fragment, useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Flag, Share2, X } from "lucide-react"
 import { AnimatedFlag } from "@/components/animated-flag"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ShareModal } from "@/components/share-modal"
-import { useToast } from "@/hooks/use-toast"
+
+interface FlagData {
+  id: string
+  name: string
+  description: string
+  history: string
+  significance: string
+  category: string
+  display: {
+    stripes?: string[]
+    svgForeground?: {
+      viewBox: string
+      paths: { id: string; d: string; fill: string; transform?: string; stroke?: string; strokeWidth?: string }[]
+    }
+  }
+}
 
 interface FlagCardTransitionProps {
-  flag: any
-  cardRect: DOMRect | null
+  flag: FlagData | null
   onClose: () => void
   isOpen: boolean
 }
 
-export function FlagCardTransition({ flag, cardRect, onClose, isOpen }: FlagCardTransitionProps) {
-  const [animationPhase, setAnimationPhase] = useState<"scaling" | "content" | "closing">("scaling")
+export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransitionProps) {
   const [showShareModal, setShowShareModal] = useState(false)
-  const { toast } = useToast()
-
-  useEffect(() => {
-    if (isOpen && cardRect) {
-      setAnimationPhase("scaling")
-      const timer = setTimeout(() => {
-        setAnimationPhase("content")
-      }, 400)
-
-      return () => {
-        clearTimeout(timer)
-      }
+  const [shareTarget, setShareTarget] = useState<Pick<FlagData, "id" | "name" | "description"> | null>(null)
+  const flagBandBackground = useMemo(() => {
+    const colors = flag?.display?.stripes?.filter(Boolean) ?? []
+    if (colors.length === 0) {
+      return "linear-gradient(90deg,#e40303 0%,#ff8c00 16.6%,#ffed00 33.3%,#008018 50%,#004cff 66.6%,#732982 83.3%,#e40303 100%)"
     }
-  }, [isOpen, cardRect])
+    if (colors.length === 1) {
+      return colors[0]
+    }
 
-  const handleClose = () => {
-    setAnimationPhase("closing")
-    setTimeout(() => {
-      onClose()
-      setAnimationPhase("scaling")
-    }, 800)
-  }
+    const step = 100 / (colors.length - 1)
+    const stops = colors.map((color, index) => `${color} ${(step * index).toFixed(2)}%`).join(", ")
+    return `linear-gradient(90deg, ${stops})`
+  }, [flag])
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setShowShareModal(true)
+    if (!flag) return
+    setShareTarget({
+      id: flag.id,
+      name: flag.name,
+      description: flag.description,
+    })
+    onClose()
+    window.setTimeout(() => {
+      setShowShareModal(true)
+    }, 0)
   }
-
-  if (!isOpen || !cardRect || !flag) {
-    return null
-  }
-
-  const centerX = window.innerWidth / 2
-  const centerY = window.innerHeight / 2
-  const dialogWidth = Math.min(500, window.innerWidth - 32)
-  const dialogHeight = Math.min(600, window.innerHeight - 32)
-  const phase: "scaling" | "content" | "closing" = animationPhase
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <Fragment key="flag-card-overlay">
-          {/* Backdrop */}
-          <motion.div
-            key="flag-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: phase === "closing" ? 0 : 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/50 z-50"
-            onClick={handleClose}
-          />
-
-          {/* Close button - positioned relative to the animated card container */}
-          <motion.div
-            key="flag-close"
-            initial={{ opacity: 0 }}
-            animate={{
-              opacity: phase === "content" ? 1 : 0,
-            }}
-            transition={{
-              duration: phase === "closing" ? 0.2 : 0.3,
-              delay: phase === "closing" ? 0 : 0.2,
-            }}
-            className="fixed z-50"
-            style={{
-              left: phase === "closing" ? cardRect.left + cardRect.width - 40 : centerX + dialogWidth / 2 - 40,
-              top: phase === "closing" ? cardRect.top + 8 : centerY - dialogHeight / 2 + 8,
-            }}
-          >
-            <Button variant="ghost" size="icon" onClick={handleClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </motion.div>
-
-          {/* Animated Card - EXACT COPY OF ORIGINAL */}
-          <motion.div
-            key="flag-dialog"
-            className="fixed z-50 pointer-events-auto"
-            initial={{
-              left: cardRect.left,
-              top: cardRect.top,
-              width: cardRect.width,
-              height: cardRect.height,
-            }}
-            animate={{
-              left: phase === "closing" ? cardRect.left : centerX - dialogWidth / 2,
-              top: phase === "closing" ? cardRect.top : centerY - dialogHeight / 2,
-              width: phase === "closing" ? cardRect.width : dialogWidth,
-              height: phase === "closing" ? cardRect.height : "auto",
-            }}
-            transition={{
-              duration: 0.6,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-          >
-            <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flag-container">
-              <CardHeader className="pb-2">
-                <AnimatedFlag
-                  backgroundColors={flag.display.stripes || []}
-                  svgForeground={flag.display.svgForeground}
-                  className="h-24 rounded-lg overflow-hidden mb-2"
-                />
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Flag className="w-5 h-5" />
-                  {flag.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-2">{flag.description}</p>
-
-                {/* Additional content - zero height when collapsed */}
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{
-                    height: phase === "content" ? "auto" : 0,
-                    opacity: phase === "content" ? 1 : 0,
-                  }}
-                  transition={{
-                    duration: 0.4,
-                    delay: phase === "closing" ? 0 : 0.2,
-                  }}
-                  className="overflow-hidden"
-                  style={{
-                    marginBottom: phase === "content" ? "8px" : "0px",
-                  }}
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold mb-1">History</h4>
-                      <p className="text-sm text-muted-foreground">{flag.history}</p>
+    <>
+      <Drawer open={isOpen && !!flag} onOpenChange={(open) => !open && onClose()}>
+        <DrawerContent className="mx-auto max-h-[88vh] w-full max-w-2xl rounded-t-2xl">
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>{flag?.name ?? "Flag details"}</DrawerTitle>
+            <DrawerDescription>{flag?.description ?? "Flag information"}</DrawerDescription>
+          </DrawerHeader>
+          {flag ? (
+            <div className="overflow-y-auto px-4 pb-6 pt-2 sm:px-6">
+              <div className="flag-container space-y-4 pt-4 sm:pt-3">
+                <div className="h-1.5 w-full rounded-full" style={{ background: flagBandBackground }} />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                      Prism · flag details
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={onClose}
+                      className="h-9 w-9 shrink-0 rounded-full border border-border/70 bg-background/90 shadow-sm transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      aria-label="Close flag details"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <AnimatedFlag
+                    backgroundColors={flag.display.stripes || []}
+                    svgForeground={flag.display.svgForeground}
+                    className="w-full overflow-hidden rounded-xl"
+                  />
+                </div>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-display flex items-center gap-2 text-2xl font-extrabold tracking-tight">
+                      <Flag className="h-5 w-5" />
+                      {flag.name}
+                    </h3>
+                    <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-semibold tracking-wide">
+                      {flag.category}
+                    </Badge>
+                  </div>
+                  <p className="max-w-[68ch] text-base leading-7 text-muted-foreground">{flag.description}</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                      <h4 className="mb-1 text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-foreground/90">
+                        History
+                      </h4>
+                      <p className="text-[0.95rem] leading-tight text-muted-foreground">{flag.history}</p>
                     </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">Significance</h4>
-                      <p className="text-sm text-muted-foreground">{flag.significance}</p>
+                    <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                      <h4 className="mb-1 text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-foreground/90">
+                        Significance
+                      </h4>
+                      <p className="text-[0.95rem] leading-tight text-muted-foreground">{flag.significance}</p>
                     </div>
                   </div>
-                </motion.div>
-
-                {/* Card footer with badge and share button - consistent height */}
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary">{flag.category}</Badge>
-
-                  {/* Share button - always present but invisible/non-interactive in card state */}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleShare}
-                    style={{
-                      opacity: phase === "content" ? 1 : 0,
-                      pointerEvents: phase === "content" ? "auto" : "none",
-                    }}
-                  >
-                    <Share2 className="w-4 h-4 mr-1" />
-                    Share
-                  </Button>
+                  <div className="flex items-center justify-between border-t pt-4">
+                    <p className="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">Share this flag</p>
+                    <Button size="sm" variant="outline" onClick={handleShare}>
+                      <Share2 className="mr-1 h-4 w-4" />
+                      Share
+                    </Button>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </Fragment>
-      )}
-      {/* Share Modal - now shows on all devices */}
-      <ShareModal
-        key="flag-share-modal"
-        flag={flag}
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-      />
-    </AnimatePresence>
+              </div>
+            </div>
+          ) : null}
+        </DrawerContent>
+      </Drawer>
+      {shareTarget ? (
+        <ShareModal
+          key="flag-share-modal"
+          flag={shareTarget}
+          isOpen={showShareModal}
+          onClose={() => {
+            setShowShareModal(false)
+            setShareTarget(null)
+          }}
+        />
+      ) : null}
+    </>
   )
 }
