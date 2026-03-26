@@ -923,17 +923,20 @@ export default function LGBTQIAFlagGuide() {
           </div>
 
           {activeTab === "flags" && (
-            <div className="relative left-1/2 right-1/2 w-screen -ml-[50vw] -mr-[50vw] overflow-visible">
-              {filteredFlags.length === 0 ? (
-                <Card className="mx-auto my-6 max-w-md py-12 text-center">
-                  <CardContent>
-                    <p className="text-muted-foreground">No flags found matching your search.</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <FlagRingCarousel flags={filteredFlags} onSelect={handleCardClick} />
-              )}
-            </div>
+            <>
+              <div className="relative left-1/2 right-1/2 w-screen -ml-[50vw] -mr-[50vw] overflow-visible">
+                {filteredFlags.length === 0 ? (
+                  <Card className="mx-auto my-6 max-w-md py-12 text-center">
+                    <CardContent>
+                      <p className="text-muted-foreground">No flags found matching your search.</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <FlagRingCarousel flags={filteredFlags} onSelect={handleCardClick} />
+                )}
+              </div>
+              <div className="h-52 sm:h-56" aria-hidden />
+            </>
           )}
 
         </div>

@@ -137,7 +137,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   }, [ringItems.length, isLowPowerMode])
 
   return (
-    <div className="relative h-[50vh] max-h-[50rem] w-full overflow-hidden [perspective:2600px]">
+    <div className="relative h-[58vh] min-h-[28rem] max-h-[52rem] w-full overflow-hidden [perspective:2600px]">
       <motion.div
         onPanStart={() => {
           isDraggingRef.current = true
@@ -152,7 +152,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
         onPanEnd={() => {
           isDraggingRef.current = false
         }}
-        className="absolute left-1/2 top-1/2 h-0 w-0 cursor-grab touch-pan-y active:cursor-grabbing [transform-style:preserve-3d]"
+        className="absolute left-1/2 top-[60%] h-0 w-0 cursor-grab touch-pan-y active:cursor-grabbing [transform-style:preserve-3d]"
         style={{ rotateY: rotationY, scale: ringScale }}
       >
         {ringItems.map(({ key, flag }, index) => {
