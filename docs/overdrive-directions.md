@@ -16,7 +16,7 @@ Reference doc for technically ambitious UI work. Aligned with `.impeccable.md` (
 
 **Trade-offs:** Lots of tuning in the browser; ranges are magic numbers tied to `100vh` spacer + layout.
 
-**Status:** **Implemented** (see `app/globals.css` — `scroll-cinema-*` — and classes on `app/page.tsx`). Includes a full-width **pride “glitch rip”** (jagged clip + rainbow stripes + chroma offset), a **tall scan overlay** and **jagged equalizer bar** on the spacer, stronger hero dim/scale, heavier main-sheet lift, and a **much more visible** pixel grid. Revisit `animation-range` if hero height or spacer changes.
+**Status:** **Not in the app right now** — the scroll-linked experiment was reverted. Keep this doc for a future pass if you want motion tied to scroll; otherwise prioritize **typography, IA, and surface character** (see current `app/page.tsx` + fonts in `app/layout.tsx`) per the design critique and `.impeccable.md`.
 
 ---
 

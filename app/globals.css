@@ -219,8 +219,8 @@
 }
 
 .hero-text {
-  font-family: "Inter", sans-serif;
-  font-weight: 900;
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-weight: 800;
   font-size: clamp(3rem, 15vw, 12rem);
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -339,10 +339,16 @@
 }
 
 .main-content {
-  background: linear-gradient(to bottom right, rgb(252 231 243), rgb(233 213 255), rgb(219 234 254));
+  background: linear-gradient(
+    165deg,
+    rgb(255 250 252) 0%,
+    rgb(250 245 255) 38%,
+    rgb(238 242 255) 100%
+  );
   min-height: 100vh;
   border-radius: 24px 24px 0 0;
   box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.1);
+  border-top: 3px solid hsl(var(--foreground) / 0.12);
 }
 
 /* Dark mode adjustments for main content */
@@ -399,9 +405,9 @@
   border-color: hsl(var(--border) / 0.5);
 }
 .chillwave .tabs-trigger[data-state="active"] {
-  background-color: hsl(var(--primary) / 0.8);
-  color: var(--primary-foreground);
-  box-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+  background-color: hsl(var(--foreground));
+  color: hsl(var(--background));
+  box-shadow: none;
 }
 .chillwave .button--primary {
   /* If you have specific button variants */
@@ -413,4 +419,14 @@
   background-color: hsl(var(--secondary));
   color: var(--secondary-foreground);
   box-shadow: 0 0 10px hsl(var(--secondary) / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flag-text-mask {
+    animation: none;
+  }
+
+  .flag-column {
+    animation: none !important;
+  }
 }

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { Heart, Search, BookOpen, Trophy, Sparkles, Flag, Info, HelpCircle, Share2 } from "lucide-react"
+import { Heart, Search, BookOpen, Trophy, Flag, Info, Share2 } from "lucide-react"
 import HeroSection from "@/components/hero-section"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { FlagCardTransition } from "@/components/flag-card-transition"
@@ -438,21 +438,22 @@ export default function LGBTQIAFlagGuide() {
     setSelectedFlag(flag)
   }
 
-  const FlagCard = ({ flag }: { flag: FlagDefinition }) => (
+  const FlagCard = ({ flag, index }: { flag: FlagDefinition; index: number }) => {
+    const accent = flag.display.stripes?.[0] ?? "hsl(var(--primary))"
+    const shapeClass = index % 2 === 0 ? "rounded-2xl" : "rounded-md"
+    return (
     <Card
-      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flag-container"
+      className={`flag-container cursor-pointer overflow-hidden border-2 border-foreground/10 bg-card/90 shadow-none transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-md hover:border-foreground/20 ${shapeClass}`}
+      style={{ borderLeftWidth: 4, borderLeftColor: accent }}
       onClick={(event) => handleCardClick(flag, event)}
     >
       <CardHeader className="pb-2">
         <AnimatedFlag
           backgroundColors={flag.display.stripes || []}
           svgForeground={flag.display.svgForeground}
-          className="h-24 rounded-lg overflow-hidden mb-2"
+          className="mb-2 h-24 overflow-hidden rounded-sm"
         />
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Flag className="w-5 h-5" />
-          {flag.name}
-        </CardTitle>
+        <CardTitle className="font-display text-lg font-semibold tracking-tight">{flag.name}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-2">{flag.description}</p>
@@ -477,6 +478,7 @@ export default function LGBTQIAFlagGuide() {
       </CardContent>
     </Card>
   )
+  }
 
   const QuizComponent = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
@@ -605,36 +607,60 @@ export default function LGBTQIAFlagGuide() {
         {/* Main Content */}
         <div className="main-content pointer-events-auto">
           <div className="container mx-auto px-4 py-12 max-w-7xl">
-            {/* Header */}
-            <div className="text-center mb-10 relative">
-              <div className="absolute top-0 right-0">
-                <ThemeToggle />
-              </div>
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Sparkles className="w-8 h-8 text-purple-600" />
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            {/* Header — editorial, left-weighted; no gradient-text / sparkle trope */}
+            <header className="relative mb-12 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-xl text-left">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+                  Prism · queer flag wiki
+                </p>
+                <h2 className="font-display text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
                   Pride Guide
                 </h2>
+                <span
+                  className="mt-4 block h-2 w-40 max-w-full sm:w-56"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, #e40303 0%, #ff8c00 16.6%, #ffed00 33.3%, #008018 50%, #004cff 66.6%, #732982 83.3%, #e40303 100%)",
+                  }}
+                  aria-hidden
+                />
+                <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  Learn the symbols for real. History and meaning—loud, clear, and unapologetic.
+                </p>
               </div>
-              <p className="text-muted-foreground">Celebrate diversity, learn with pride! 🏳️‍🌈</p>
-            </div>
+              <div className="flex shrink-0 justify-start sm:justify-end sm:pb-1">
+                <ThemeToggle />
+              </div>
+            </header>
 
             <Tabs defaultValue="flags" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 max-w-md mx-auto mb-8">
-                <TabsTrigger value="flags" className="text-xs sm:text-sm">
-                  <Flag className="w-4 h-4 mr-1 sm:mr-2" />
+              <TabsList className="mb-10 grid h-auto w-full max-w-none grid-cols-4 gap-0 rounded-none border-2 border-foreground/15 bg-transparent p-0 shadow-none">
+                <TabsTrigger
+                  value="flags"
+                  className="rounded-none border-0 border-r border-border/80 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                >
+                  <Flag className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Flags</span>
                 </TabsTrigger>
-                <TabsTrigger value="quiz" className="text-xs sm:text-sm">
-                  <Trophy className="w-4 h-4 mr-1 sm:mr-2" />
+                <TabsTrigger
+                  value="quiz"
+                  className="rounded-none border-0 border-r border-border/80 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                >
+                  <Trophy className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Quiz</span>
                 </TabsTrigger>
-                <TabsTrigger value="ally" className="text-xs sm:text-sm">
-                  <Heart className="w-4 h-4 mr-1 sm:mr-2" />
+                <TabsTrigger
+                  value="ally"
+                  className="rounded-none border-0 border-r border-border/80 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                >
+                  <Heart className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Ally</span>
                 </TabsTrigger>
-                <TabsTrigger value="about" className="text-xs sm:text-sm">
-                  <Info className="w-4 h-4 mr-1 sm:mr-2" />
+                <TabsTrigger
+                  value="about"
+                  className="rounded-none border-0 border-r-0 py-3.5 text-xs font-semibold uppercase tracking-wide data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-none sm:text-sm"
+                >
+                  <Info className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">About</span>
                 </TabsTrigger>
               </TabsList>
@@ -672,8 +698,8 @@ export default function LGBTQIAFlagGuide() {
                 {/* Flag Grid - Fixed height container based on total flags */}
                 <div style={{ minHeight: `${gridHeight}px` }} className="relative">
                   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filteredFlags.map((flag) => (
-                      <FlagCard key={flag.id} flag={flag} />
+                    {filteredFlags.map((flag, index) => (
+                      <FlagCard key={flag.id} flag={flag} index={index} />
                     ))}
                   </div>
 
@@ -690,8 +716,8 @@ export default function LGBTQIAFlagGuide() {
               </TabsContent>
 
               <TabsContent value="quiz" className="space-y-6">
-                <div className="text-center mb-6 max-w-md mx-auto">
-                  <h2 className="text-2xl font-semibold mb-2">Flag Knowledge Quiz</h2>
+                <div className="mb-6 max-w-md mx-auto text-center">
+                  <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl mb-2">Flag Knowledge Quiz</h2>
                   <p className="text-muted-foreground">Test your knowledge about LGBTQIA+ flags!</p>
                 </div>
                 <div className="max-w-md mx-auto">
@@ -700,8 +726,8 @@ export default function LGBTQIAFlagGuide() {
               </TabsContent>
 
               <TabsContent value="ally" className="space-y-6">
-                <div className="text-center mb-6 max-w-md mx-auto">
-                  <h2 className="text-2xl font-semibold mb-2">Ally Guide</h2>
+                <div className="mb-6 max-w-md mx-auto text-center">
+                  <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl mb-2">Ally Guide</h2>
                   <p className="text-muted-foreground">How to be a supportive ally</p>
                 </div>
 
@@ -709,8 +735,8 @@ export default function LGBTQIAFlagGuide() {
                   {allyTips.map((tip, index) => (
                     <Card key={index}>
                       <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <HelpCircle className="w-5 h-5 text-blue-500" />
+                        <CardTitle className="font-display flex items-center gap-2 text-lg font-semibold">
+                          <Heart className="h-5 w-5 text-foreground/70" aria-hidden />
                           {tip.title}
                         </CardTitle>
                       </CardHeader>
