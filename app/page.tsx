@@ -713,10 +713,12 @@ export default function LGBTQIAFlagGuide() {
               <TabsList className="relative mb-8 grid h-auto w-full max-w-none grid-cols-4 gap-1 rounded-xl border border-border/70 bg-muted/40 p-1">
                 <motion.div
                   aria-hidden
-                  className="pointer-events-none absolute bottom-0 left-0 h-0.5 w-1/4 bg-gradient-to-r from-[#e40303] via-[#ffed00] to-[#004cff]"
+                  className="pointer-events-none absolute bottom-0 left-0 w-1/4"
                   animate={shouldReduceMotion ? undefined : { x: `${activeTabIndex * 100}%` }}
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                />
+                >
+                  <div className="mx-auto h-0.5 w-1/2 bg-gradient-to-r from-[#e40303] via-[#ffed00] to-[#004cff] [mask-image:linear-gradient(to_right,transparent,black_18%,black_82%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_18%,black_82%,transparent)]" />
+                </motion.div>
                 <TabsTrigger
                   value="flags"
                   className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
