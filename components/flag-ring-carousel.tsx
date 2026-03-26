@@ -2,7 +2,7 @@
 
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { AnimatedFlag } from "@/components/animated-flag"
 
 type RingFlag = {
@@ -29,8 +29,10 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
   const targetRotationRef = useRef(0)
   const isDraggingRef = useRef(false)
   const lastFrameTimeRef = useRef<number | null>(null)
+  const shouldReduceMotion = useReducedMotion()
 
   useEffect(() => {
+    if (shouldReduceMotion) return
     let frameId = 0
 
     const animate = (time: number) => {
@@ -61,7 +63,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
       window.cancelAnimationFrame(frameId)
       lastFrameTimeRef.current = null
     }
-  }, [])
+  }, [shouldReduceMotion])
 
   const ringItems = useMemo(() => {
     if (flags.length === 0) return [] as { key: string; flag: F }[]
@@ -92,6 +94,9 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
         }}
         onPan={(_, info) => {
           targetRotationRef.current -= info.delta.x * 0.32
+          if (shouldReduceMotion) {
+            setRotationY(targetRotationRef.current)
+          }
         }}
         onPanEnd={() => {
           isDraggingRef.current = false

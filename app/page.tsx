@@ -2,6 +2,7 @@
 
 import type { MouseEvent as ReactMouseEvent } from "react"
 import { useState, useMemo, useCallback, useEffect } from "react"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -333,8 +334,11 @@ export default function LGBTQIAFlagGuide() {
   const [quizScore, setQuizScore] = useState(0)
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0)
   const [showQuizResult, setShowQuizResult] = useState(false)
+  const [quizSelectedAnswer, setQuizSelectedAnswer] = useState<number | null>(null)
+  const [quizAnswered, setQuizAnswered] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [isMainContentInView, setIsMainContentInView] = useState(false)
+  const shouldReduceMotion = useReducedMotion()
 
   const categories = ["All", "General", "Sexual Orientation", "Gender Identity"]
 
@@ -363,6 +367,8 @@ export default function LGBTQIAFlagGuide() {
     }
   }, [searchTerm])
   const getCategoryCount = (category: string) => categoryCounts[category as keyof typeof categoryCounts] ?? 0
+  const tabOrder = ["flags", "quiz", "ally", "about"] as const
+  const activeTabIndex = Math.max(0, tabOrder.indexOf(activeTab as (typeof tabOrder)[number]))
 
   useEffect(() => {
     const updateMainContentVisibility = () => {
@@ -454,13 +460,23 @@ export default function LGBTQIAFlagGuide() {
   }
 
   const QuizComponent = () => {
-    const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
-    const [answered, setAnswered] = useState(false)
+    const handleAnswer = (answerIndex: number, event: ReactMouseEvent<HTMLButtonElement>) => {
+      if (quizAnswered) return
 
-    const handleAnswer = (answerIndex: number) => {
-      if (answered) return
-      setSelectedAnswer(answerIndex)
-      setAnswered(true)
+      event.currentTarget.animate(
+        [
+          { transform: "translateX(0px) scale(1)", filter: "brightness(1)" },
+          { transform: "translateX(0px) scale(1.12)", filter: "brightness(1.2)" },
+          { transform: "translateX(0px) scale(1)", filter: "brightness(1)" },
+        ],
+        {
+          duration: 520,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        }
+      )
+
+      setQuizSelectedAnswer(answerIndex)
+      setQuizAnswered(true)
 
       if (answerIndex === quizQuestions[currentQuizQuestion].correct) {
         setQuizScore((prev) => prev + 1)
@@ -469,8 +485,8 @@ export default function LGBTQIAFlagGuide() {
       setTimeout(() => {
         if (currentQuizQuestion < quizQuestions.length - 1) {
           setCurrentQuizQuestion((prev) => prev + 1)
-          setSelectedAnswer(null)
-          setAnswered(false)
+          setQuizSelectedAnswer(null)
+          setQuizAnswered(false)
         } else {
           setShowQuizResult(true)
         }
@@ -480,8 +496,8 @@ export default function LGBTQIAFlagGuide() {
     const resetQuiz = () => {
       setCurrentQuizQuestion(0)
       setQuizScore(0)
-      setSelectedAnswer(null)
-      setAnswered(false)
+      setQuizSelectedAnswer(null)
+      setQuizAnswered(false)
       setShowQuizResult(false)
     }
 
@@ -517,50 +533,82 @@ export default function LGBTQIAFlagGuide() {
 
     const question = quizQuestions[currentQuizQuestion]
     const relatedFlag = flags.find((f) => f.id === question.flag)
+    const quizProgressPercent = Math.round((currentQuizQuestion / quizQuestions.length) * 100)
 
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between mb-2">
-            <Badge variant="outline">
-              Question {currentQuizQuestion + 1}/{quizQuestions.length}
-            </Badge>
-            <Progress value={(currentQuizQuestion / quizQuestions.length) * 100} className="w-24" />
-          </div>
-          <CardTitle className="text-lg">{question.question}</CardTitle>
-          {relatedFlag && (
-            <AnimatedFlag
-              backgroundColors={relatedFlag.display.stripes || []}
-              svgForeground={relatedFlag.display.svgForeground}
-              className="h-16 rounded-lg mt-2"
-            />
-          )}
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {question.options.map((option, index) => (
-              <Button
-                key={index}
-                variant={
-                  answered
-                    ? index === question.correct
-                      ? "default"
-                      : selectedAnswer === index
-                        ? "destructive"
-                        : "outline"
-                    : "outline"
-                }
-                className="w-full justify-start"
-                onClick={() => handleAnswer(index)}
-                disabled={answered}
-              >
-                {option}
-                {answered && index === question.correct && " ✓"}
-                {answered && selectedAnswer === index && index !== question.correct && " ✗"}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
+      <Card className="overflow-hidden">
+        <div>
+          <CardHeader>
+            <div className="mb-2 flex items-center justify-between">
+              <Badge variant="outline">
+                Question {currentQuizQuestion + 1}/{quizQuestions.length}
+              </Badge>
+              <div className="flex items-center gap-2">
+                <Progress value={quizProgressPercent} className="quiz-progress-track w-24" />
+                <span className="text-xs font-medium text-muted-foreground">{quizProgressPercent}%</span>
+              </div>
+            </div>
+            <CardTitle className="text-lg">{question.question}</CardTitle>
+            {relatedFlag && (
+              <AnimatedFlag
+                backgroundColors={relatedFlag.display.stripes || []}
+                svgForeground={relatedFlag.display.svgForeground}
+                className="mt-2 h-16 rounded-lg"
+              />
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {question.options.map((option, index) => (
+                <div key={index}>
+                  {(() => {
+                    const isCorrect = quizAnswered && index === question.correct
+                    const isWrongSelection = quizAnswered && quizSelectedAnswer === index && index !== question.correct
+                    const isDimmed = quizAnswered && !isCorrect && !isWrongSelection
+
+                    const answerStyle: React.CSSProperties = {
+                      transition:
+                        "background-color 420ms cubic-bezier(0.22, 1, 0.36, 1), color 420ms cubic-bezier(0.22, 1, 0.36, 1), border-color 420ms cubic-bezier(0.22, 1, 0.36, 1), transform 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      transform: "none",
+                      opacity: isDimmed ? 0.55 : 1,
+                      backgroundColor: isCorrect
+                        ? "hsl(var(--primary))"
+                        : isWrongSelection
+                          ? "hsl(var(--destructive))"
+                          : "hsl(var(--background))",
+                      borderColor: isCorrect
+                        ? "hsl(var(--primary))"
+                        : isWrongSelection
+                          ? "hsl(var(--destructive))"
+                          : "hsl(var(--input))",
+                      color: isCorrect || isWrongSelection ? "hsl(var(--primary-foreground))" : "hsl(var(--foreground))",
+                      boxShadow: isCorrect
+                        ? "0 0 0 3px hsl(var(--primary) / 0.45)"
+                        : isWrongSelection
+                          ? "0 0 0 3px hsl(var(--destructive) / 0.45)"
+                          : "0 0 0 0 hsl(var(--primary) / 0)",
+                    }
+
+                    return (
+                  <Button
+                    variant="outline"
+                    className={`w-full justify-start ${quizAnswered && quizSelectedAnswer === index ? "quiz-answer-click-pop" : ""}`}
+                    style={answerStyle}
+                    onClick={(event) => handleAnswer(index, event)}
+                    aria-disabled={quizAnswered}
+                    tabIndex={quizAnswered ? -1 : 0}
+                  >
+                    {option}
+                    {quizAnswered && index === question.correct && " ✓"}
+                    {quizAnswered && quizSelectedAnswer === index && index !== question.correct && " ✗"}
+                  </Button>
+                    )
+                  })()}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </div>
       </Card>
     )
   }
@@ -582,7 +630,7 @@ export default function LGBTQIAFlagGuide() {
           <div className="container mx-auto px-4 py-12 sm:px-6">
             {/* Header — editorial, left-weighted; no gradient-text / sparkle trope */}
             <header className="relative mb-12 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-xl text-left">
+              <div className="max-w-2xl text-left">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
                   Prism · queer flag wiki
                 </p>
@@ -597,7 +645,7 @@ export default function LGBTQIAFlagGuide() {
                   }}
                   aria-hidden
                 />
-                <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg text-balance">
                   Learn the symbols for real. History and meaning—loud, clear, and unapologetic.
                 </p>
               </div>
@@ -607,31 +655,37 @@ export default function LGBTQIAFlagGuide() {
             </header>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="mb-8 grid h-auto w-full max-w-none grid-cols-4 gap-1 rounded-xl border border-border/70 bg-muted/40 p-1">
+              <TabsList className="relative mb-8 grid h-auto w-full max-w-none grid-cols-4 gap-1 rounded-xl border border-border/70 bg-muted/40 p-1">
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute bottom-0 left-0 h-0.5 w-1/4 bg-gradient-to-r from-[#e40303] via-[#ffed00] to-[#004cff]"
+                  animate={shouldReduceMotion ? undefined : { x: `${activeTabIndex * 100}%` }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                />
                 <TabsTrigger
                   value="flags"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Flag className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span>Flags</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="quiz"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Trophy className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span>Quiz</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="ally"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Heart className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span>Ally</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="about"
-                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
+                  className="rounded-lg border border-transparent px-2 py-2.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-background/60 hover:text-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm sm:px-3 sm:py-3 sm:text-sm"
                 >
                   <Info className="mr-1.5 h-4 w-4 sm:mr-2" />
                   <span>About</span>
@@ -641,24 +695,50 @@ export default function LGBTQIAFlagGuide() {
               <TabsContent value="flags" className="hidden" />
 
               <TabsContent value="quiz" className="space-y-6">
-                <div className="mb-6 max-w-md mx-auto text-center">
+                <motion.div
+                  className="mb-6 max-w-md mx-auto text-center"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                  animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                >
                   <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl mb-2">Flag Knowledge Quiz</h2>
                   <p className="text-muted-foreground">Test your knowledge about LGBTQIA+ flags!</p>
-                </div>
-                <div className="max-w-md mx-auto">
-                  <QuizComponent />
-                </div>
+                </motion.div>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={showQuizResult ? "quiz-result" : `quiz-step-${currentQuizQuestion}`}
+                    className="max-w-md mx-auto"
+                    initial={shouldReduceMotion ? false : { opacity: 0, x: 40 }}
+                    animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
+                    exit={shouldReduceMotion ? {} : { opacity: 0, x: -40 }}
+                    transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <QuizComponent />
+                  </motion.div>
+                </AnimatePresence>
               </TabsContent>
 
               <TabsContent value="ally" className="space-y-6">
-                <div className="mb-6 max-w-md mx-auto text-center">
+                <motion.div
+                  className="mb-6 max-w-md mx-auto text-center"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                  animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                >
                   <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl mb-2">Ally Guide</h2>
                   <p className="text-muted-foreground">How to be a supportive ally</p>
-                </div>
+                </motion.div>
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {allyTips.map((tip, index) => (
-                    <Card key={index}>
+                    <motion.div
+                      key={index}
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                      animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, delay: 0.03 * index, ease: [0.22, 1, 0.36, 1] }}
+                      whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
+                    >
+                    <Card>
                       <CardHeader>
                         <CardTitle className="font-display flex items-center gap-2 text-lg font-semibold">
                           <Heart className="h-5 w-5 text-foreground/70" aria-hidden />
@@ -669,11 +749,17 @@ export default function LGBTQIAFlagGuide() {
                         <p className="text-muted-foreground">{tip.content}</p>
                       </CardContent>
                     </Card>
+                    </motion.div>
                   ))}
                 </div>
               </TabsContent>
 
               <TabsContent value="about" className="space-y-6">
+                <motion.div
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                  animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                >
                 <Card className="max-w-2xl mx-auto">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -702,6 +788,12 @@ export default function LGBTQIAFlagGuide() {
                     </div>
                   </CardContent>
                 </Card>
+                </motion.div>
+                <motion.div
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+                  animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+                >
                 <Card className="max-w-2xl mx-auto">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-center gap-2">
@@ -759,6 +851,7 @@ export default function LGBTQIAFlagGuide() {
                     <p className="text-sm font-semibold">Current project: queer flag wiki.</p>
                   </CardContent>
                 </Card>
+                </motion.div>
               </TabsContent>
             </Tabs>
 
@@ -792,11 +885,16 @@ export default function LGBTQIAFlagGuide() {
       </div>
       {activeTab === "flags" && (
         <div
-          className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 px-4 sm:px-6 transition-all duration-300 ${
+                  className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 px-4 sm:px-6 transition-all duration-300 ${
             isMainContentInView ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
           }`}
         >
-          <div className="mx-auto max-w-3xl space-y-3 rounded-xl border border-border/80 bg-background/85 p-3 shadow-lg backdrop-blur-md sm:p-4">
+          <motion.div
+            className="mx-auto max-w-3xl space-y-3 rounded-xl border border-border/80 bg-background/85 p-3 shadow-lg backdrop-blur-md sm:p-4"
+            initial={shouldReduceMotion ? false : { scale: 0.98, opacity: 0 }}
+            animate={shouldReduceMotion ? {} : { scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Filter flags</p>
                 <p className="text-xs text-muted-foreground">
@@ -823,7 +921,7 @@ export default function LGBTQIAFlagGuide() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedCategory(category)}
-                      className={`h-9 whitespace-nowrap rounded-full border px-3 transition-colors ${
+                      className={`h-9 whitespace-nowrap rounded-full border px-3 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
                         isActive
                           ? "border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background"
                           : "border-border bg-background text-foreground hover:bg-muted"
@@ -842,7 +940,7 @@ export default function LGBTQIAFlagGuide() {
                   )
                 })}
               </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

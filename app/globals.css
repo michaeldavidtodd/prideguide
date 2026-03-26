@@ -433,6 +433,29 @@ html {
   box-shadow: 0 0 10px hsl(var(--secondary) / 0.4);
 }
 
+.chillwave .quiz-progress-track {
+  background-color: hsl(var(--foreground) / 0.28);
+}
+
+@keyframes quizAnswerClickPop {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  45% {
+    transform: scale(1.12);
+    filter: brightness(1.25);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+.quiz-answer-click-pop {
+  animation: quizAnswerClickPop 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .flag-text-mask {
     animation: none;
