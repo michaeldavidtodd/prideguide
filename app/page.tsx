@@ -14,8 +14,7 @@ import HeroSection from "@/components/hero-section"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { FlagCardTransition } from "@/components/flag-card-transition"
 import { AnimatedFlag } from "@/components/animated-flag"
-import { FlagMosaicCard } from "@/components/flag-mosaic-card"
-import { FlagShuffleGrid } from "@/components/flag-shuffle-grid"
+import { FlagRingCarousel } from "@/components/flag-ring-carousel"
 
 // At the top of the file, near other type definitions if any, or before 'flags'
 interface SvgPathDefinition {
@@ -328,6 +327,7 @@ const allyTips = [
 ]
 
 export default function LGBTQIAFlagGuide() {
+  const [activeTab, setActiveTab] = useState("flags")
   const [selectedFlag, setSelectedFlag] = useState<FlagDefinition | null>(null)
   const [cardRect, setCardRect] = useState<DOMRect | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -350,22 +350,6 @@ export default function LGBTQIAFlagGuide() {
   )
 
   const filteredFlags = useMemo(() => flags.filter(matchesFilter), [matchesFilter])
-
-  const isFullMosaic = selectedCategory === "All" && searchTerm.trim() === ""
-
-  // Min height: full mosaic needs slack; filtered view uses Shuffle (sets its own container height)
-  const gridHeight = useMemo(() => {
-    const cardHeight = 300
-    const rowGapMosaic = 140
-    if (isFullMosaic) {
-      const n = flags.length
-      const desktopRows = Math.ceil(n / 3)
-      return Math.max(desktopRows * (cardHeight + rowGapMosaic) * 1.65, 960)
-    }
-    const n = filteredFlags.length
-    if (n === 0) return 360
-    return Math.max(n * 200 + 480, 720)
-  }, [isFullMosaic, filteredFlags.length])
 
   // Expanded quiz questions
   const quizQuestions = [
@@ -595,7 +579,7 @@ export default function LGBTQIAFlagGuide() {
               </div>
             </header>
 
-            <Tabs defaultValue="flags" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="mb-10 grid h-auto w-full max-w-none grid-cols-4 gap-0 rounded-none border-2 border-foreground/15 bg-transparent p-0 shadow-none">
                 <TabsTrigger
                   value="flags"
@@ -662,33 +646,6 @@ export default function LGBTQIAFlagGuide() {
                   </div>
                 </div>
 
-                {/* Flag Grid — layout animation when filter/search changes */}
-                <div style={{ minHeight: `${gridHeight}px` }} className="relative overflow-visible">
-                  {isFullMosaic ? (
-                    <div className="grid grid-cols-1 gap-12 overflow-visible sm:grid-cols-6 sm:gap-x-10 sm:gap-y-20 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-36">
-                      {flags.map((flag, globalIndex) => (
-                        <FlagMosaicCard
-                          key={flag.id}
-                          flag={flag}
-                          globalIndex={globalIndex}
-                          onSelect={handleCardClick}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <FlagShuffleGrid flags={flags} matchesFilter={matchesFilter} onSelect={handleCardClick} />
-                  )}
-
-                  {filteredFlags.length === 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Card className="text-center py-8 max-w-md mx-auto">
-                        <CardContent>
-                          <p className="text-muted-foreground">No flags found matching your search.</p>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
-                </div>
               </TabsContent>
 
               <TabsContent value="quiz" className="space-y-6">
@@ -824,6 +781,20 @@ export default function LGBTQIAFlagGuide() {
               }}
             />
           </div>
+
+          {activeTab === "flags" && (
+            <div className="relative left-1/2 right-1/2 w-screen -ml-[50vw] -mr-[50vw] overflow-visible">
+              {filteredFlags.length === 0 ? (
+                <Card className="mx-auto my-6 max-w-md py-12 text-center">
+                  <CardContent>
+                    <p className="text-muted-foreground">No flags found matching your search.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <FlagRingCarousel flags={filteredFlags} onSelect={handleCardClick} />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -56,19 +56,7 @@ export function AnimatedFlag({
     }))
   }, [numOfColumns, billow, firstColumnDelay, staggeredDelay])
 
-  const overallAspectRatio = useMemo(() => {
-    if (svgForeground && svgForeground.viewBox) {
-      const parts = svgForeground.viewBox.split(" ")
-      if (parts.length === 4) {
-        const vbWidth = Number.parseFloat(parts[2])
-        const vbHeight = Number.parseFloat(parts[3])
-        if (vbWidth > 0 && vbHeight > 0) {
-          return vbWidth / vbHeight
-        }
-      }
-    }
-    return 3 / 2 // Default aspect ratio for standard flags
-  }, [svgForeground])
+  const overallAspectRatio = 3 / 2
 
   return (
     <div className={`animated-flag ${className}`} style={{ aspectRatio: `${overallAspectRatio}` }}>
