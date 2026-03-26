@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="apple-touch-icon" href="/favicon.png" />
       </head>
       <body className={`${dmSans.variable} ${syne.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange={false}>
+        <ThemeProvider attribute="class" defaultTheme="chillwave" enableSystem disableTransitionOnChange={false}>
           {children}
           <Toaster />
         </ThemeProvider>
