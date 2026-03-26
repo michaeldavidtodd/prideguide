@@ -272,7 +272,7 @@ html {
   flex: 1;
   display: flex;
   flex-direction: column;
-  animation: oscillate 500ms alternate infinite ease-in-out both;
+  animation: oscillate 650ms alternate infinite ease-in-out both;
   /* Ensure columns fill the full height */
   height: 100%;
 }
