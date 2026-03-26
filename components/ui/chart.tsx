@@ -4,7 +4,7 @@ import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 import type {
   DefaultLegendContentProps,
-  TooltipContentProps,
+  TooltipProps,
 } from "recharts"
 
 import { cn } from "@/lib/utils"
@@ -106,9 +106,11 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+type ChartTooltipContentProps = TooltipProps<number, string>
+
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  TooltipContentProps &
+  ChartTooltipContentProps &
     React.ComponentProps<"div"> & {
       hideLabel?: boolean
       hideIndicator?: boolean
@@ -189,7 +191,7 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {payload.map((item, index) => {
+          {payload.map((item: NonNullable<ChartTooltipContentProps["payload"]>[number], index: number) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
             const indicatorColor = color || item.payload.fill || item.color
