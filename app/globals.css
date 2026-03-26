@@ -292,6 +292,53 @@ html {
   animation-play-state: paused;
 }
 
+@keyframes tickerScroll {
+  from {
+    transform: translate3d(0, -50%, 0);
+  }
+  to {
+    transform: translate3d(-50%, -50%, 0);
+  }
+}
+
+@keyframes tickerBob {
+  0%,
+  100% {
+    transform: translateY(calc(var(--bob-amp, 8px) * -1)) rotate(calc(var(--bob-tilt, 1.5deg) * -1));
+  }
+  50% {
+    transform: translateY(var(--bob-amp, 8px)) rotate(var(--bob-tilt, 1.5deg));
+  }
+}
+
+@keyframes tickerBobAlt {
+  0%,
+  100% {
+    transform: translateY(calc(var(--bob-amp, 8px) * -0.25)) rotate(calc(var(--bob-tilt, 1.5deg) * -1));
+  }
+  30% {
+    transform: translateY(var(--bob-amp, 8px)) rotate(calc(var(--bob-tilt, 1.5deg) * 0.6));
+  }
+  65% {
+    transform: translateY(calc(var(--bob-amp, 8px) * -0.8)) rotate(var(--bob-tilt, 1.5deg));
+  }
+}
+
+.flag-ticker-track {
+  animation: tickerScroll 40s linear infinite;
+  will-change: transform;
+}
+
+.flag-ticker-track--reduced {
+  animation: none;
+}
+
+.flag-ticker-card-bob {
+  animation: tickerBob 4.2s ease-in-out infinite;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
 /* Aurora Flag Background Effect - Enhanced Glow */
 .aurora-flag-container {
   position: absolute;
@@ -351,6 +398,7 @@ html {
 }
 
 .main-content {
+  overflow: hidden;
   background: linear-gradient(
     165deg,
     rgb(255 250 252) 0%,
