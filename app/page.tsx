@@ -350,6 +350,18 @@ export default function LGBTQIAFlagGuide() {
   )
 
   const filteredFlags = useMemo(() => flags.filter(matchesFilter), [matchesFilter])
+  const categoryCounts = useMemo(() => {
+    const q = searchTerm.toLowerCase()
+    const matchesSearch = (flag: FlagDefinition) =>
+      flag.name.toLowerCase().includes(q) || flag.description.toLowerCase().includes(q)
+
+    return {
+      All: flags.filter(matchesSearch).length,
+      General: flags.filter((flag) => flag.category === "General" && matchesSearch(flag)).length,
+      "Sexual Orientation": flags.filter((flag) => flag.category === "Sexual Orientation" && matchesSearch(flag)).length,
+      "Gender Identity": flags.filter((flag) => flag.category === "Gender Identity" && matchesSearch(flag)).length,
+    }
+  }, [searchTerm])
 
   // Expanded quiz questions
   const quizQuestions = [
@@ -638,7 +650,7 @@ export default function LGBTQIAFlagGuide() {
                             onClick={() => setSelectedCategory(category)}
                             className="whitespace-nowrap"
                           >
-                            {category}
+                            {category} ({categoryCounts[category as keyof typeof categoryCounts]})
                           </Button>
                         ))}
                       </div>

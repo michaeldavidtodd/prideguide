@@ -22,6 +22,8 @@ type FlagRingCarouselProps<F extends RingFlag> = {
   onSelect: (flag: F, event: ReactMouseEvent<HTMLElement>) => void
 }
 
+const MIN_RING_ITEMS = 18
+
 export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRingCarouselProps<F>) {
   const [rotationY, setRotationY] = useState(0)
   const targetRotationRef = useRef(0)
@@ -63,10 +65,14 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
 
   const ringItems = useMemo(() => {
     if (flags.length === 0) return [] as { key: string; flag: F }[]
+
+    const targetCount = Math.max(flags.length, MIN_RING_ITEMS)
     const items: { key: string; flag: F }[] = []
-    flags.forEach((flag) => {
-      items.push({ key: flag.id, flag })
-    })
+    for (let index = 0; index < targetCount; index += 1) {
+      const flag = flags[index % flags.length]
+      items.push({ key: `${flag.id}-${index}`, flag })
+    }
+
     return items
   }, [flags])
 
