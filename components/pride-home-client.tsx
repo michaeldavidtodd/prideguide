@@ -28,8 +28,16 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { Label } from "@/components/ui/label"
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -77,6 +85,47 @@ import {
 export const HOME_V2_EXPLORE_PATH = PRIDE_EXPLORE_PATH
 
 const FLAG_COUNT = PRIDE_FLAGS.length
+
+const LS_EXPLORE_MOTION = "prideguide-explore-motion-pref"
+const LS_EXPLORE_STUDIO_PERSIST = "prideguide-explore-studio-persist"
+const LS_EXPLORE_STUDIO = "prideguide-explore-studio-v1"
+
+type ExploreMotionPreference = "system" | "reduce" | "full"
+
+type ExploreStudioSnapshot = {
+  columnCount: number
+  waveBoost: boolean
+  stripeGap: number
+  cornerRadius: number
+}
+
+function clampInt(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, Math.round(n)))
+}
+
+function randomExploreStudioSnapshot(): ExploreStudioSnapshot {
+  return {
+    columnCount: 10 + Math.floor(Math.random() * 23),
+    waveBoost: Math.random() < 0.5,
+    stripeGap: Math.floor(Math.random() * 17),
+    cornerRadius: Math.floor(Math.random() * 29),
+  }
+}
+
+function parseExploreStudioSnapshot(raw: unknown): ExploreStudioSnapshot | null {
+  if (!raw || typeof raw !== "object") return null
+  const o = raw as Record<string, unknown>
+  const columnCount =
+    typeof o.columnCount === "number" ? clampInt(o.columnCount, 10, 32) : null
+  const stripeGap = typeof o.stripeGap === "number" ? clampInt(o.stripeGap, 0, 16) : null
+  const cornerRadius =
+    typeof o.cornerRadius === "number" ? clampInt(o.cornerRadius, 0, 28) : null
+  const waveBoost = typeof o.waveBoost === "boolean" ? o.waveBoost : null
+  if (columnCount === null || stripeGap === null || cornerRadius === null || waveBoost === null) {
+    return null
+  }
+  return { columnCount, waveBoost, stripeGap, cornerRadius }
+}
 
 /* ---- Aurora BG: soft color blobs cycling through flag palettes ---- */
 const AURORA_CYCLE_MS = 5000
@@ -577,7 +626,12 @@ export function HomeV2WelcomeContent() {
 export function HomeV2ExploreContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const reduceMotion = useReducedMotion()
+  const systemPrefersReducedMotion = useReducedMotion()
+  const [motionPreference, setMotionPreference] = useState<ExploreMotionPreference>("system")
+  const [studioPersist, setStudioPersist] = useState(false)
+  const [explorePrefsHydrated, setExplorePrefsHydrated] = useState(false)
+  const exploreStudioHydratedRef = useRef(false)
+
   const [index, setIndex] = useState(0)
   const [activeStripe, setActiveStripe] = useState<number | null>(null)
   const [waveBoost, setWaveBoost] = useState(false)
@@ -589,6 +643,101 @@ export function HomeV2ExploreContent() {
   const [cornerRadius, setCornerRadius] = useState(0)
   const pointerStart = useRef<{ x: number } | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
+
+  const effectiveReduceMotion =
+    motionPreference === "reduce"
+      ? true
+      : motionPreference === "full"
+        ? false
+        : systemPrefersReducedMotion === true
+
+  const applyStudioSnapshot = useCallback((s: ExploreStudioSnapshot) => {
+    setColumnCount(s.columnCount)
+    setWaveBoost(s.waveBoost)
+    setStripeGap(s.stripeGap)
+    setCornerRadius(s.cornerRadius)
+  }, [])
+
+  const onMotionPreferenceChange = useCallback((value: ExploreMotionPreference) => {
+    setMotionPreference(value)
+    try {
+      localStorage.setItem(LS_EXPLORE_MOTION, value)
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }, [])
+
+  const onStudioPersistChange = useCallback(
+    (persist: boolean) => {
+      setStudioPersist(persist)
+      try {
+        localStorage.setItem(LS_EXPLORE_STUDIO_PERSIST, persist ? "1" : "0")
+        if (persist) {
+          localStorage.setItem(
+            LS_EXPLORE_STUDIO,
+            JSON.stringify({
+              columnCount,
+              waveBoost,
+              stripeGap,
+              cornerRadius,
+            } satisfies ExploreStudioSnapshot)
+          )
+        }
+      } catch {
+        /* ignore */
+      }
+    },
+    [columnCount, cornerRadius, stripeGap, waveBoost]
+  )
+
+  useEffect(() => {
+    if (exploreStudioHydratedRef.current) return
+    exploreStudioHydratedRef.current = true
+    try {
+      const motionRaw = localStorage.getItem(LS_EXPLORE_MOTION)
+      if (motionRaw === "system" || motionRaw === "reduce" || motionRaw === "full") {
+        setMotionPreference(motionRaw)
+      }
+
+      const persist = localStorage.getItem(LS_EXPLORE_STUDIO_PERSIST) === "1"
+      setStudioPersist(persist)
+
+      if (persist) {
+        const raw = localStorage.getItem(LS_EXPLORE_STUDIO)
+        const parsed = raw ? (JSON.parse(raw) as unknown) : null
+        const snap = parseExploreStudioSnapshot(parsed)
+        if (snap) {
+          applyStudioSnapshot(snap)
+        } else {
+          const r = randomExploreStudioSnapshot()
+          applyStudioSnapshot(r)
+          localStorage.setItem(LS_EXPLORE_STUDIO, JSON.stringify(r))
+        }
+      } else {
+        applyStudioSnapshot(randomExploreStudioSnapshot())
+      }
+    } catch {
+      applyStudioSnapshot(randomExploreStudioSnapshot())
+    }
+    setExplorePrefsHydrated(true)
+  }, [applyStudioSnapshot])
+
+  useEffect(() => {
+    if (!explorePrefsHydrated || !studioPersist) return
+    try {
+      localStorage.setItem(
+        LS_EXPLORE_STUDIO,
+        JSON.stringify({
+          columnCount,
+          waveBoost,
+          stripeGap,
+          cornerRadius,
+        } satisfies ExploreStudioSnapshot)
+      )
+    } catch {
+      /* ignore */
+    }
+  }, [columnCount, cornerRadius, explorePrefsHydrated, stripeGap, studioPersist, waveBoost])
 
   const flag = PRIDE_FLAGS[index]
   const stripes = flag.display.stripes ?? []
@@ -610,11 +759,11 @@ export function HomeV2ExploreContent() {
       wrap: {
         hidden: {},
         show: {
-          transition: reduceMotion ? {} : { staggerChildren: 0.09, delayChildren: 0.04 },
+          transition: effectiveReduceMotion ? {} : { staggerChildren: 0.09, delayChildren: 0.04 },
         },
       },
       item: {
-        hidden: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 },
+        hidden: effectiveReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 },
         show: {
           opacity: 1,
           y: 0,
@@ -622,7 +771,7 @@ export function HomeV2ExploreContent() {
         },
       },
     }),
-    [reduceMotion]
+    [effectiveReduceMotion]
   )
 
   const syncUrl = useCallback(
@@ -659,14 +808,6 @@ export function HomeV2ExploreContent() {
     router.replace(`${PRIDE_EXPLORE_PATH}?f=${PRIDE_FLAGS[0].id}`, { scroll: false })
   }, [router, searchParams])
 
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)")
-    const apply = () => setColumnCount(mq.matches ? 26 : 16)
-    apply()
-    mq.addEventListener("change", apply)
-    return () => mq.removeEventListener("change", apply)
-  }, [])
-
   const next = useCallback(() => goToIndex(index + 1, "forward"), [goToIndex, index])
   const prev = useCallback(() => goToIndex(index - 1, "backward"), [goToIndex, index])
 
@@ -701,7 +842,7 @@ export function HomeV2ExploreContent() {
   }, [next, prev, shuffle])
 
   const handleStageMove = (e: ReactMouseEvent<HTMLDivElement>) => {
-    if (reduceMotion || !stageRef.current) return
+    if (effectiveReduceMotion || !stageRef.current) return
     const rect = stageRef.current.getBoundingClientRect()
     const nx = (e.clientX - rect.left) / rect.width - 0.5
     const ny = (e.clientY - rect.top) / rect.height - 0.5
@@ -731,17 +872,24 @@ export function HomeV2ExploreContent() {
   const exploreDrawerDescriptionClass = "text-sm leading-snug text-muted-foreground"
   const exploreDrawerBodyClass = "min-h-0 flex-1 overflow-y-auto px-5 pb-8 pt-4 sm:px-6"
 
+  const exploreStudioSheetContentClass =
+    cn("flex flex-col gap-0 bg-background p-0 sm:max-w-md lg:max-w-lg", cornerRadius > 0 && "rounded-lg")
+  const exploreStudioSheetHeaderClass =
+    cn("home-v2-explore-sheet-header space-y-1 border-b border-border/60 px-6 pb-4 pt-6 pr-14 text-left sm:pr-16", cornerRadius > 0 && "rounded-t-lg")
+  const exploreStudioSheetBodyClass =
+    cn("min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 pb-8 pt-5", cornerRadius > 0 && "rounded-b-lg")
+
   const flagStageSlideVariants = useMemo(
     () => ({
       initial: (dir: 1 | -1) =>
-        reduceMotion ? { opacity: 0 } : { x: dir * 36, opacity: 0 },
+        effectiveReduceMotion ? { opacity: 0 } : { x: dir * 36, opacity: 0 },
       animate: {
         x: 0,
         opacity: 1,
         transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
       },
       exit: (dir: 1 | -1) =>
-        reduceMotion
+        effectiveReduceMotion
           ? { opacity: 0, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const } }
           : {
               x: dir * -36,
@@ -749,11 +897,20 @@ export function HomeV2ExploreContent() {
               transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const },
             },
     }),
-    [reduceMotion]
+    [effectiveReduceMotion]
   )
 
+  const forceFlagWaveMotion =
+    !effectiveReduceMotion && systemPrefersReducedMotion === true
+
   return (
-    <div className="home-v2-root flex h-dvh min-h-0 flex-col text-foreground">
+    <div
+      className={cn(
+        "home-v2-root flex h-dvh min-h-0 flex-col text-foreground",
+        effectiveReduceMotion && "home-v2-explore-reduce-motion",
+        forceFlagWaveMotion && "home-v2-explore-force-motion"
+      )}
+    >
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         Pride Guide flag explorer.
       </p>
@@ -783,9 +940,9 @@ export function HomeV2ExploreContent() {
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div
                         key={flag.id}
-                        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                        initial={effectiveReduceMotion ? false : { opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+                        exit={effectiveReduceMotion ? undefined : { opacity: 0, y: -8 }}
                         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                         className="min-w-0 max-w-[min(100%,42rem)]"
                       >
@@ -921,7 +1078,7 @@ export function HomeV2ExploreContent() {
                   if (dx > 0) prev()
                   else next()
                 }}
-                style={{ perspective: reduceMotion ? undefined : "1100px" }}
+                style={{ perspective: effectiveReduceMotion ? undefined : "1100px" }}
               >
                 <div className="mx-auto flex w-full max-w-4xl justify-center lg:max-w-full">
                   <div
@@ -934,7 +1091,7 @@ export function HomeV2ExploreContent() {
                     >
                       <motion.div
                         className="relative grid h-full min-h-0 w-full place-items-center"
-                        animate={reduceMotion ? {} : { rotateX: tilt.x, rotateY: tilt.y }}
+                        animate={effectiveReduceMotion ? {} : { rotateX: tilt.x, rotateY: tilt.y }}
                         transition={{ type: "spring", stiffness: 280, damping: 26 }}
                         style={{ transformStyle: "preserve-3d" }}
                       >
@@ -950,7 +1107,7 @@ export function HomeV2ExploreContent() {
                             className="relative col-start-1 row-start-1 grid h-full min-h-0 w-full place-items-center"
                             style={{ transformStyle: "preserve-3d" }}
                           >
-                            {!reduceMotion && (
+                            {!effectiveReduceMotion && (
                               <motion.div
                                 key={`scan-${flag.id}`}
                                 className="pointer-events-none absolute inset-0 z-10"
@@ -1092,16 +1249,16 @@ export function HomeV2ExploreContent() {
           </DrawerContent>
         </Drawer>
 
-        <Drawer open={browsePanel === "studio"} onOpenChange={(open) => setBrowsePanel(open ? "studio" : null)}>
-          <DrawerContent className={exploreDrawerContentClass}>
-            <DrawerHeader className={exploreDrawerHeaderClass}>
+        <Sheet open={browsePanel === "studio"} onOpenChange={(open) => setBrowsePanel(open ? "studio" : null)}>
+          <SheetContent side="right" className={exploreStudioSheetContentClass} style={studioShellStyle}>
+            <SheetHeader className={exploreStudioSheetHeaderClass}>
               <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Studio</p>
-              <DrawerTitle className={exploreDrawerTitleClass}>Motion & layout</DrawerTitle>
-              <DrawerDescription className={exploreDrawerDescriptionClass}>
+              <SheetTitle className={exploreDrawerTitleClass}>Motion & layout</SheetTitle>
+              <SheetDescription className={exploreDrawerDescriptionClass}>
                 Fine-tune motion, slice layout, and frames.
-              </DrawerDescription>
-            </DrawerHeader>
-            <div className={cn(exploreDrawerBodyClass, "space-y-5 pt-2")}>
+              </SheetDescription>
+            </SheetHeader>
+            <div className={cn(exploreStudioSheetBodyClass, "space-y-5")}>
               {/* <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Label htmlFor="jump-flag-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                   Jump to
@@ -1119,7 +1276,80 @@ export function HomeV2ExploreContent() {
                   </SelectContent>
                 </Select>
               </div> */}
-              <div className="space-y-2">
+              {/* Motion */}
+              <div data-slot="motion" className={cn("space-y-3 p-4 bg-foreground/5", cornerRadius > 0 && "rounded-lg")} style={studioShellStyle}>
+                <div>
+                  <Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Motion
+                  </Label>
+                  <p className="mt-1 text-xs leading-snug text-muted-foreground text-balance">
+                    Default follows your device. Override like the site theme.
+                  </p>
+                </div>
+                <RadioGroup
+                  value={motionPreference}
+                  onValueChange={(v) => onMotionPreferenceChange(v as ExploreMotionPreference)}
+                  className="grid gap-2.5 pt-1 sm:grid-cols-3"
+                  aria-label="Reduce motion preference"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="system" id="explore-motion-system" />
+                    <Label htmlFor="explore-motion-system" className="cursor-pointer text-sm font-normal leading-none">
+                      System
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="reduce" id="explore-motion-reduce" />
+                    <Label htmlFor="explore-motion-reduce" className="cursor-pointer text-sm font-normal leading-none">
+                      Reduce
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="full" id="explore-motion-full" />
+                    <Label htmlFor="explore-motion-full" className="cursor-pointer text-sm font-normal leading-none">
+                      Full
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Save studio settings */}
+              <div data-slot="save-studio-settings" className={cn("flex flex-col justify-between gap-3 p-4 bg-foreground/5", cornerRadius > 0 && "rounded-lg")} style={studioShellStyle}>
+                <div className="min-w-0 space-y-0.5">
+                  <Label htmlFor="studio-persist-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Save studio settings
+                  </Label>
+                  <p className="text-xs leading-snug text-muted-foreground text-balance">
+                    {studioPersist
+                      ? "Layout and motion sliders stay as you left them."
+                      : "Random slice layout, wave, gap, and corners on each visit."}
+                  </p>
+                </div>
+                <Switch
+                  id="studio-persist-drawer"
+                  checked={studioPersist}
+                  onCheckedChange={onStudioPersistChange}
+                />
+              </div>
+
+              {/* Layout */}
+              <div data-slot="layout" className={cn("flex flex-col justify-between gap-3 p-4 bg-foreground/5", cornerRadius > 0 && "rounded-lg")} style={studioShellStyle}>
+                <div className="flex gap-2">
+                  <Sparkles className="size-4 text-primary" aria-hidden />
+                  <div className="flex flex-col gap-0.5">
+                    <Label htmlFor="wave-boost-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                      Amp the wave
+                    </Label>
+                    <p className="mt-1 mb-2 text-xs leading-snug text-muted-foreground text-balance">
+                      Higher values make the wave more pronounced.
+                    </p>
+                    <Switch id="wave-boost-drawer" checked={waveBoost} onCheckedChange={setWaveBoost} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Slice resolution */}
+              <div data-slot="slice-resolution" className={cn("space-y-2 p-4 bg-foreground/5", cornerRadius > 0 && "rounded-lg")} style={studioShellStyle}>
                 <div className="flex items-center justify-between gap-3">
                   <Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                     Slice resolution
@@ -1135,16 +1365,9 @@ export function HomeV2ExploreContent() {
                   aria-label="Adjust pixel column count for the flag animation"
                 />
               </div>
-              <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="size-4 text-primary" aria-hidden />
-                  <Label htmlFor="wave-boost-drawer" className="text-sm font-semibold">
-                    Amp the wave
-                  </Label>
-                </div>
-                <Switch id="wave-boost-drawer" checked={waveBoost} onCheckedChange={setWaveBoost} />
-              </div>
-              <div className="space-y-2 border-t border-border/50 pt-4">
+
+              {/* Gap between stripes */}
+              <div data-slot="gap-between-stripes" className={cn("space-y-2 p-4 bg-foreground/5", cornerRadius > 0 && "rounded-lg")} style={studioShellStyle}>
                 <div className="flex items-center justify-between gap-3">
                   <Label htmlFor="stripe-gap-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                     Gap between stripes
@@ -1164,7 +1387,9 @@ export function HomeV2ExploreContent() {
                   Higher values can separate slices; SVG overlays may show seams at zero gap for continuity.
                 </p>
               </div>
-              <div className="space-y-2 border-t border-border/50 pt-4">
+
+              {/* Rounded edges */}
+              <div data-slot="rounded-edges" className={cn("space-y-2 p-4 bg-foreground/5", cornerRadius > 0 && "rounded-lg")} style={studioShellStyle}>
                 <div className="flex items-center justify-between gap-3">
                   <Label htmlFor="frame-radius-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                     Rounded edges
@@ -1182,8 +1407,8 @@ export function HomeV2ExploreContent() {
                 />
               </div>
             </div>
-          </DrawerContent>
-        </Drawer>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   )

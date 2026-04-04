@@ -611,6 +611,15 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   color: hsl(var(--quiz-feedback-incorrect-icon));
 }
 
+/* Explore Focus: honor in-app motion choice (see pride-home-client.tsx) */
+.home-v2-explore-reduce-motion .animated-flag .flag-column {
+  animation: none !important;
+}
+
+.home-v2-explore-force-motion .animated-flag .flag-column {
+  animation: oscillate 650ms alternate infinite ease-in-out both !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .flag-text-mask {
     animation: none;
