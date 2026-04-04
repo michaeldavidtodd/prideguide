@@ -21,7 +21,13 @@ import {
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
@@ -29,7 +35,15 @@ import { Switch } from "@/components/ui/switch"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { PRIDE_FLAGS } from "@/lib/flags"
-import { ChevronDown, ChevronLeft, ChevronRight, Dices, SlidersHorizontal, Sparkles } from "lucide-react"
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Dices,
+  Palette,
+  SlidersHorizontal,
+  Sparkles,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const FLAG_COUNT = PRIDE_FLAGS.length
@@ -63,6 +77,134 @@ function averageStripeAccent(stripes: string[]): string {
 }
 
 type BootPhase = "bars" | "fade" | "off"
+
+type PrideFlag = (typeof PRIDE_FLAGS)[number]
+
+function HomeV2AboutBlock({
+  flag,
+  stripeAccent,
+  className,
+}: {
+  flag: PrideFlag
+  stripeAccent: string
+  className?: string
+}) {
+  return (
+    <div className={cn("space-y-0", className)}>
+      <blockquote className="relative mb-6 border-none p-0 lg:mb-5">
+        <div className="border-l-[5px] pl-4 lg:pl-5" style={{ borderLeftColor: stripeAccent }}>
+          <p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:text-[0.65rem]">
+            Why it matters
+          </p>
+          <p className="mt-2 text-pretty text-sm font-medium leading-relaxed text-foreground sm:text-base">{flag.significance}</p>
+        </div>
+      </blockquote>
+      <Accordion type="single" collapsible defaultValue="overview" className="border border-foreground/10 bg-background/40">
+        <AccordionItem value="overview" className="border-foreground/10 px-1">
+          <AccordionTrigger className="home-v2-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
+            At a glance
+          </AccordionTrigger>
+          <AccordionContent className="px-3 pb-3 text-xs leading-relaxed text-muted-foreground sm:pb-4 sm:text-sm">
+            {flag.description}
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="history" className="border-foreground/10 px-1">
+          <AccordionTrigger className="home-v2-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
+            History & context
+          </AccordionTrigger>
+          <AccordionContent className="px-3 pb-3 text-xs leading-relaxed text-muted-foreground sm:pb-4 sm:text-sm">
+            {flag.history}
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="significance" className="border-foreground/10 px-1">
+          <AccordionTrigger className="home-v2-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
+            Full significance
+          </AccordionTrigger>
+          <AccordionContent className="px-3 pb-3 text-xs leading-relaxed text-muted-foreground sm:pb-4 sm:text-sm">
+            {flag.significance}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  )
+}
+
+function HomeV2ShortcutsFootnote({ className }: { className?: string }) {
+  return (
+    <div className={cn("border-t border-foreground/10 pt-4", className)}>
+      <p className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-muted-foreground lg:text-[0.65rem]">Shortcuts</p>
+      <p className="mt-2 text-xs text-muted-foreground sm:text-sm">
+        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">←</kbd>{" "}
+        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">→</kbd> change
+        flag ·{" "}
+        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">↓</kbd> or{" "}
+        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">space</kbd> random
+      </p>
+    </div>
+  )
+}
+
+function HomeV2StripePaletteStrip({
+  flagId,
+  stripeLabels,
+  stripes,
+  activeStripe,
+  onStripeToggle,
+  variant,
+}: {
+  flagId: string
+  stripeLabels: { hex: string; index: number }[]
+  stripes: string[]
+  activeStripe: number | null
+  onStripeToggle: (stripeIndex: number) => void
+  variant: "rail" | "drawer"
+}) {
+  const minH = variant === "rail" ? "min-h-11" : "min-h-16"
+  return (
+    <div className="space-y-2">
+      {variant === "rail" && (
+        <div>
+          <p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">Read the stripes</p>
+          <p className="mt-1 text-[0.65rem] leading-snug text-muted-foreground">Tap a band for the exact hex.</p>
+        </div>
+      )}
+      <div
+        className="flex gap-px overflow-hidden rounded-sm border border-foreground/15 bg-foreground/15 shadow-sm"
+        role="list"
+        aria-label="Flag color stripes"
+      >
+        {stripeLabels.map(({ hex, index: stripeIndex }) => {
+          const active = activeStripe === stripeIndex
+          return (
+            <button
+              key={`${flagId}-${stripeIndex}-${hex}`}
+              type="button"
+              role="listitem"
+              className={cn(
+                "home-v2-stripe-cut relative flex-1 transition-[flex,transform] duration-200 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                minH,
+                active ? "z-[1] flex-[1.35] ring-2 ring-inset ring-foreground" : "hover:flex-[1.12] hover:brightness-105"
+              )}
+              style={{ backgroundColor: hex }}
+              onClick={() => onStripeToggle(stripeIndex)}
+              aria-pressed={active}
+              aria-label={`Stripe ${stripeIndex}, color ${hex}`}
+            >
+              <span className="sr-only">
+                Stripe {stripeIndex} {hex}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+      {activeStripe !== null && stripes[activeStripe - 1] && (
+        <p className="font-mono text-xs text-foreground sm:text-sm">
+          Band {activeStripe} · {stripes[activeStripe - 1]?.toUpperCase()}
+        </p>
+      )}
+    </div>
+  )
+}
 
 function HomeV2BootOverlay({ phase, prideStripes }: { phase: BootPhase; prideStripes: readonly string[] }) {
   if (phase === "off") return null
@@ -122,7 +264,7 @@ function HomeV2FocusContent() {
   const [waveBoost, setWaveBoost] = useState(false)
   const [columnCount, setColumnCount] = useState(18)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
-  const [studioOpen, setStudioOpen] = useState(false)
+  const [browsePanel, setBrowsePanel] = useState<null | "details" | "palette" | "studio">(null)
   const [stripeGap, setStripeGap] = useState(0)
   const [cornerRadius, setCornerRadius] = useState(0)
   const pointerStart = useRef<{ x: number } | null>(null)
@@ -325,20 +467,21 @@ function HomeV2FocusContent() {
         </a>
 
         <motion.section
-          className="home-v2-hero"
+          className="home-v2-hero flex min-h-[100dvh] flex-col"
           aria-label="Welcome"
           initial="hidden"
           animate={bootContentRevealed ? "show" : "hidden"}
           variants={variants.heroWrap}
         >
-          <motion.div variants={variants.item} className="mx-auto flex max-w-6xl justify-end px-4 pt-6 sm:px-8 sm:pt-10">
+          <motion.div variants={variants.item} className="mx-auto flex w-full max-w-6xl shrink-0 justify-end px-4 pt-6 sm:px-8 sm:pt-10">
             <ThemeToggle />
           </motion.div>
 
           <motion.div
             variants={variants.item}
-            className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-14 pt-8 sm:px-8 sm:pb-16 sm:pt-10 lg:grid-cols-12 lg:gap-x-16 lg:pb-20 lg:pt-4"
+            className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 py-10 sm:px-8 sm:py-14 lg:py-20"
           >
+            <div className="grid items-center gap-14 lg:grid-cols-12 lg:gap-x-16 lg:gap-y-12">
             <div className="space-y-8 lg:col-span-7">
               <div className="space-y-5">
                 <div className="home-v2-kicker-rule" aria-hidden />
@@ -402,82 +545,125 @@ function HomeV2FocusContent() {
                 </p>
               </div>
             </div>
+            </div>
           </motion.div>
         </motion.section>
 
         <motion.main
           id="home-v2-main"
-          className="mx-auto max-w-6xl px-4 py-10 sm:px-8 sm:py-14"
+          className="home-v2-browse scroll-mt-4 border-t border-foreground/10 bg-background/30"
           variants={variants.wrap}
           initial="hidden"
           animate={bootContentRevealed ? "show" : "hidden"}
         >
           <motion.div
             variants={variants.item}
-            className="grid gap-14 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:items-start lg:gap-x-16 lg:gap-y-10"
+            className="mx-auto flex h-[100dvh] max-h-[100dvh] min-h-0 w-full max-w-7xl flex-col px-4 py-4 sm:px-8 sm:py-5"
           >
-            <div className="space-y-8">
-              <div className="relative">
+            <header className="flex shrink-0 flex-wrap items-start justify-between gap-3 border-b border-foreground/10 pb-3">
+              <div className="relative min-w-0 flex-1 pr-2">
                 <span
-                  className="pointer-events-none absolute -left-2 top-0 select-none font-display text-[clamp(3.25rem,16vw,10rem)] font-black leading-none tracking-tighter text-foreground/[0.045] dark:text-foreground/[0.07]"
+                  className="pointer-events-none absolute -left-1 -top-1 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.04] dark:text-foreground/[0.06] sm:-left-2 sm:top-0"
                   aria-hidden
                 >
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <div className="relative space-y-5 pt-2 sm:pt-4">
-                  <div className="flex flex-wrap items-end justify-between gap-4">
+                <div className="relative space-y-2 pt-1">
+                  <div className="flex flex-wrap items-end justify-between gap-2 gap-y-1">
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div
                         key={flag.id}
-                        initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={reduceMotion ? undefined : { opacity: 0, y: -10 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="max-w-[95%]"
+                        exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        className="min-w-0 max-w-[min(100%,42rem)]"
                       >
-                        <h2 className="font-display text-[clamp(1.85rem,5.5vw,3.75rem)] font-extrabold leading-[1.02] tracking-tight">
+                        <h2 className="line-clamp-2 font-display text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1.08] tracking-tight">
                           {flag.name}
                         </h2>
                       </motion.div>
                     </AnimatePresence>
-                    <div className="flex flex-col items-end gap-1 text-right">
-                      <span className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                        In rotation
-                      </span>
-                      <span className="font-mono text-sm tabular-nums text-muted-foreground">
-                        {index + 1} — {FLAG_COUNT}
-                      </span>
-                    </div>
+                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground sm:text-sm">
+                      {index + 1}/{FLAG_COUNT}
+                    </span>
                   </div>
-                  <Badge className="rounded-none border-transparent bg-foreground px-2.5 py-1 text-xs font-bold uppercase tracking-widest text-background">
+                  <Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
                     {flag.category}
                   </Badge>
                 </div>
               </div>
-
-              <div>
-                <div
-                  ref={stageRef}
-                  className="flag-container relative cursor-grab touch-pan-y active:cursor-grabbing"
-                  onMouseMove={handleStageMove}
-                  onMouseLeave={resetTilt}
-                  onPointerDown={(e) => {
-                    pointerStart.current = { x: e.clientX }
-                  }}
-                  onPointerUp={(e) => {
-                    if (!pointerStart.current) return
-                    const dx = e.clientX - pointerStart.current.x
-                    pointerStart.current = null
-                    if (Math.abs(dx) < 52) return
-                    if (dx > 0) prev()
-                    else next()
-                  }}
-                  style={{ perspective: reduceMotion ? undefined : "1100px" }}
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "gap-1.5 font-display text-xs font-bold uppercase tracking-wide lg:hidden",
+                    cornerRadius <= 0 && "rounded-none"
+                  )}
+                  style={studioShellStyle}
+                  onClick={() => setBrowsePanel("details")}
                 >
-                  <div className="home-v2-stage-shell" style={frameRadiusStyle}>
-                    <div className="home-v2-stage-inner overflow-hidden" style={frameRadiusStyle}>
+                  <BookOpen className="size-3.5" aria-hidden />
+                  <span className="hidden sm:inline">About</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "gap-1.5 font-display text-xs font-bold uppercase tracking-wide lg:hidden",
+                    cornerRadius <= 0 && "rounded-none"
+                  )}
+                  style={studioShellStyle}
+                  onClick={() => setBrowsePanel("palette")}
+                >
+                  <Palette className="size-3.5" aria-hidden />
+                  <span className="hidden sm:inline">Colors</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
+                  style={studioShellStyle}
+                  onClick={() => setBrowsePanel("studio")}
+                >
+                  <SlidersHorizontal className="size-3.5" aria-hidden />
+                  <span className="hidden sm:inline">Studio</span>
+                </Button>
+                <ThemeToggle />
+              </div>
+            </header>
+
+            <div className="flex min-h-0 flex-1 flex-col gap-4 py-2 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
+              <div
+                ref={stageRef}
+                className="flag-container relative mx-auto flex min-h-0 w-full min-w-0 flex-1 cursor-grab touch-pan-y flex-col justify-center active:cursor-grabbing lg:mx-0"
+                onMouseMove={handleStageMove}
+                onMouseLeave={resetTilt}
+                onPointerDown={(e) => {
+                  pointerStart.current = { x: e.clientX }
+                }}
+                onPointerUp={(e) => {
+                  if (!pointerStart.current) return
+                  const dx = e.clientX - pointerStart.current.x
+                  pointerStart.current = null
+                  if (Math.abs(dx) < 52) return
+                  if (dx > 0) prev()
+                  else next()
+                }}
+                style={{ perspective: reduceMotion ? undefined : "1100px" }}
+              >
+                <div className="mx-auto flex w-full max-w-4xl justify-center lg:max-w-none">
+                  <div
+                    className="home-v2-stage-shell max-h-[min(48dvh,480px)] w-full max-w-full overflow-hidden [aspect-ratio:3/2] sm:max-h-[min(52dvh,520px)] lg:max-h-[min(58dvh,560px)]"
+                    style={frameRadiusStyle}
+                  >
+                    <div className="home-v2-stage-inner h-full min-h-0 overflow-hidden" style={frameRadiusStyle}>
                       <motion.div
-                        className="relative"
+                        className="relative h-full min-h-0"
                         animate={reduceMotion ? {} : { rotateX: tilt.x, rotateY: tilt.y }}
                         transition={{ type: "spring", stiffness: 280, damping: 26 }}
                         style={{ transformStyle: "preserve-3d" }}
@@ -513,279 +699,197 @@ function HomeV2FocusContent() {
                           billow={billow}
                           columnGapPx={stripeGap}
                           stripeCornerRadiusPx={cornerRadius}
-                          className="w-full"
+                          className="h-full min-h-0 w-full max-w-full"
                         />
                       </motion.div>
                     </div>
                   </div>
-                  <p className="mt-4 max-w-xl text-xs leading-relaxed text-muted-foreground">
-                    Hover to still the wave. Drag or swipe horizontally to change flags—same respect for the symbol, new
-                    rhythm for your attention.
-                  </p>
                 </div>
+                <p className="mx-auto mt-2 max-w-lg shrink-0 text-center text-[0.65rem] leading-snug text-muted-foreground sm:text-xs lg:mt-3">
+                  Hover stills the wave · drag or swipe to change flags
+                </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={prev}
-                  aria-label="Previous flag"
-                  className="size-12 rounded-none border-2 border-foreground/20 bg-background/80 shadow-none transition-colors hover:border-foreground/50 hover:bg-muted/50"
-                >
-                  <ChevronLeft className="size-6" />
-                </Button>
-                <Button
-                  type="button"
-                  onClick={shuffle}
-                  className="h-12 gap-2 rounded-none border-2 border-transparent bg-foreground px-6 text-base font-bold tracking-tight text-background shadow-none hover:bg-foreground/90"
-                >
-                  <Dices className="size-5" aria-hidden />
-                  Draw another
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={next}
-                  aria-label="Next flag"
-                  className="size-12 rounded-none border-2 border-foreground/20 bg-background/80 shadow-none transition-colors hover:border-foreground/50 hover:bg-muted/50"
-                >
-                  <ChevronRight className="size-6" />
-                </Button>
-              </div>
-
-              <div>
-                <Collapsible open={studioOpen} onOpenChange={setStudioOpen}>
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className={cn(
-                        "group flex h-12 w-full max-w-md items-center justify-between border border-dashed border-foreground/20 bg-muted/20 px-4 text-left font-display text-sm font-bold tracking-tight hover:bg-muted/40",
-                        cornerRadius <= 0 && "rounded-none"
-                      )}
-                      style={studioShellStyle}
-                      aria-expanded={studioOpen}
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <SlidersHorizontal className="size-4 opacity-70" aria-hidden />
-                        Studio controls
-                      </span>
-                      <ChevronDown
-                        className={cn("size-4 transition-transform duration-300", studioOpen && "rotate-180")}
-                        aria-hidden
-                      />
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                    <div
-                      className="mt-4 space-y-5 border border-foreground/10 bg-card/30 p-5 sm:p-6"
-                      style={studioShellStyle}
-                    >
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <Label
-                          htmlFor="jump-flag"
-                          className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-                        >
-                          Jump to
-                        </Label>
-                        <Select value={flag.id} onValueChange={(id) => goToIndex(PRIDE_FLAGS.findIndex((f) => f.id === id))}>
-                          <SelectTrigger id="jump-flag" className="w-full rounded-none border-foreground/15 sm:max-w-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {PRIDE_FLAGS.map((f) => (
-                              <SelectItem key={f.id} value={f.id}>
-                                {f.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-3">
-                          <Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                            Slice resolution
-                          </Label>
-                          <span className="text-xs tabular-nums text-muted-foreground">{columnCount} columns</span>
-                        </div>
-                        <Slider
-                          value={[columnCount]}
-                          onValueChange={(v) => setColumnCount(v[0] ?? 18)}
-                          min={10}
-                          max={32}
-                          step={1}
-                          aria-label="Adjust pixel column count for the flag animation"
-                        />
-                      </div>
-                      <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="size-4 text-primary" aria-hidden />
-                          <Label htmlFor="wave-boost" className="text-sm font-semibold">
-                            Amp the wave
-                          </Label>
-                        </div>
-                        <Switch id="wave-boost" checked={waveBoost} onCheckedChange={setWaveBoost} />
-                      </div>
-
-                      <div className="space-y-2 border-t border-border/50 pt-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <Label
-                            htmlFor="stripe-gap"
-                            className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-                          >
-                            Gap between stripes
-                          </Label>
-                          <span className="text-xs tabular-nums text-muted-foreground">{stripeGap}px</span>
-                        </div>
-                        <Slider
-                          id="stripe-gap"
-                          value={[stripeGap]}
-                          onValueChange={(v) => setStripeGap(v[0] ?? 0)}
-                          min={0}
-                          max={16}
-                          step={1}
-                          aria-label="Gap between flag stripe columns in pixels"
-                        />
-                        <p className="text-xs leading-relaxed text-muted-foreground">
-                          Reveals space between slices. Flags with chevrons or overlays may show seams—set to zero for a
-                          continuous look.
-                        </p>
-                      </div>
-
-                      <div className="space-y-2 border-t border-border/50 pt-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <Label
-                            htmlFor="frame-radius"
-                            className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-                          >
-                            Rounded edges
-                          </Label>
-                          <span className="text-xs tabular-nums text-muted-foreground">{cornerRadius}px</span>
-                        </div>
-                        <Slider
-                          id="frame-radius"
-                          value={[cornerRadius]}
-                          onValueChange={(v) => setCornerRadius(v[0] ?? 0)}
-                          min={0}
-                          max={28}
-                          step={1}
-                          aria-label="Border radius for flag frames, studio panel, and stripe ends"
-                        />
-                        <p className="text-xs leading-relaxed text-muted-foreground">
-                          Zero keeps the cut-corner frames; turn it up to round the hero preview, main stage, studio panel,
-                          and stripe caps together.
-                        </p>
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
+              <aside
+                className="home-v2-browse-rail hidden min-h-0 w-full shrink-0 border-foreground/10 lg:flex lg:w-[min(22rem,30%)] lg:flex-col lg:border-l lg:pl-6 xl:w-[min(24rem,28%)] xl:pl-8"
+                aria-label="About this flag and colors"
+              >
+                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden pr-1 pt-1">
+                  <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
+                  <HomeV2StripePaletteStrip
+                    flagId={flag.id}
+                    stripeLabels={stripeLabels}
+                    stripes={stripes}
+                    activeStripe={activeStripe}
+                    variant="rail"
+                    onStripeToggle={(stripeIndex) => {
+                      setActiveStripe((prev) => (prev === stripeIndex ? null : stripeIndex))
+                    }}
+                  />
+                  <HomeV2ShortcutsFootnote className="mt-auto shrink-0 pb-1" />
+                </div>
+              </aside>
             </div>
 
-            <div className="flex flex-col gap-12 lg:pt-6">
-              <blockquote className="relative border-none p-0">
-                <div
-                  className="border-l-[5px] pl-6"
-                  style={{ borderLeftColor: stripeAccent }}
-                >
-                  <p className="font-display text-[0.7rem] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                    Why it matters
-                  </p>
-                  <p className="mt-3 text-pretty text-[clamp(1.05rem,2.2vw,1.25rem)] font-medium leading-relaxed text-foreground">
-                    {flag.significance}
-                  </p>
-                </div>
-              </blockquote>
-
-              <section aria-label="Flag details">
-                <Accordion type="single" collapsible defaultValue="overview" className="border border-foreground/10 bg-background/40">
-                  <AccordionItem value="overview" className="border-foreground/10 px-1 sm:px-2">
-                    <AccordionTrigger className="home-v2-accordion-trigger px-4 py-5 font-display text-lg font-bold hover:no-underline sm:text-xl">
-                      At a glance
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-6 text-base leading-relaxed text-muted-foreground">
-                      {flag.description}
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="history" className="border-foreground/10 px-1 sm:px-2">
-                    <AccordionTrigger className="home-v2-accordion-trigger px-4 py-5 font-display text-lg font-bold hover:no-underline sm:text-xl">
-                      History & context
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-6 text-base leading-relaxed text-muted-foreground">
-                      {flag.history}
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="significance" className="border-foreground/10 px-1 sm:px-2">
-                    <AccordionTrigger className="home-v2-accordion-trigger px-4 py-5 font-display text-lg font-bold hover:no-underline sm:text-xl">
-                      Full significance
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-6 text-base leading-relaxed text-muted-foreground">
-                      {flag.significance}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </section>
-
-              <section aria-labelledby="stripe-explorer-heading">
-                <h3 id="stripe-explorer-heading" className="font-display text-xl font-bold tracking-tight">
-                  Read the stripes
-                </h3>
-                <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
-                  Each band is exact hex from the source design. Tap to inspect—no reinterpretation, just the colors as
-                  specified.
-                </p>
-                <div
-                  className="mt-5 flex gap-px overflow-hidden rounded-sm border border-foreground/15 bg-foreground/15 shadow-sm"
-                  role="list"
-                  aria-label="Flag color stripes"
-                >
-                  {stripeLabels.map(({ hex, index: stripeIndex }) => {
-                    const active = activeStripe === stripeIndex
-                    return (
-                      <button
-                        key={`${flag.id}-${stripeIndex}-${hex}`}
-                        type="button"
-                        role="listitem"
-                        className={cn(
-                          "home-v2-stripe-cut relative min-h-14 flex-1 transition-[flex,transform] duration-200 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                          active ? "z-[1] flex-[1.4] ring-2 ring-inset ring-foreground" : "hover:flex-[1.15] hover:brightness-105"
-                        )}
-                        style={{ backgroundColor: hex }}
-                        onClick={() => setActiveStripe(active ? null : stripeIndex)}
-                        aria-pressed={active}
-                        aria-label={`Stripe ${stripeIndex}, color ${hex}`}
-                      >
-                        <span className="sr-only">
-                          Stripe {stripeIndex} {hex}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-                {activeStripe !== null && stripes[activeStripe - 1] && (
-                  <p className="mt-3 font-mono text-sm text-foreground">
-                    Band {activeStripe} · {stripes[activeStripe - 1]?.toUpperCase()}
-                  </p>
-                )}
-              </section>
-
-              <footer className="border-t border-foreground/10 pt-8">
-                <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-muted-foreground">Shortcuts</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-xs">←</kbd>{" "}
-                  <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-xs">→</kbd>{" "}
-                  change flag ·{" "}
-                  <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-xs">↓</kbd> or{" "}
-                  <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-xs">space</kbd>{" "}
-                  random
-                </p>
-              </footer>
+            <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 border-t border-foreground/10 pt-3 sm:gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={prev}
+                aria-label="Previous flag"
+                className="size-11 rounded-none border-2 border-foreground/20 bg-background/80 shadow-none sm:size-12"
+              >
+                <ChevronLeft className="size-5 sm:size-6" />
+              </Button>
+              <Button
+                type="button"
+                onClick={shuffle}
+                className="h-11 gap-2 rounded-none border-2 border-transparent bg-foreground px-5 text-sm font-bold tracking-tight text-background shadow-none sm:h-12 sm:px-6 sm:text-base"
+              >
+                <Dices className="size-4 sm:size-5" aria-hidden />
+                Draw another
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={next}
+                aria-label="Next flag"
+                className="size-11 rounded-none border-2 border-foreground/20 bg-background/80 shadow-none sm:size-12"
+              >
+                <ChevronRight className="size-5 sm:size-6" />
+              </Button>
             </div>
           </motion.div>
         </motion.main>
+
+        <Drawer open={browsePanel === "details"} onOpenChange={(open) => setBrowsePanel(open ? "details" : null)}>
+          <DrawerContent className="max-h-[88dvh]">
+            <DrawerHeader className="text-left">
+              <DrawerTitle className="font-display text-xl">About this flag</DrawerTitle>
+              <DrawerDescription>{flag.name}</DrawerDescription>
+            </DrawerHeader>
+            <div className="overflow-y-auto px-4 pb-8 pt-0">
+              <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
+              <HomeV2ShortcutsFootnote className="mt-8 pt-6" />
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        <Drawer open={browsePanel === "palette"} onOpenChange={(open) => setBrowsePanel(open ? "palette" : null)}>
+          <DrawerContent className="max-h-[85dvh]">
+            <DrawerHeader className="text-left">
+              <DrawerTitle className="font-display text-xl">Read the stripes</DrawerTitle>
+              <DrawerDescription>Exact hex values from the source design—tap a band to inspect.</DrawerDescription>
+            </DrawerHeader>
+            <div className="overflow-y-auto px-4 pb-8">
+              <HomeV2StripePaletteStrip
+                flagId={flag.id}
+                stripeLabels={stripeLabels}
+                stripes={stripes}
+                activeStripe={activeStripe}
+                variant="drawer"
+                onStripeToggle={(stripeIndex) => {
+                  setActiveStripe((prev) => (prev === stripeIndex ? null : stripeIndex))
+                }}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        <Drawer open={browsePanel === "studio"} onOpenChange={(open) => setBrowsePanel(open ? "studio" : null)}>
+          <DrawerContent className="max-h-[90dvh]">
+            <DrawerHeader className="text-left">
+              <DrawerTitle className="font-display text-xl">Studio</DrawerTitle>
+              <DrawerDescription>Fine-tune motion, layout, and frames.</DrawerDescription>
+            </DrawerHeader>
+            <div
+              className="space-y-5 overflow-y-auto px-4 pb-10 pt-2"
+              style={studioShellStyle}
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <Label htmlFor="jump-flag-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                  Jump to
+                </Label>
+                <Select value={flag.id} onValueChange={(id) => goToIndex(PRIDE_FLAGS.findIndex((f) => f.id === id))}>
+                  <SelectTrigger id="jump-flag-drawer" className="w-full rounded-none border-foreground/15 sm:max-w-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRIDE_FLAGS.map((f) => (
+                      <SelectItem key={f.id} value={f.id}>
+                        {f.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Slice resolution
+                  </Label>
+                  <span className="text-xs tabular-nums text-muted-foreground">{columnCount} columns</span>
+                </div>
+                <Slider
+                  value={[columnCount]}
+                  onValueChange={(v) => setColumnCount(v[0] ?? 18)}
+                  min={10}
+                  max={32}
+                  step={1}
+                  aria-label="Adjust pixel column count for the flag animation"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-4">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-4 text-primary" aria-hidden />
+                  <Label htmlFor="wave-boost-drawer" className="text-sm font-semibold">
+                    Amp the wave
+                  </Label>
+                </div>
+                <Switch id="wave-boost-drawer" checked={waveBoost} onCheckedChange={setWaveBoost} />
+              </div>
+              <div className="space-y-2 border-t border-border/50 pt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="stripe-gap-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Gap between stripes
+                  </Label>
+                  <span className="text-xs tabular-nums text-muted-foreground">{stripeGap}px</span>
+                </div>
+                <Slider
+                  id="stripe-gap-drawer"
+                  value={[stripeGap]}
+                  onValueChange={(v) => setStripeGap(v[0] ?? 0)}
+                  min={0}
+                  max={16}
+                  step={1}
+                  aria-label="Gap between flag stripe columns in pixels"
+                />
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  Higher values can separate slices; SVG overlays may show seams at zero gap for continuity.
+                </p>
+              </div>
+              <div className="space-y-2 border-t border-border/50 pt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="frame-radius-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Rounded edges
+                  </Label>
+                  <span className="text-xs tabular-nums text-muted-foreground">{cornerRadius}px</span>
+                </div>
+                <Slider
+                  id="frame-radius-drawer"
+                  value={[cornerRadius]}
+                  onValueChange={(v) => setCornerRadius(v[0] ?? 0)}
+                  min={0}
+                  max={28}
+                  step={1}
+                  aria-label="Border radius for flag frames, studio panel, and stripe ends"
+                />
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
     </div>
   )
