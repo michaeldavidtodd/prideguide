@@ -335,7 +335,7 @@ function HomeV2BootOverlay({ phase, prideStripes }: { phase: BootPhase; prideStr
         ))}
       </div>
       <motion.p
-        className="font-display text-[0.65rem] font-bold uppercase tracking-[0.42em] text-muted-foreground"
+        className="font-display text-[0.65rem] font-bold uppercase tracking-[0.42em] text-muted-foreground mb-10"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
@@ -461,7 +461,7 @@ export function HomeV2WelcomeContent() {
 
           <motion.div
             variants={variants.item}
-            className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center"
+            className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center pb-10"
           >
             <div className="max-w-2xl space-y-8">
               <div className="space-y-5">
@@ -500,7 +500,7 @@ export function HomeV2WelcomeContent() {
                 </Link>
               </div>
 
-              <nav className="max-w-2xl space-y-4 border-t border-foreground/10 pt-8" aria-label="More ways to learn">
+              {/* <nav className="max-w-2xl space-y-4 border-t border-foreground/10 pt-8" aria-label="More ways to learn">
                 <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">
                   Also on Prism
                 </p>
@@ -535,7 +535,7 @@ export function HomeV2WelcomeContent() {
                     Original single-page layout
                   </Link>
                 </p>
-              </nav>
+              </nav> */}
             </div>
           </motion.div>
         </motion.section>
@@ -701,13 +701,13 @@ export function HomeV2ExploreContent() {
             <header className="home-v2-explore-header grid shrink-0 grid-cols-1 gap-x-4 gap-y-3 pb-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-y-2">
               <div className="relative min-w-0">
                 <span
-                  className="pointer-events-none absolute -left-1 -top-1 z-0 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.04] dark:text-foreground/[0.06] sm:-left-2 sm:top-0"
+                  className="pointer-events-none absolute -left-8 z-0 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.1] dark:text-foreground/[0.06]"
                   aria-hidden
                 >
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <div className="relative z-10 flex min-h-0 flex-col gap-2 pt-1 pl-[clamp(2.75rem,11vw,4.5rem)]">
-                  <div className="min-h-0">
+                <div className="relative z-10 flex min-h-0 flex-col gap-2 pt-1 pl-[clamp(2.75rem,11vw,4.5rem)] md:-ml-12">
+                  <div className="h-[calc(2*2lh)]">
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div
                         key={flag.id}
@@ -717,16 +717,16 @@ export function HomeV2ExploreContent() {
                         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                         className="min-w-0 max-w-[min(100%,42rem)]"
                       >
-                        <h2 className="line-clamp-2 min-h-[calc(2*1lh)] font-display text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1.08] tracking-tight">
+                        <h2 className="line-clamp-2 font-display text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1.08] tracking-tight">
                           {flag.name}
                         </h2>
+                        <div className="flex min-h-[1.75rem] shrink-0 items-center mt-2">
+                          <Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
+                            {flag.category}
+                          </Badge>
+                        </div>
                       </motion.div>
                     </AnimatePresence>
-                  </div>
-                  <div className="flex min-h-[1.75rem] shrink-0 items-center">
-                    <Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
-                      {flag.category}
-                    </Badge>
                   </div>
                 </div>
               </div>
@@ -906,7 +906,7 @@ export function HomeV2ExploreContent() {
                 className="home-v2-explore-rail home-v2-browse-rail hidden min-h-0 min-w-0 w-full shrink-0 border-foreground/10 lg:flex lg:min-w-[min(18rem,32%)] lg:flex-1 lg:flex-col lg:pl-7 xl:min-w-[min(20rem,34%)] xl:pl-9"
                 aria-label="About this flag and colors"
               >
-                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden overscroll-contain pr-1 pt-0">
+                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden overscroll-contain pr-1 pt-8">
                   <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
                   <HomeV2StripePaletteStrip
                     flagId={flag.id}
@@ -1111,7 +1111,7 @@ export function HomeV2ExploreContent() {
 export function HomeV2Fallback() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-      <p className="text-sm">Loading focus…</p>
+      <p className="text-xl font-display">Loading focus…</p>
     </div>
   )
 }
