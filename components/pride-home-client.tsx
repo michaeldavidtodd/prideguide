@@ -280,33 +280,69 @@ function HomeV2AboutBlock({
 const exploreKbd =
   "inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md border border-foreground/20 bg-muted/90 px-2 font-mono text-sm font-semibold text-foreground shadow-[inset_0_1px_0_hsl(var(--background)/0.4)] sm:min-h-10 sm:min-w-10 sm:text-base"
 
-function ExploreKeyboardLegend({ className }: { className?: string }) {
+const exploreKbdBtn =
+  "cursor-pointer transition-[transform,box-shadow,background-color,border-color] hover:border-foreground/35 hover:bg-muted active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+
+function ExploreKeyboardLegend({
+  className,
+  onPrevious,
+  onNext,
+  onRandom,
+}: {
+  className?: string
+  onPrevious: () => void
+  onNext: () => void
+  onRandom: () => void
+}) {
   return (
-    <div className={cn("space-y-2.5", className)} role="region" aria-label="Keyboard shortcuts">
-      {/* <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Keys</p> */}
+    <div
+      className={cn("space-y-2.5", className)}
+      role="region"
+      aria-label="Keyboard shortcuts and quick actions"
+    >
       <dl className="space-y-2 text-sm leading-snug sm:text-[0.9375rem] sm:leading-snug">
         <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
           <dt className="sr-only">Previous and next</dt>
           <dd className="flex flex-wrap items-center gap-2 text-foreground">
-            <kbd className={exploreKbd} aria-label="Left arrow">
+            <button
+              type="button"
+              className={cn(exploreKbd, exploreKbdBtn)}
+              aria-label="Previous flag. Keyboard: Left arrow."
+              onClick={onPrevious}
+            >
               <ArrowLeft className="size-4" aria-hidden strokeWidth={2.25} />
-            </kbd>
-            <kbd className={exploreKbd} aria-label="Right arrow">
+            </button>
+            <button
+              type="button"
+              className={cn(exploreKbd, exploreKbdBtn)}
+              aria-label="Next flag. Keyboard: Right arrow."
+              onClick={onNext}
+            >
               <ArrowRight className="size-4" aria-hidden strokeWidth={2.25} />
-            </kbd>
+            </button>
             <span className="text-muted-foreground">Previous or next flag</span>
           </dd>
         </div>
         <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
           <dt className="sr-only">Random flag</dt>
           <dd className="flex flex-wrap items-center gap-2 text-foreground">
-            <kbd className={exploreKbd} aria-label="Down arrow">
+            <button
+              type="button"
+              className={cn(exploreKbd, exploreKbdBtn)}
+              aria-label="Random flag. Keyboard: Down arrow."
+              onClick={onRandom}
+            >
               <ArrowDown className="size-4" aria-hidden strokeWidth={2.25} />
-            </kbd>
+            </button>
             <span className="text-muted-foreground">or</span>
-            <kbd className={cn(exploreKbd, "min-w-[4.75rem] px-3 !text-sm")} aria-label="Space bar">
+            <button
+              type="button"
+              className={cn(exploreKbd, exploreKbdBtn, "min-w-[4.75rem] px-3 !text-sm")}
+              aria-label="Random flag. Keyboard: Space."
+              onClick={onRandom}
+            >
               Space
-            </kbd>
+            </button>
             <span className="text-muted-foreground">Random flag</span>
           </dd>
         </div>
@@ -571,9 +607,9 @@ export function HomeV2WelcomeContent() {
           animate={bootContentRevealed ? "show" : "hidden"}
           variants={variants.heroWrap}
         >
-          <motion.div variants={variants.item} className="mx-auto flex w-full max-w-6xl shrink-0 justify-end px-4 pt-6 sm:px-8 sm:pt-10">
+          {/* <motion.div variants={variants.item} className="mx-auto flex w-full max-w-6xl shrink-0 justify-end px-4 pt-6 sm:px-8 sm:pt-10">
             <ThemeToggle />
-          </motion.div>
+          </motion.div> */}
 
           <motion.div
             variants={variants.item}
@@ -1023,7 +1059,7 @@ export function HomeV2ExploreContent() {
                 >
                   {index + 1}/{FLAG_COUNT}
                 </span>
-                <div className="flex flex-wrap items-center justify-end gap-2">
+                <div  className="flex flex-wrap items-center justify-end gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -1113,7 +1149,7 @@ export function HomeV2ExploreContent() {
                     <SlidersHorizontal className="size-3.5" aria-hidden />
                     <span className="hidden sm:inline">Studio</span>
                   </Button>
-                  <ThemeToggle />
+                  <ThemeToggle style={studioShellStyle} />
                 </div>
               </div>
             </header>
@@ -1263,7 +1299,12 @@ export function HomeV2ExploreContent() {
                       <span className="text-left">Studio<br/>Settings</span>
                     </button>
 
-                    <ExploreKeyboardLegend className="border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]" />
+                    <ExploreKeyboardLegend
+                      className="border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]"
+                      onPrevious={prev}
+                      onNext={next}
+                      onRandom={shuffle}
+                    />
                   </div>
                 </div>
               </div>

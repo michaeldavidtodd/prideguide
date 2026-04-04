@@ -1,11 +1,17 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, type CSSProperties } from "react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Sun, Moon, Monitor, Check, Waves } from "lucide-react" // Re-added Waves icon
+import { cn } from "@/lib/utils"
 
-export function ThemeToggle() {
+export type ThemeToggleProps = {
+  className?: string
+  style?: CSSProperties
+}
+
+export function ThemeToggle({ className, style }: ThemeToggleProps = {}) {
   const { theme, setTheme, themes: availableThemes } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -33,7 +39,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="outline" size="icon" className="w-9 h-9">
+      <Button variant="outline" size="icon" className={cn("w-9 h-9", className)} style={style}>
         <Sun className="h-4 w-4" />
       </Button>
     )
@@ -86,7 +92,13 @@ export function ThemeToggle() {
 
   return (
     <div className="relative" ref={popoverRef}>
-      <Button variant="outline" size="icon" className="w-9 h-9" onClick={() => setIsOpen(!isOpen)}>
+      <Button
+        variant="outline"
+        size="icon"
+        className={cn("w-9 h-9", className)}
+        style={style}
+        onClick={() => setIsOpen(!isOpen)}
+      >
         <CurrentIcon className="h-4 w-4" />
         <span className="sr-only">Toggle theme</span>
       </Button>
