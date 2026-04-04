@@ -3,83 +3,99 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Light: max-chroma parade (pink / coral / gold).
+   * Dark: *electric cool* — cyan + violet + magenta on blue-black (not Chillwave’s warm purple).
+   * Chillwave: *warm vapor* — deeper royal purple, hotter pink, coral, sun gold.
+   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --background: 292 62% 93%;
+    --foreground: 265 62% 10%;
+    --card: 288 50% 98%;
+    --card-foreground: 265 62% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --popover-foreground: 265 62% 10%;
+    --primary: 328 100% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 16 100% 90%;
+    --secondary-foreground: 12 100% 18%;
+    --muted: 278 52% 86%;
+    --muted-foreground: 278 48% 28%;
+    --accent: 44 100% 82%;
+    --accent-foreground: 32 100% 18%;
+    --destructive: 0 90% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 292 58% 58%;
+    --input: 288 48% 80%;
+    --ring: 328 100% 46%;
     --radius: 0.5rem;
+
+    --quiz-feedback-correct: 158 82% 30%;
+    --quiz-feedback-correct-icon: 162 90% 28%;
+    --quiz-feedback-incorrect: 10 100% 42%;
+    --quiz-feedback-incorrect-icon: 16 100% 36%;
   }
 
+  /* Nocturnal electric — visually distinct from Chillwave’s warm purple lounge */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.5% 48%;
+    --background: 232 58% 6%;
+    --foreground: 195 45% 96%;
+    --card: 235 52% 9%;
+    --card-foreground: 195 45% 96%;
+    --popover: 235 55% 7%;
+    --popover-foreground: 195 45% 96%;
+    --primary: 187 100% 46%;
+    --primary-foreground: 232 58% 8%;
+    --secondary: 268 92% 72%;
+    --secondary-foreground: 232 58% 8%;
+    --muted: 230 42% 13%;
+    --muted-foreground: 215 38% 68%;
+    --accent: 312 96% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 88% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 48% 20%;
+    --input: 230 40% 16%;
+    --ring: 187 100% 50%;
+
+    --quiz-feedback-correct: 158 75% 46%;
+    --quiz-feedback-correct-icon: 163 82% 58%;
+    --quiz-feedback-incorrect: 18 98% 56%;
+    --quiz-feedback-incorrect-icon: 22 100% 64%;
   }
 
   .chillwave {
-    --background: 270 60% 12%; /* Deep purple */
-    --foreground: 300 100% 90%; /* Light pink/lavender */
-    --card: 275 50% 18%; /* Darker purple */
-    --card-foreground: 300 100% 90%;
-    --popover: 275 50% 15%; /* Even darker purple for popovers */
-    --popover-foreground: 300 100% 90%;
-    --primary: 330 100% 65%; /* Vibrant pink */
-    --primary-foreground: 270 60% 12%; /* Deep purple for contrast on primary */
-    --secondary: 25 100% 60%; /* Warm orange */
-    --secondary-foreground: 270 60% 12%; /* Deep purple for contrast on secondary */
-    --muted: 275 40% 25%; /* Muted purple */
-    --muted-foreground: 300 80% 75%; /* Lighter muted pink/lavender */
-    --accent: 50 100% 60%; /* Glowing yellow/gold */
-    --accent-foreground: 270 60% 12%; /* Deep purple for contrast on accent */
-    --destructive: 0 80% 60%; /* Red (standard destructive) */
+    --background: 268 72% 8%;
+    --foreground: 305 100% 91%;
+    --card: 278 58% 13%;
+    --card-foreground: 305 100% 91%;
+    --popover: 275 55% 10%;
+    --popover-foreground: 305 100% 91%;
+    --primary: 328 100% 68%;
+    --primary-foreground: 268 72% 8%;
+    --secondary: 18 100% 56%;
+    --secondary-foreground: 268 72% 8%;
+    --muted: 280 52% 18%;
+    --muted-foreground: 300 88% 74%;
+    --accent: 46 100% 58%;
+    --accent-foreground: 268 72% 8%;
+    --destructive: 0 88% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 280 40% 30%; /* Purple border */
-    --input: 280 40% 22%; /* Dark purple input */
-    --ring: 330 100% 65%; /* Vibrant pink for ring */
+    --border: 286 58% 32%;
+    --input: 280 48% 15%;
+    --ring: 328 100% 70%;
     --radius: 0.5rem;
 
     /* Chillwave specific effects */
     --chillwave-main-gradient: linear-gradient(
       to bottom right,
-      hsl(270, 60%, 12%),
-      hsl(290, 60%, 20%),
-      hsl(320, 70%, 30%)
+      hsl(268, 72%, 8%),
+      hsl(295, 68%, 16%),
+      hsl(330, 75%, 26%)
     );
-    --chillwave-card-glow: 0 0 15px hsl(var(--primary) / 0.5), 0 0 30px hsl(var(--primary) / 0.3);
-    --chillwave-hero-text-glow: 0 0 8px hsl(var(--primary) / 0.7), 0 0 12px hsl(var(--primary) / 0.5), 0 0 20px
-      hsl(var(--primary) / 0.3);
+    --chillwave-card-glow: 0 0 22px hsl(var(--primary) / 0.62), 0 0 44px hsl(var(--primary) / 0.38);
+    --chillwave-hero-text-glow: 0 0 10px hsl(var(--primary) / 0.85), 0 0 18px hsl(var(--primary) / 0.6), 0 0 28px
+      hsl(var(--primary) / 0.4);
 
     /* Quiz feedback: separate hues from primary (pink) vs destructive (red) so correct/wrong read clearly */
     --quiz-feedback-correct: 158 72% 48%;
@@ -110,9 +126,14 @@ html {
   overflow-anchor: none;
 }
 
-/* Dark mode adjustments for the main content area */
+/* Dark: cyan → violet → magenta (matches .dark tokens, not Chillwave) */
 .dark .bg-gradient-to-br {
-  background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
+  background: linear-gradient(
+    to bottom right,
+    hsl(232 58% 6%),
+    hsl(258 52% 14%),
+    hsl(300 55% 18%)
+  );
 }
 
 /* Ensure hero section stays black in all themes */
@@ -418,9 +439,9 @@ html {
   overflow: hidden;
   background: linear-gradient(
     165deg,
-    rgb(255 250 252) 0%,
-    rgb(250 245 255) 38%,
-    rgb(238 242 255) 100%
+    hsl(300 70% 98%) 0%,
+    hsl(285 55% 96%) 40%,
+    hsl(268 50% 94%) 100%
   );
   min-height: 100vh;
   border-radius: 24px 24px 0 0;
@@ -428,10 +449,15 @@ html {
   border-top: 3px solid hsl(var(--foreground) / 0.12);
 }
 
-/* Dark mode adjustments for main content */
+/* Dark: electric cool ramp (aligned with .dark tokens) */
 .dark .main-content {
-  background: linear-gradient(to bottom right, rgb(15 23 42), rgb(30 41 59), rgb(51 65 85));
-  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(
+    to bottom right,
+    hsl(232 58% 7%),
+    hsl(248 50% 12%),
+    hsl(285 45% 16%)
+  );
+  box-shadow: 0 -20px 48px hsl(187 100% 50% / 0.08);
 }
 
 /* Chillwave theme adjustments */
@@ -569,17 +595,25 @@ button.quiz-answer-btn.quiz-answer-btn--interactive:focus-visible:hover {
 }
 
 button.quiz-answer-btn.quiz-answer-btn--correct {
-  border-color: hsl(var(--primary));
-  background-color: color-mix(in hsl, hsl(var(--primary)) 26%, hsl(var(--card)));
+  border-color: hsl(var(--quiz-feedback-correct));
+  background-color: color-mix(in hsl, hsl(var(--quiz-feedback-correct)) 28%, hsl(var(--card)));
   color: hsl(var(--foreground));
-  box-shadow: inset 5px 0 0 hsl(var(--primary));
+  box-shadow: inset 5px 0 0 hsl(var(--quiz-feedback-correct));
+}
+
+button.quiz-answer-btn.quiz-answer-btn--correct svg {
+  color: hsl(var(--quiz-feedback-correct-icon));
 }
 
 button.quiz-answer-btn.quiz-answer-btn--incorrect {
-  border-color: hsl(var(--destructive));
-  background-color: color-mix(in hsl, hsl(var(--destructive)) 22%, hsl(var(--card)));
+  border-color: hsl(var(--quiz-feedback-incorrect));
+  background-color: color-mix(in hsl, hsl(var(--quiz-feedback-incorrect)) 24%, hsl(var(--card)));
   color: hsl(var(--foreground));
-  box-shadow: inset 5px 0 0 hsl(var(--destructive));
+  box-shadow: inset 5px 0 0 hsl(var(--quiz-feedback-incorrect));
+}
+
+button.quiz-answer-btn.quiz-answer-btn--incorrect svg {
+  color: hsl(var(--quiz-feedback-incorrect-icon));
 }
 
 button.quiz-answer-btn.quiz-answer-btn--dimmed {
@@ -587,28 +621,6 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   background-color: color-mix(in hsl, hsl(var(--muted)) 55%, hsl(var(--card)));
   color: hsl(var(--muted-foreground));
   opacity: 0.88;
-}
-
-.chillwave button.quiz-answer-btn.quiz-answer-btn--correct {
-  border-color: hsl(var(--quiz-feedback-correct));
-  background-color: color-mix(in hsl, hsl(var(--quiz-feedback-correct)) 34%, hsl(var(--card)));
-  color: hsl(var(--foreground));
-  box-shadow: inset 6px 0 0 hsl(var(--quiz-feedback-correct));
-}
-
-.chillwave button.quiz-answer-btn.quiz-answer-btn--correct svg {
-  color: hsl(var(--quiz-feedback-correct-icon));
-}
-
-.chillwave button.quiz-answer-btn.quiz-answer-btn--incorrect {
-  border-color: hsl(var(--quiz-feedback-incorrect));
-  background-color: color-mix(in hsl, hsl(var(--quiz-feedback-incorrect)) 28%, hsl(var(--card)));
-  color: hsl(var(--foreground));
-  box-shadow: inset 6px 0 0 hsl(var(--quiz-feedback-incorrect));
-}
-
-.chillwave button.quiz-answer-btn.quiz-answer-btn--incorrect svg {
-  color: hsl(var(--quiz-feedback-incorrect-icon));
 }
 
 /* Explore Focus: honor in-app motion choice (see pride-home-client.tsx) */
@@ -639,10 +651,20 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 }
 
 /* --- /home-v2 Focus: editorial canvas + pixel-stage framing (theme tokens) --- */
+/*
+ * JS sets --welcome-stripe-1/2/3 from the active flag’s stripes (exact palette).
+ * Blobs + kicker bar use raw stripes. Headline/CTA mix stripe toward --foreground for contrast
+ * (no primary/secondary mix — that was shifting hues away from the real flags).
+ */
 .home-v2-root {
   position: relative;
   isolation: isolate;
   min-height: 100vh;
+  --welcome-stripe-1: #e40303;
+  --welcome-stripe-2: #7848f5;
+  --welcome-stripe-3: #0080ff;
+  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 66%, hsl(var(--foreground)) 34%);
+  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 66%, hsl(var(--foreground)) 34%);
   background-color: hsl(var(--background));
   background-image:
     radial-gradient(ellipse 130% 100% at 0% -15%, hsl(var(--primary) / 0.16), transparent 52%),
@@ -650,16 +672,31 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
     radial-gradient(ellipse 80% 55% at 50% 110%, hsl(var(--accent) / 0.07), transparent 42%);
 }
 
-.chillwave .home-v2-root {
+.light .home-v2-root {
+  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 52%, hsl(var(--foreground)) 48%);
+  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 52%, hsl(var(--foreground)) 48%);
   background-image:
-    radial-gradient(ellipse 120% 95% at -8% 0%, hsl(var(--primary) / 0.2), transparent 55%),
-    radial-gradient(ellipse 85% 65% at 108% 25%, hsl(var(--accent) / 0.14), transparent 50%);
+    radial-gradient(ellipse 125% 100% at 0% -12%, hsl(var(--primary) / 0.48), transparent 50%),
+    radial-gradient(ellipse 100% 78% at 100% 4%, hsl(var(--secondary) / 0.44), transparent 46%),
+    radial-gradient(ellipse 92% 64% at 50% 108%, hsl(var(--accent) / 0.36), transparent 40%);
+}
+
+.chillwave .home-v2-root {
+  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 58%, hsl(var(--foreground)) 42%);
+  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 58%, hsl(var(--foreground)) 42%);
+  background-image:
+    radial-gradient(ellipse 118% 95% at -10% -2%, hsl(var(--primary) / 0.52), transparent 50%),
+    radial-gradient(ellipse 92% 72% at 108% 12%, hsl(var(--secondary) / 0.42), transparent 46%),
+    radial-gradient(ellipse 90% 62% at 52% 104%, hsl(var(--accent) / 0.38), transparent 42%);
 }
 
 .dark .home-v2-root {
+  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 55%, hsl(var(--foreground)) 45%);
+  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 55%, hsl(var(--foreground)) 45%);
   background-image:
-    radial-gradient(ellipse 115% 90% at 5% -8%, hsl(var(--primary) / 0.2), transparent 58%),
-    radial-gradient(ellipse 75% 55% at 95% 35%, hsl(var(--ring) / 0.12), transparent 52%);
+    radial-gradient(ellipse 115% 90% at 4% -10%, hsl(var(--primary) / 0.45), transparent 52%),
+    radial-gradient(ellipse 84% 62% at 98% 26%, hsl(var(--secondary) / 0.38), transparent 48%),
+    radial-gradient(ellipse 92% 58% at 48% 108%, hsl(var(--accent) / 0.35), transparent 44%);
 }
 
 /* --- Aurora: cycling soft flag-color blobs behind all content --- */
@@ -696,9 +733,12 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   will-change: transform;
 }
 
-.dark .home-v2-aurora-blob,
+.dark .home-v2-aurora-blob {
+  opacity: 0.48;
+}
+
 .chillwave .home-v2-aurora-blob {
-  opacity: 0.24;
+  opacity: 0.36;
 }
 
 .home-v2-aurora-blob--1 {
@@ -707,6 +747,7 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   top: -15%;
   right: -10%;
   animation: auroraDrift1 18s ease-in-out infinite;
+  background: var(--welcome-stripe-1);
 }
 
 .home-v2-aurora-blob--2 {
@@ -715,6 +756,7 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   bottom: -10%;
   left: -8%;
   animation: auroraDrift2 22s ease-in-out infinite;
+  background: var(--welcome-stripe-2);
 }
 
 .home-v2-aurora-blob--3 {
@@ -723,6 +765,7 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   top: 30%;
   left: 35%;
   animation: auroraDrift3 26s ease-in-out infinite;
+  background: var(--welcome-stripe-3);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -792,16 +835,62 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px));
 }
 
+/* Welcome hero: kicker bar = exact stripe; type/CTA = contrast-mixed toward foreground. */
 .home-v2-kicker-rule {
   height: 3px;
   width: clamp(3rem, 12vw, 6rem);
-  background: linear-gradient(
-    90deg,
-    hsl(var(--primary)),
-    hsl(var(--accent)),
-    hsl(var(--secondary))
-  );
+  background-color: var(--welcome-stripe-1);
   clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+  transition: background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-v2-welcome-accent-text {
+  color: var(--welcome-text-1);
+  transition: color 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-v2-welcome-guide-accent {
+  color: var(--welcome-text-2);
+  transition: color 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-v2-welcome-cta {
+  color: var(--welcome-text-1);
+  border-bottom-color: var(--welcome-text-1);
+  transition:
+    color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.25s ease;
+}
+
+.home-v2-welcome-cta:hover {
+  filter: brightness(1.12);
+}
+
+/* Welcome homepage: headline & copy */
+.home-v2-welcome .home-v2-welcome-lead {
+  color: hsl(var(--foreground));
+}
+
+.home-v2-welcome .home-v2-welcome-sub {
+  color: hsl(var(--muted-foreground));
+}
+
+.light .home-v2-welcome .home-v2-welcome-sub {
+  color: hsl(var(--secondary-foreground) / 0.78);
+}
+
+.dark .home-v2-welcome .home-v2-welcome-sub {
+  color: hsl(var(--primary) / 0.58);
+}
+
+.chillwave .home-v2-welcome .home-v2-welcome-sub {
+  color: hsl(var(--muted-foreground));
+}
+
+.home-v2-welcome-cta:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 4px;
 }
 
 .home-v2-stage-shell {

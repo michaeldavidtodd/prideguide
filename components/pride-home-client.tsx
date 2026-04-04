@@ -134,43 +134,56 @@ const AURORA_FLAG_IDS = [
   "nonbinary", "pansexual", "gay", "progress",
 ]
 
-function FlagAurora({ reduceMotion }: { reduceMotion: boolean | null }) {
-  const [idx, setIdx] = useState(0)
+/** Hex fallbacks for inline/CSS var usage (theme tokens are invalid inside `color:` in some cases). */
+const AURORA_FALLBACK_BLOBS = ["#e40303", "#7848f5", "#0080ff"] as const
 
-  const auroraFlags = useMemo(() => {
+function useAuroraFlagsList() {
+  return useMemo(() => {
     const map = new Map(PRIDE_FLAGS.map((f) => [f.id, f]))
     return AURORA_FLAG_IDS.map((id) => map.get(id)).filter(Boolean) as PrideFlag[]
   }, [])
+}
+
+function normalizeStripeHex(raw: string | undefined, fallback: string): string {
+  if (!raw) return fallback
+  return canonicalFlagHex(raw) ?? fallback
+}
+
+function auroraBlobsForIndex(
+  auroraFlags: (typeof PRIDE_FLAGS)[number][],
+  paletteIndex: number
+) {
+  const n = auroraFlags.length
+  const safeIdx = n ? ((paletteIndex % n) + n) % n : 0
+  const stripes = auroraFlags[safeIdx]?.display.stripes ?? []
+  return {
+    blob1: normalizeStripeHex(stripes[0], AURORA_FALLBACK_BLOBS[0]),
+    blob2: normalizeStripeHex(stripes[Math.floor(stripes.length / 2)], AURORA_FALLBACK_BLOBS[1]),
+    blob3: normalizeStripeHex(stripes[stripes.length - 1], AURORA_FALLBACK_BLOBS[2]),
+  }
+}
+
+function useWelcomeAuroraPalette(reduceMotion: boolean | null) {
+  const auroraFlags = useAuroraFlagsList()
+  const [paletteIndex, setPaletteIndex] = useState(0)
 
   useEffect(() => {
     if (reduceMotion === true || auroraFlags.length < 2) return
     const t = window.setInterval(() => {
-      setIdx((prev) => (prev + 1) % auroraFlags.length)
+      setPaletteIndex((prev) => (prev + 1) % auroraFlags.length)
     }, AURORA_CYCLE_MS)
     return () => window.clearInterval(t)
   }, [reduceMotion, auroraFlags.length])
 
-  const flag = auroraFlags[idx]
-  const stripes = flag?.display.stripes ?? []
+  return auroraBlobsForIndex(auroraFlags, paletteIndex)
+}
 
-  const blob1 = stripes[0] ?? "hsl(var(--primary))"
-  const blob2 = stripes[Math.floor(stripes.length / 2)] ?? "hsl(var(--accent))"
-  const blob3 = stripes[stripes.length - 1] ?? "hsl(var(--secondary))"
-
+function FlagAurora() {
   return (
     <div className="home-v2-aurora" aria-hidden>
-      <div
-        className="home-v2-aurora-blob home-v2-aurora-blob--1"
-        style={{ background: blob1 }}
-      />
-      <div
-        className="home-v2-aurora-blob home-v2-aurora-blob--2"
-        style={{ background: blob2 }}
-      />
-      <div
-        className="home-v2-aurora-blob home-v2-aurora-blob--3"
-        style={{ background: blob3 }}
-      />
+      <div className="home-v2-aurora-blob home-v2-aurora-blob--1" />
+      <div className="home-v2-aurora-blob home-v2-aurora-blob--2" />
+      <div className="home-v2-aurora-blob home-v2-aurora-blob--3" />
     </div>
   )
 }
@@ -449,6 +462,7 @@ export function HomeV2WelcomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const reduceMotion = useReducedMotion()
+  const { blob1, blob2, blob3 } = useWelcomeAuroraPalette(reduceMotion)
   const welcomeFlag = useMemo(() => PRIDE_FLAGS.find((f) => f.id === "pride") ?? PRIDE_FLAGS[0], [])
   const [bootPhase, setBootPhase] = useState<BootPhase>("bars")
 
@@ -526,11 +540,18 @@ export function HomeV2WelcomeContent() {
     <div
       className="home-v2-root flex h-dvh min-h-0 flex-col text-foreground"
       aria-busy={bootPhase !== "off"}
+      style={
+        {
+          ["--welcome-stripe-1" as string]: blob1,
+          ["--welcome-stripe-2" as string]: blob2,
+          ["--welcome-stripe-3" as string]: blob3,
+        } as CSSProperties
+      }
     >
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {bootPhase === "off" ? "Pride Guide ready." : "Starting Pride Guide, please wait."}
       </p>
-      <FlagAurora reduceMotion={reduceMotion} />
+      <FlagAurora />
       <div className="home-v2-grain" aria-hidden />
       {reduceMotion !== true && bootPhase !== "off" && (
         <HomeV2BootOverlay phase={bootPhase} prideStripes={welcomeFlag.display.stripes ?? []} />
@@ -544,7 +565,7 @@ export function HomeV2WelcomeContent() {
         </Link>
 
         <motion.section
-          className="home-v2-hero flex min-h-0 flex-1 flex-col"
+          className="home-v2-hero home-v2-welcome flex min-h-0 flex-1 flex-col"
           aria-label="Welcome"
           initial="hidden"
           animate={bootContentRevealed ? "show" : "hidden"}
@@ -561,20 +582,40 @@ export function HomeV2WelcomeContent() {
             <div className="max-w-2xl space-y-8">
               <div className="space-y-5">
                 <div className="home-v2-kicker-rule" aria-hidden />
-                <p className="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-primary">Prism · queer education</p>
+                <p
+                  className={cn(
+                    "w-fit text-[0.7rem] font-bold uppercase tracking-[0.32em]",
+                    reduceMotion ? "text-primary" : "home-v2-welcome-accent-text"
+                  )}
+                >
+                  Prism · queer education
+                </p>
                 <h1 className="font-display text-[clamp(3rem,12vw,6.5rem)] font-black leading-[0.88] tracking-tight">
-                  Pride
-                  <br />
-                  <span className="text-muted-foreground">Guide</span>
+                  <span
+                    className={cn(
+                      "block",
+                      reduceMotion ? "text-primary" : "home-v2-welcome-accent-text"
+                    )}
+                  >
+                    Pride
+                  </span>
+                  <span
+                    className={cn(
+                      "block",
+                      reduceMotion ? "text-muted-foreground" : "home-v2-welcome-guide-accent"
+                    )}
+                  >
+                    Guide
+                  </span>
                 </h1>
               </div>
 
               <div className="space-y-5">
-                <p className="max-w-[44ch] text-balance font-display text-[clamp(1.25rem,3.4vw,1.85rem)] font-bold leading-snug tracking-tight text-foreground">
+                <p className="home-v2-welcome-lead max-w-[44ch] text-balance font-display text-[clamp(1.25rem,3.4vw,1.85rem)] font-bold leading-snug tracking-tight">
                   Welcome in. You're about to go deep on the symbols that hold our stories—color, history, and meaning,
                   turned up loud.
                 </p>
-                <p className="max-w-[54ch] text-balance text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <p className="home-v2-welcome-lead max-w-[54ch] text-balance text-base leading-relaxed sm:text-lg">
                   Learn on your own terms. No one owes you their identity as a lesson plan—and you still deserve to walk
                   away informed, fired up, and ready to show up for the community.
                 </p>
@@ -583,7 +624,7 @@ export function HomeV2WelcomeContent() {
               <div>
                 <Link
                   href={PRIDE_EXPLORE_PATH}
-                  className="group inline-flex items-center gap-3 border-b-2 border-primary pb-1 font-display text-sm font-extrabold uppercase tracking-[0.2em] text-foreground transition-colors hover:border-foreground hover:text-primary"
+                  className="home-v2-welcome-cta group inline-flex items-center gap-3 border-b-2 pb-1 font-display text-sm font-extrabold uppercase tracking-[0.2em]"
                 >
                   Start exploring
                   <span

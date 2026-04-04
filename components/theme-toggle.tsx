@@ -104,11 +104,9 @@ export function ThemeToggle() {
                   className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-md transition-all duration-200 border
                     ${
                       isActive
-                        ? "theme-button-active bg-accent text-accent-foreground border-primary/50" // Generic active style
-                        : "text-popover-foreground hover:bg-accent/50 border-transparent"
+                        ? "bg-primary/15 text-primary border-primary/45"
+                        : "border-transparent text-popover-foreground hover:bg-accent/60 hover:border-border/50"
                     }
-                    ${theme === "chillwave" && isActive ? "bg-primary/20 text-primary border-primary/50" : ""}
-                    ${theme !== "chillwave" && isActive && themeOption.value !== "chillwave" ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700" : ""}
                   `}
                   onClick={() => handleThemeSelect(themeOption.value)}
                 >
