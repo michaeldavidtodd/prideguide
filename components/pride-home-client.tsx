@@ -130,6 +130,14 @@ function clampIndex(i: number) {
   return ((i % FLAG_COUNT) + FLAG_COUNT) % FLAG_COUNT
 }
 
+/** Shortest path around the ring — drives slide direction for jumps (shuffle, URL, studio). */
+function indexDeltaDir(from: number, to: number): 1 | -1 {
+  if (from === to) return 1
+  const forward = (to - from + FLAG_COUNT) % FLAG_COUNT
+  const backward = (from - to + FLAG_COUNT) % FLAG_COUNT
+  return forward <= backward ? 1 : -1
+}
+
 function parseHex(hex: string): { r: number; g: number; b: number } | null {
   const h = hex.trim().replace(/^#/, "")
   if (!h) return null
@@ -555,6 +563,7 @@ export function HomeV2ExploreContent() {
   const [columnCount, setColumnCount] = useState(18)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const [browsePanel, setBrowsePanel] = useState<null | "details" | "palette" | "studio">(null)
+  const [flagNavDir, setFlagNavDir] = useState<1 | -1>(1)
   const [stripeGap, setStripeGap] = useState(0)
   const [cornerRadius, setCornerRadius] = useState(0)
   const pointerStart = useRef<{ x: number } | null>(null)
@@ -593,13 +602,17 @@ export function HomeV2ExploreContent() {
   )
 
   const goToIndex = useCallback(
-    (i: number) => {
+    (i: number, intent?: "forward" | "backward") => {
       const next = clampIndex(i)
+      if (next === index) return
+      const dir =
+        intent === "forward" ? 1 : intent === "backward" ? -1 : indexDeltaDir(index, next)
+      setFlagNavDir(dir)
       setIndex(next)
       setActiveStripe(null)
       syncUrl(next)
     },
-    [syncUrl]
+    [index, syncUrl]
   )
 
   useEffect(() => {
@@ -622,8 +635,8 @@ export function HomeV2ExploreContent() {
     return () => mq.removeEventListener("change", apply)
   }, [])
 
-  const next = useCallback(() => goToIndex(index + 1), [goToIndex, index])
-  const prev = useCallback(() => goToIndex(index - 1), [goToIndex, index])
+  const next = useCallback(() => goToIndex(index + 1, "forward"), [goToIndex, index])
+  const prev = useCallback(() => goToIndex(index - 1, "backward"), [goToIndex, index])
 
   const shuffle = useCallback(() => {
     if (FLAG_COUNT < 2) return
@@ -689,6 +702,27 @@ export function HomeV2ExploreContent() {
     "font-display text-lg font-extrabold leading-tight tracking-tight text-foreground sm:text-xl"
   const exploreDrawerDescriptionClass = "text-sm leading-snug text-muted-foreground"
   const exploreDrawerBodyClass = "min-h-0 flex-1 overflow-y-auto px-5 pb-8 pt-4 sm:px-6"
+
+  const flagStageSlideVariants = useMemo(
+    () => ({
+      initial: (dir: 1 | -1) =>
+        reduceMotion ? { opacity: 0 } : { x: dir * 36, opacity: 0 },
+      animate: {
+        x: 0,
+        opacity: 1,
+        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+      },
+      exit: (dir: 1 | -1) =>
+        reduceMotion
+          ? { opacity: 0, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const } }
+          : {
+              x: dir * -36,
+              opacity: 0,
+              transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const },
+            },
+    }),
+    [reduceMotion]
+  )
 
   return (
     <div className="home-v2-root flex h-dvh min-h-0 flex-col text-foreground">
@@ -863,11 +897,11 @@ export function HomeV2ExploreContent() {
               >
                 <div className="mx-auto flex w-full max-w-4xl justify-center lg:max-w-full">
                   <div
-                    className="home-v2-stage-shell flex h-[min(52dvh,560px)] w-full max-w-full flex-col overflow-hidden"
+                    className="home-v2-stage-shell flex h-[min(52dvh,560px)] w-full max-w-full flex-col"
                     style={frameRadiusStyle}
                   >
                     <div
-                      className="home-v2-stage-inner home-v2-flag-bounds h-full min-h-0 w-full overflow-hidden"
+                      className="home-v2-stage-inner home-v2-flag-bounds h-full min-h-0 w-full"
                       style={frameRadiusStyle}
                     >
                       <motion.div
@@ -876,32 +910,46 @@ export function HomeV2ExploreContent() {
                         transition={{ type: "spring", stiffness: 280, damping: 26 }}
                         style={{ transformStyle: "preserve-3d" }}
                       >
-                        {!reduceMotion && (
+                        <AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
                           <motion.div
-                            key={`scan-${flag.id}`}
-                            className="pointer-events-none absolute inset-0 z-10"
-                            initial={{ opacity: 0.5, x: "-35%" }}
-                            animate={{ opacity: 0, x: "135%" }}
-                            transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+                            key={flag.id}
+                            role="presentation"
+                            custom={flagNavDir}
+                            variants={flagStageSlideVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            className="relative col-start-1 row-start-1 grid h-full min-h-0 w-full place-items-center"
+                            style={{ transformStyle: "preserve-3d" }}
                           >
-                            <div className="h-full w-[28%] bg-gradient-to-r from-transparent via-[hsl(var(--foreground)/0.12)] to-transparent" />
+                            {!reduceMotion && (
+                              <motion.div
+                                key={`scan-${flag.id}`}
+                                className="pointer-events-none absolute inset-0 z-10"
+                                initial={{ opacity: 0.5, x: "-35%" }}
+                                animate={{ opacity: 0, x: "135%" }}
+                                transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+                              >
+                                <div className="h-full w-[28%] bg-gradient-to-r from-transparent via-[hsl(var(--foreground)/0.12)] to-transparent" />
+                              </motion.div>
+                            )}
+                            <AnimatedFlag
+                              backgroundColors={stripes}
+                              svgForeground={flag.display.svgForeground}
+                              fit="contain"
+                              numOfColumns={columnCount}
+                              billow={billow}
+                              columnGapPx={stripeGap}
+                              stripeCornerRadiusPx={cornerRadius}
+                            />
                           </motion.div>
-                        )}
-                        <AnimatedFlag
-                          backgroundColors={stripes}
-                          svgForeground={flag.display.svgForeground}
-                          fit="contain"
-                          numOfColumns={columnCount}
-                          billow={billow}
-                          columnGapPx={stripeGap}
-                          stripeCornerRadiusPx={cornerRadius}
-                        />
+                        </AnimatePresence>
                       </motion.div>
                     </div>
                   </div>
                 </div>
                 <p className="mx-auto mt-3 max-w-lg shrink-0 text-balance text-center text-sm leading-relaxed text-muted-foreground">
-                  Hover stills the wave · drag or swipe the flag to change
+                  Drag, swipe, or use arrow keys to change flags
                 </p>
               </div>
 

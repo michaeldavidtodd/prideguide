@@ -18,7 +18,8 @@ interface AnimatedFlagProps {
   className?: string
   numOfColumns?: number
   staggeredDelay?: number
-  billow?: number // Max billow amount for the wave
+  /** Scales vertical oscillation amplitude (px). Wave travel along the flag uses staggered delays, not this value per column. */
+  billow?: number
   /** Horizontal gap between column slices (px). Slight seams may appear on SVG-overlay flags. */
   columnGapPx?: number
   /**
@@ -52,7 +53,7 @@ export function AnimatedFlag({
   className = "",
   numOfColumns = 15, // 100. Increased default for smoother waves on complex designs
   staggeredDelay = 150, // 20
-  billow = .8, // 0.02. This is now an increment per column for the wave effect
+  billow = 0.8,
   columnGapPx = 0,
   stripeCornerRadiusPx,
   svgForeground,
@@ -75,9 +76,10 @@ export function AnimatedFlag({
   const firstColumnDelay = numOfColumns * staggeredDelay * -1
 
   const columnsData = useMemo(() => {
+    // Same amplitude every column so the middle doesn't go flat; horizontal wave is from staggered animation-delay.
+    const billowAmount = (numOfColumns / 2) * billow
     return Array.from({ length: numOfColumns }, (_, index) => ({
-      // billowAmount is the actual translateY value for this column's part of the wave
-      billowAmount: (index / numOfColumns - 0.5) * (numOfColumns * billow), // Creates a wave shape
+      billowAmount,
       animationDelay: firstColumnDelay + index * staggeredDelay,
     }))
   }, [numOfColumns, billow, firstColumnDelay, staggeredDelay])

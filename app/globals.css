@@ -325,11 +325,6 @@ html {
   border-bottom-right-radius: 0;
 }
 
-/* Pause animation on hover for better UX */
-.flag-container:hover .flag-column {
-  animation-play-state: paused;
-}
-
 /* Flag ticker scroll: implemented in components/flag-ring-carousel.tsx (rAF + translateX). */
 
 @keyframes tickerBob {
