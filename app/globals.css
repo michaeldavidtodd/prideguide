@@ -860,6 +860,31 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   background: hsl(var(--background) / 0.9);
 }
 
+/* Explore bottom sheets — angular frame + token tint (pairs with dock chrome) */
+.home-v2-explore-drawer-content {
+  width: 100%;
+  max-width: min(40rem, 100vw);
+  margin-inline: auto;
+  border-radius: 0;
+  border-top: 2px solid hsl(var(--foreground) / 0.2);
+  background: hsl(var(--background) / 0.97);
+  box-shadow:
+    0 0 0 1px hsl(var(--foreground) / 0.08),
+    0 -24px 56px -20px hsl(var(--foreground) / 0.2);
+}
+
+.home-v2-explore-drawer-content [data-drawer-handle] {
+  margin-top: 0.65rem;
+  height: 3px;
+  width: 2.75rem;
+  border-radius: 0;
+  background: hsl(var(--foreground) / 0.22);
+}
+
+.home-v2-explore-drawer-header {
+  border-bottom: 1px solid hsl(var(--foreground) / 0.1);
+}
+
 @media (min-width: 1024px) {
   .home-v2-browse .home-v2-explore-flag {
     justify-content: flex-start;

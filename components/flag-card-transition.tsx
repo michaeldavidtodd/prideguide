@@ -66,7 +66,7 @@ export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransition
   return (
     <>
       <Drawer open={isOpen && !!flag} onOpenChange={(open) => !open && onClose()}>
-        <DrawerContent className="mx-auto max-h-[88vh] w-full max-w-2xl rounded-t-2xl">
+        <DrawerContent className="mx-auto max-h-[min(88vh,56rem)] w-full max-w-[min(40rem,100vw)] rounded-t-2xl border border-b-0 border-foreground/15 bg-background">
           <DrawerHeader className="sr-only">
             <DrawerTitle>{flag?.name ?? "Flag details"}</DrawerTitle>
             <DrawerDescription>{flag?.description ?? "Flag information"}</DrawerDescription>

@@ -29,7 +29,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -681,6 +681,15 @@ export function HomeV2ExploreContent() {
     return { borderRadius: `${cornerRadius}px` }
   }, [cornerRadius])
 
+  const exploreDrawerContentClass =
+    "home-v2-explore-drawer-content flex max-h-[min(92dvh,56rem)] flex-col gap-0 rounded-none border-0 bg-transparent p-0 outline-none"
+  const exploreDrawerHeaderClass =
+    "home-v2-explore-drawer-header space-y-1 px-5 pb-4 pt-0 text-left sm:px-6"
+  const exploreDrawerTitleClass =
+    "font-display text-lg font-extrabold leading-tight tracking-tight text-foreground sm:text-xl"
+  const exploreDrawerDescriptionClass = "text-sm leading-snug text-muted-foreground"
+  const exploreDrawerBodyClass = "min-h-0 flex-1 overflow-y-auto px-5 pb-8 pt-4 sm:px-6"
+
   return (
     <div className="home-v2-root flex h-dvh min-h-0 flex-col text-foreground">
       <p className="sr-only" aria-live="polite" aria-atomic="true">
@@ -973,24 +982,28 @@ export function HomeV2ExploreContent() {
         </motion.main>
 
         <Drawer open={browsePanel === "details"} onOpenChange={(open) => setBrowsePanel(open ? "details" : null)}>
-          <DrawerContent className="max-h-[88dvh]">
-            <DrawerHeader className="text-left">
-              <DrawerTitle className="font-display text-xl">About this flag</DrawerTitle>
-              <DrawerDescription>{flag.name}</DrawerDescription>
+          <DrawerContent className={exploreDrawerContentClass}>
+            <DrawerHeader className={exploreDrawerHeaderClass}>
+              <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Focus</p>
+              <DrawerTitle className={exploreDrawerTitleClass}>About this flag</DrawerTitle>
+              <DrawerDescription className={exploreDrawerDescriptionClass}>{flag.name}</DrawerDescription>
             </DrawerHeader>
-            <div className="overflow-y-auto px-4 pb-8 pt-0">
+            <div className={exploreDrawerBodyClass}>
               <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
             </div>
           </DrawerContent>
         </Drawer>
 
         <Drawer open={browsePanel === "palette"} onOpenChange={(open) => setBrowsePanel(open ? "palette" : null)}>
-          <DrawerContent className="max-h-[85dvh]">
-            <DrawerHeader className="text-left">
-              <DrawerTitle className="font-display text-xl">Read the stripes</DrawerTitle>
-              <DrawerDescription>Exact hex values from the source design—tap a band to inspect.</DrawerDescription>
+          <DrawerContent className={exploreDrawerContentClass}>
+            <DrawerHeader className={exploreDrawerHeaderClass}>
+              <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Palette</p>
+              <DrawerTitle className={exploreDrawerTitleClass}>Read the stripes</DrawerTitle>
+              <DrawerDescription className={exploreDrawerDescriptionClass}>
+                Exact hex values from the source design—tap a band to inspect.
+              </DrawerDescription>
             </DrawerHeader>
-            <div className="overflow-y-auto px-4 pb-8">
+            <div className={exploreDrawerBodyClass}>
               <HomeV2StripePaletteStrip
                 flagId={flag.id}
                 stripeLabels={stripeLabels}
@@ -1006,16 +1019,16 @@ export function HomeV2ExploreContent() {
         </Drawer>
 
         <Drawer open={browsePanel === "studio"} onOpenChange={(open) => setBrowsePanel(open ? "studio" : null)}>
-          <DrawerContent className="max-h-[90dvh]">
-            <DrawerHeader className="text-left">
-              <DrawerTitle className="font-display text-xl">Studio</DrawerTitle>
-              <DrawerDescription>Fine-tune motion, layout, and frames.</DrawerDescription>
+          <DrawerContent className={exploreDrawerContentClass}>
+            <DrawerHeader className={exploreDrawerHeaderClass}>
+              <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Studio</p>
+              <DrawerTitle className={exploreDrawerTitleClass}>Motion & layout</DrawerTitle>
+              <DrawerDescription className={exploreDrawerDescriptionClass}>
+                Fine-tune motion, slice layout, and frames.
+              </DrawerDescription>
             </DrawerHeader>
-            <div
-              className="space-y-5 overflow-y-auto px-4 pb-10 pt-2"
-              style={studioShellStyle}
-            >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className={cn(exploreDrawerBodyClass, "space-y-5 pt-2")}>
+              {/* <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Label htmlFor="jump-flag-drawer" className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                   Jump to
                 </Label>
@@ -1031,7 +1044,7 @@ export function HomeV2ExploreContent() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
