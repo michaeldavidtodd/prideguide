@@ -53,6 +53,54 @@ export const HOME_V2_EXPLORE_PATH = "/home-v2/explore" as const
 
 const FLAG_COUNT = PRIDE_FLAGS.length
 
+/* ---- Aurora BG: soft color blobs cycling through flag palettes ---- */
+const AURORA_CYCLE_MS = 5000
+const AURORA_FLAG_IDS = [
+  "pride", "transgender", "bisexual", "lesbian",
+  "nonbinary", "pansexual", "gay", "progress",
+]
+
+function FlagAurora({ reduceMotion }: { reduceMotion: boolean | null }) {
+  const [idx, setIdx] = useState(0)
+
+  const auroraFlags = useMemo(() => {
+    const map = new Map(PRIDE_FLAGS.map((f) => [f.id, f]))
+    return AURORA_FLAG_IDS.map((id) => map.get(id)).filter(Boolean) as PrideFlag[]
+  }, [])
+
+  useEffect(() => {
+    if (reduceMotion === true || auroraFlags.length < 2) return
+    const t = window.setInterval(() => {
+      setIdx((prev) => (prev + 1) % auroraFlags.length)
+    }, AURORA_CYCLE_MS)
+    return () => window.clearInterval(t)
+  }, [reduceMotion, auroraFlags.length])
+
+  const flag = auroraFlags[idx]
+  const stripes = flag?.display.stripes ?? []
+
+  const blob1 = stripes[0] ?? "hsl(var(--primary))"
+  const blob2 = stripes[Math.floor(stripes.length / 2)] ?? "hsl(var(--accent))"
+  const blob3 = stripes[stripes.length - 1] ?? "hsl(var(--secondary))"
+
+  return (
+    <div className="home-v2-aurora" aria-hidden>
+      <div
+        className="home-v2-aurora-blob home-v2-aurora-blob--1"
+        style={{ background: blob1 }}
+      />
+      <div
+        className="home-v2-aurora-blob home-v2-aurora-blob--2"
+        style={{ background: blob2 }}
+      />
+      <div
+        className="home-v2-aurora-blob home-v2-aurora-blob--3"
+        style={{ background: blob3 }}
+      />
+    </div>
+  )
+}
+
 const BOOT_BAR_STAGGER_S = 0.052
 const BOOT_BAR_DURATION_S = 0.5
 const BOOT_HOLD_MS = 280
@@ -368,6 +416,7 @@ export function HomeV2WelcomeContent() {
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {bootPhase === "off" ? "Pride Guide ready." : "Starting Pride Guide, please wait."}
       </p>
+      <FlagAurora reduceMotion={reduceMotion} />
       <div className="home-v2-grain" aria-hidden />
       {reduceMotion !== true && bootPhase !== "off" && (
         <HomeV2BootOverlay phase={bootPhase} prideStripes={welcomeFlag.display.stripes ?? []} />
@@ -395,68 +444,41 @@ export function HomeV2WelcomeContent() {
             variants={variants.item}
             className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center overflow-y-auto px-4 py-10 sm:px-8 sm:py-14 lg:py-20"
           >
-            <div className="grid items-center gap-14 lg:grid-cols-12 lg:gap-x-16 lg:gap-y-12">
-              <div className="space-y-8 lg:col-span-7">
-                <div className="space-y-5">
-                  <div className="home-v2-kicker-rule" aria-hidden />
-                  <p className="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-primary">Prism · queer education</p>
-                  <h1 className="font-display text-[clamp(2.75rem,11vw,5.25rem)] font-black leading-[0.92] tracking-tight">
-                    Pride
-                    <br />
-                    <span className="text-muted-foreground">Guide</span>
-                  </h1>
-                </div>
-
-                <div className="space-y-5">
-                  <p className="max-w-[40ch] text-pretty font-display text-[clamp(1.2rem,3.2vw,1.75rem)] font-bold leading-snug tracking-tight text-foreground">
-                    Welcome in. You're about to go deep on the symbols that hold our stories—color, history, and meaning,
-                    turned up loud.
-                  </p>
-                  <p className="max-w-[52ch] text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-                    Learn on your own terms. No one owes you their identity as a lesson plan—and you still deserve to walk
-                    away informed, fired up, and ready to show up for the community.
-                  </p>
-                </div>
-
-                <div>
-                  <Link
-                    href={HOME_V2_EXPLORE_PATH}
-                    className="group inline-flex items-center gap-3 border-b-2 border-primary pb-1 font-display text-sm font-extrabold uppercase tracking-[0.2em] text-foreground transition-colors hover:border-foreground hover:text-primary"
-                  >
-                    Start exploring
-                    <span
-                      className="inline-block transition-transform duration-300 ease-out group-hover:translate-x-0.5"
-                      aria-hidden
-                    >
-                      →
-                    </span>
-                  </Link>
-                </div>
+            <div className="max-w-2xl space-y-8">
+              <div className="space-y-5">
+                <div className="home-v2-kicker-rule" aria-hidden />
+                <p className="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-primary">Prism · queer education</p>
+                <h1 className="font-display text-[clamp(3rem,12vw,6.5rem)] font-black leading-[0.88] tracking-tight">
+                  Pride
+                  <br />
+                  <span className="text-muted-foreground">Guide</span>
+                </h1>
               </div>
 
-              <div className="lg:col-span-5">
-                <div className="mx-auto max-w-md lg:mx-0 lg:max-w-none">
-                  <p className="mb-4 text-center text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:text-left text-balance">
-                    The rhythm in the explorer—pixel columns, true hues
-                  </p>
-                  <div className="home-v2-hero-preview">
-                    <div className="home-v2-hero-preview-inner home-v2-flag-bounds h-[min(28vh,220px)] min-h-[140px] overflow-hidden">
-                      <AnimatedFlag
-                        backgroundColors={welcomeFlag.display.stripes ?? []}
-                        svgForeground={welcomeFlag.display.svgForeground}
-                        fit="contain"
-                        numOfColumns={22}
-                        billow={0.75}
-                        columnGapPx={0}
-                        stripeCornerRadiusPx={0}
-                      />
-                    </div>
-                  </div>
-                  <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground lg:text-left">
-                    Every flag here uses accurate colors and respectful copy. The vibe is ours; the symbols belong to the
-                    people they represent.
-                  </p>
-                </div>
+              <div className="space-y-5">
+                <p className="max-w-[44ch] text-pretty font-display text-[clamp(1.25rem,3.4vw,1.85rem)] font-bold leading-snug tracking-tight text-foreground">
+                  Welcome in. You're about to go deep on the symbols that hold our stories—color, history, and meaning,
+                  turned up loud.
+                </p>
+                <p className="max-w-[54ch] text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  Learn on your own terms. No one owes you their identity as a lesson plan—and you still deserve to walk
+                  away informed, fired up, and ready to show up for the community.
+                </p>
+              </div>
+
+              <div>
+                <Link
+                  href={HOME_V2_EXPLORE_PATH}
+                  className="group inline-flex items-center gap-3 border-b-2 border-primary pb-1 font-display text-sm font-extrabold uppercase tracking-[0.2em] text-foreground transition-colors hover:border-foreground hover:text-primary"
+                >
+                  Start exploring
+                  <span
+                    className="inline-block transition-transform duration-300 ease-out group-hover:translate-x-0.5"
+                    aria-hidden
+                  >
+                    →
+                  </span>
+                </Link>
               </div>
             </div>
           </motion.div>
