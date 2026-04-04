@@ -414,15 +414,15 @@ export function HomeV2WelcomeContent() {
                     The rhythm in the explorer—pixel columns, true hues
                   </p>
                   <div className="home-v2-hero-preview">
-                    <div className="home-v2-hero-preview-inner overflow-hidden">
+                    <div className="home-v2-hero-preview-inner home-v2-flag-bounds h-[min(28vh,220px)] min-h-[140px] overflow-hidden">
                       <AnimatedFlag
                         backgroundColors={welcomeFlag.display.stripes ?? []}
                         svgForeground={welcomeFlag.display.svgForeground}
+                        fit="contain"
                         numOfColumns={22}
                         billow={0.75}
                         columnGapPx={0}
                         stripeCornerRadiusPx={0}
-                        className="w-full max-h-[min(28vh,220px)] min-h-[140px]"
                       />
                     </div>
                   </div>
@@ -686,7 +686,7 @@ export function HomeV2ExploreContent() {
             <div className="flex min-h-0 flex-1 flex-col gap-4 py-2 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
               <div
                 ref={stageRef}
-                className="flag-container relative mx-auto flex min-h-0 w-full min-w-0 flex-1 cursor-grab touch-pan-y flex-col justify-center active:cursor-grabbing lg:mx-0"
+                className="flag-container relative mx-auto flex min-h-0 w-full min-w-0 flex-1 cursor-grab touch-pan-y flex-col justify-center active:cursor-grabbing lg:mx-0 lg:max-w-[min(36rem,46vw)] lg:flex-none xl:max-w-[min(38rem,44vw)]"
                 onMouseMove={handleStageMove}
                 onMouseLeave={resetTilt}
                 onPointerDown={(e) => {
@@ -702,14 +702,17 @@ export function HomeV2ExploreContent() {
                 }}
                 style={{ perspective: reduceMotion ? undefined : "1100px" }}
               >
-                <div className="mx-auto flex w-full max-w-4xl justify-center lg:max-w-none">
+                <div className="mx-auto flex w-full max-w-4xl justify-center lg:max-w-full">
                   <div
-                    className="home-v2-stage-shell max-h-[min(48dvh,480px)] w-full max-w-full overflow-hidden [aspect-ratio:3/2] sm:max-h-[min(52dvh,520px)] lg:max-h-[min(58dvh,560px)]"
+                    className="home-v2-stage-shell flex h-[min(52dvh,560px)] w-full max-w-full flex-col overflow-hidden"
                     style={frameRadiusStyle}
                   >
-                    <div className="home-v2-stage-inner h-full min-h-0 overflow-hidden" style={frameRadiusStyle}>
+                    <div
+                      className="home-v2-stage-inner home-v2-flag-bounds h-full min-h-0 w-full overflow-hidden"
+                      style={frameRadiusStyle}
+                    >
                       <motion.div
-                        className="relative h-full min-h-0"
+                        className="relative grid h-full min-h-0 w-full place-items-center"
                         animate={reduceMotion ? {} : { rotateX: tilt.x, rotateY: tilt.y }}
                         transition={{ type: "spring", stiffness: 280, damping: 26 }}
                         style={{ transformStyle: "preserve-3d" }}
@@ -741,11 +744,11 @@ export function HomeV2ExploreContent() {
                         <AnimatedFlag
                           backgroundColors={stripes}
                           svgForeground={flag.display.svgForeground}
+                          fit="contain"
                           numOfColumns={columnCount}
                           billow={billow}
                           columnGapPx={stripeGap}
                           stripeCornerRadiusPx={cornerRadius}
-                          className="h-full min-h-0 w-full max-w-full"
                         />
                       </motion.div>
                     </div>
@@ -757,7 +760,7 @@ export function HomeV2ExploreContent() {
               </div>
 
               <aside
-                className="home-v2-browse-rail hidden min-h-0 w-full shrink-0 border-foreground/10 lg:flex lg:w-[min(22rem,30%)] lg:flex-col lg:border-l lg:pl-6 xl:w-[min(24rem,28%)] xl:pl-8"
+                className="home-v2-browse-rail hidden min-h-0 min-w-0 w-full shrink-0 border-foreground/10 lg:flex lg:min-w-[min(18rem,32%)] lg:flex-1 lg:flex-col lg:border-l lg:pl-7 xl:min-w-[min(20rem,34%)] xl:pl-9"
                 aria-label="About this flag and colors"
               >
                 <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden pr-1 pt-1">

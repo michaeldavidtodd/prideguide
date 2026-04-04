@@ -268,6 +268,27 @@ html {
   height: auto;
 }
 
+/*
+ * Uniform contain: same aspect at every viewport. Pairs
+ *   width = min(slotW, slotH * ar), height = min(slotH, slotW / ar)
+ * so the flag always matches --flag-ar (width ÷ height). Parent needs
+ * `container-type: size` + definite width and height (see `.home-v2-flag-bounds`).
+ */
+.animated-flag--contain {
+  box-sizing: border-box;
+  width: min(100cqw, calc(100cqh * var(--flag-ar, 1.5))) !important;
+  height: min(100cqh, calc(100cqw / var(--flag-ar, 1.5))) !important;
+  flex: 0 0 auto !important;
+}
+
+.home-v2-flag-bounds {
+  container-type: size;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  min-width: 0;
+}
+
 .flag-column {
   flex: 1;
   display: flex;

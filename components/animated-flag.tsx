@@ -30,6 +30,21 @@ interface AnimatedFlagProps {
     viewBox: string // e.g., "0 0 900 600"
     paths: SvgPathDefinition[]
   }
+  /**
+   * `fill` — span parent width (default).
+   * `contain` — scale uniformly inside a parent with a definite height (see `.animated-flag--contain`).
+   */
+  fit?: "fill" | "contain"
+}
+
+function parseViewBoxDims(viewBox: string | undefined): { w: number; h: number } | null {
+  if (!viewBox) return null
+  const parts = viewBox.trim().split(/\s+/).filter(Boolean)
+  if (parts.length !== 4) return null
+  const vbW = Number.parseFloat(parts[2]!)
+  const vbH = Number.parseFloat(parts[3]!)
+  if (!Number.isFinite(vbW) || !Number.isFinite(vbH) || vbW <= 0 || vbH <= 0) return null
+  return { w: vbW, h: vbH }
 }
 
 export function AnimatedFlag({
@@ -41,6 +56,7 @@ export function AnimatedFlag({
   columnGapPx = 0,
   stripeCornerRadiusPx,
   svgForeground,
+  fit = "fill",
 }: AnimatedFlagProps) {
   const gradientString = useMemo(() => {
     if (!backgroundColors || backgroundColors.length === 0) return "transparent"
@@ -66,15 +82,24 @@ export function AnimatedFlag({
     }))
   }, [numOfColumns, billow, firstColumnDelay, staggeredDelay])
 
-  const overallAspectRatio = 3 / 2
+  const overallAspectRatio = useMemo(() => {
+    const dims = parseViewBoxDims(svgForeground?.viewBox)
+    if (dims) return dims.w / dims.h
+    return 3 / 2
+  }, [svgForeground?.viewBox])
 
   const rootStyle = useMemo((): React.CSSProperties => {
-    const s: React.CSSProperties = { aspectRatio: `${overallAspectRatio}` }
+    const s: React.CSSProperties = {}
+    if (fit === "contain") {
+      ;(s as Record<string, string>)["--flag-ar"] = String(overallAspectRatio)
+    } else {
+      s.aspectRatio = overallAspectRatio
+    }
     if (columnGapPx > 0) {
       s.gap = columnGapPx
     }
     return s
-  }, [columnGapPx, overallAspectRatio])
+  }, [columnGapPx, fit, overallAspectRatio])
 
   const columnBorderRadius = useMemo(() => {
     if (stripeCornerRadiusPx === undefined) {
@@ -103,18 +128,24 @@ export function AnimatedFlag({
 
   return (
     <div
-      className={cn("animated-flag", className, stripeCornerRadiusPx !== undefined && "animated-flag--radius-controlled")}
+      className={cn(
+        "animated-flag",
+        fit === "contain" && "animated-flag--contain",
+        className,
+        stripeCornerRadiusPx !== undefined && "animated-flag--radius-controlled"
+      )}
       style={rootStyle}
     >
       {columnsData.map((colData, index) => {
         let columnSpecificViewBox = ""
-        if (svgForeground && svgForeground.viewBox) {
-          const parts = svgForeground.viewBox.split(" ")
+        const parsed = parseViewBoxDims(svgForeground?.viewBox)
+        if (parsed && svgForeground?.viewBox) {
+          const parts = svgForeground.viewBox.trim().split(/\s+/).filter(Boolean)
           if (parts.length === 4) {
-            const vbMinX = Number.parseFloat(parts[0])
-            const vbMinY = Number.parseFloat(parts[1])
-            const vbWidth = Number.parseFloat(parts[2])
-            const vbHeight = Number.parseFloat(parts[3])
+            const vbMinX = Number.parseFloat(parts[0]!)
+            const vbMinY = Number.parseFloat(parts[1]!)
+            const vbWidth = parsed.w
+            const vbHeight = parsed.h
 
             const singleColumnSvgWidth = vbWidth / numOfColumns
             const currentColumnSvgMinX = vbMinX + index * singleColumnSvgWidth
