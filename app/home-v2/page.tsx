@@ -4,6 +4,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -33,6 +34,11 @@ import { cn } from "@/lib/utils"
 
 const FLAG_COUNT = PRIDE_FLAGS.length
 
+const BOOT_BAR_STAGGER_S = 0.052
+const BOOT_BAR_DURATION_S = 0.5
+const BOOT_HOLD_MS = 280
+const BOOT_FADE_MS = 420
+
 function clampIndex(i: number) {
   return ((i % FLAG_COUNT) + FLAG_COUNT) % FLAG_COUNT
 }
@@ -54,6 +60,57 @@ function averageStripeAccent(stripes: string[]): string {
   const t = rgbs.reduce((a, b) => ({ r: a.r + b.r, g: a.g + b.g, b: a.b + b.b }), { r: 0, g: 0, b: 0 })
   const n = rgbs.length
   return `rgb(${Math.round(t.r / n)} ${Math.round(t.g / n)} ${Math.round(t.b / n)})`
+}
+
+type BootPhase = "bars" | "fade" | "off"
+
+function HomeV2BootOverlay({ phase, prideStripes }: { phase: BootPhase; prideStripes: readonly string[] }) {
+  if (phase === "off") return null
+
+  const barCount = Math.max(1, prideStripes.length)
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[250] flex flex-col items-center justify-end bg-[oklch(0.07_0.02_290)] pb-[min(22vh,10rem)] sm:pb-[min(26vh,12rem)]"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: phase === "fade" ? 0 : 1 }}
+      transition={{ duration: BOOT_FADE_MS / 1000, ease: [0.22, 1, 0.36, 1] }}
+      aria-hidden
+    >
+      <div className="mb-10 flex items-end justify-center gap-1 sm:gap-1.5 md:gap-2" role="presentation">
+        {prideStripes.map((hex, i) => (
+          <motion.div
+            key={`${hex}-${i}`}
+            className="w-[clamp(5px,1.8vw,14px)] origin-bottom rounded-[1px]"
+            style={{
+              backgroundColor: hex,
+              height: "clamp(5.5rem, 28vh, 14rem)",
+              boxShadow: `0 0 26px color-mix(in srgb, ${hex} 40%, transparent)`,
+            }}
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{
+              delay: i * BOOT_BAR_STAGGER_S,
+              duration: BOOT_BAR_DURATION_S,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          />
+        ))}
+      </div>
+      <motion.p
+        className="font-display text-[0.65rem] font-bold uppercase tracking-[0.42em] text-muted-foreground"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          delay: (barCount - 1) * BOOT_BAR_STAGGER_S + BOOT_BAR_DURATION_S * 0.35,
+          duration: 0.4,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+      >
+        Prism · loading signal
+      </motion.p>
+    </motion.div>
+  )
 }
 
 function HomeV2FocusContent() {
@@ -185,6 +242,49 @@ function HomeV2FocusContent() {
 
   const welcomeFlag = useMemo(() => PRIDE_FLAGS.find((f) => f.id === "pride") ?? PRIDE_FLAGS[0], [])
 
+  const [bootPhase, setBootPhase] = useState<BootPhase>("bars")
+
+  const bootBarsDurationMs = useMemo(() => {
+    const s = welcomeFlag.display.stripes ?? []
+    const n = Math.max(1, s.length)
+    return Math.ceil((n - 1) * BOOT_BAR_STAGGER_S * 1000 + BOOT_BAR_DURATION_S * 1000 + BOOT_HOLD_MS)
+  }, [welcomeFlag])
+
+  useLayoutEffect(() => {
+    if (reduceMotion === true) setBootPhase("off")
+  }, [reduceMotion])
+
+  useEffect(() => {
+    if (reduceMotion === true) return
+    if (bootPhase !== "bars") return
+    const t = window.setTimeout(() => setBootPhase("fade"), bootBarsDurationMs)
+    return () => window.clearTimeout(t)
+  }, [bootPhase, bootBarsDurationMs, reduceMotion])
+
+  useEffect(() => {
+    if (bootPhase !== "fade") return
+    const t = window.setTimeout(() => setBootPhase("off"), BOOT_FADE_MS)
+    return () => window.clearTimeout(t)
+  }, [bootPhase])
+
+  useEffect(() => {
+    if (bootPhase === "off") return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setBootPhase("off")
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [bootPhase])
+
+  useEffect(() => {
+    if (bootPhase === "off") return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [bootPhase])
+
   const frameRadiusStyle = useMemo((): CSSProperties | undefined => {
     if (cornerRadius <= 0) return undefined
     return { clipPath: "none", borderRadius: `${cornerRadius}px` }
@@ -205,13 +305,21 @@ function HomeV2FocusContent() {
     [reduceMotion]
   )
 
+  const bootContentRevealed = reduceMotion === true || bootPhase !== "bars"
+
   return (
-    <div className="home-v2-root text-foreground">
+    <div className="home-v2-root text-foreground" aria-busy={bootPhase !== "off"}>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {bootPhase === "off" ? "Pride Guide ready." : "Starting Pride Guide, please wait."}
+      </p>
       <div className="home-v2-grain" aria-hidden />
+      {reduceMotion !== true && bootPhase !== "off" && (
+        <HomeV2BootOverlay phase={bootPhase} prideStripes={welcomeFlag.display.stripes ?? []} />
+      )}
       <div className="home-v2-stack">
         <a
           href="#home-v2-main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[260] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
         >
           Skip to flags
         </a>
@@ -220,7 +328,7 @@ function HomeV2FocusContent() {
           className="home-v2-hero"
           aria-label="Welcome"
           initial="hidden"
-          animate="show"
+          animate={bootContentRevealed ? "show" : "hidden"}
           variants={variants.heroWrap}
         >
           <motion.div variants={variants.item} className="mx-auto flex max-w-6xl justify-end px-4 pt-6 sm:px-8 sm:pt-10">
@@ -302,7 +410,7 @@ function HomeV2FocusContent() {
           className="mx-auto max-w-6xl px-4 py-10 sm:px-8 sm:py-14"
           variants={variants.wrap}
           initial="hidden"
-          animate="show"
+          animate={bootContentRevealed ? "show" : "hidden"}
         >
           <motion.div
             variants={variants.item}
