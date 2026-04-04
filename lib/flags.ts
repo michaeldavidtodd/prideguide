@@ -5,10 +5,14 @@ export interface SvgPathDefinition {
   transform?: string
   stroke?: string
   strokeWidth?: string
+  /** What this shape or stroke represents (shown in the color palette). */
+  meaning?: string
 }
 
 export interface FlagDisplayData {
   stripes?: string[]
+  /** Same length as `stripes` when set — what each horizontal band represents. */
+  stripeMeanings?: string[]
   svgForeground?: {
     viewBox: string
     paths: SvgPathDefinition[]
@@ -42,11 +46,6 @@ export function canonicalFlagHex(input: string): string | null {
   return `#${[rgb.r, rgb.g, rgb.b].map((x) => x.toString(16).padStart(2, "0")).join("")}`
 }
 
-function paletteDedupeKey(raw: string): string {
-  const c = canonicalFlagHex(raw)
-  return c?.toLowerCase() ?? raw.trim().toLowerCase()
-}
-
 function formatSvgPathLabel(id: string): string {
   return id
     .split("-")
@@ -60,42 +59,44 @@ export interface FlagPaletteSwatch {
   /** 1-based index along the palette strip */
   index: number
   label: string
+  /** Symbolic meaning when provided in flag data */
+  meaning?: string
 }
 
 /**
- * All distinct colors: horizontal bands first, then SVG overlays (path order).
- * Fills and strokes are included; duplicates merge by normalized hex.
+ * One swatch per horizontal band (in order), then each SVG fill/stroke in path order.
+ * Same hex can appear more than once when different bands or shapes use it.
  */
 export function collectFlagPalette(display: FlagDisplayData): FlagPaletteSwatch[] {
-  const seen = new Set<string>()
   const out: FlagPaletteSwatch[] = []
   let n = 0
 
-  const push = (raw: string, label: string) => {
+  const meanings = display.stripeMeanings
+
+  const push = (raw: string, label: string, meaning?: string) => {
     const trimmed = raw.trim()
     if (!trimmed || trimmed.toLowerCase() === "none") return
-    const key = paletteDedupeKey(trimmed)
-    if (seen.has(key)) return
-    seen.add(key)
     n += 1
     const hex = canonicalFlagHex(trimmed) ?? trimmed
-    out.push({ hex, index: n, label })
+    const entry: FlagPaletteSwatch = { hex, index: n, label }
+    if (meaning?.trim()) entry.meaning = meaning.trim()
+    out.push(entry)
   }
 
   const stripes = display.stripes ?? []
   for (let i = 0; i < stripes.length; i++) {
-    push(stripes[i]!, `Band ${i + 1}`)
+    push(stripes[i]!, `Band ${i + 1}`, meanings?.[i])
   }
 
   for (const p of display.svgForeground?.paths ?? []) {
     const base = formatSvgPathLabel(p.id)
     if (p.fill?.trim() && p.fill.toLowerCase() !== "none") {
-      push(p.fill, base)
+      push(p.fill, base, p.meaning)
     }
     if (p.stroke?.trim() && p.stroke.toLowerCase() !== "none") {
       const strokeLabel =
         p.fill?.trim() && p.fill.toLowerCase() !== "none" ? `${base} · outline` : base
-      push(p.stroke, strokeLabel)
+      push(p.stroke, strokeLabel, p.meaning)
     }
   }
 
@@ -108,6 +109,16 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Original Pride Flag",
     display: {
       stripes: ["#FF69B4", "#FF0000", "#FF8E00", "#FFFF00", "#008E00", "#00C0C0", "#400098", "#8E008E"],
+      stripeMeanings: [
+        "Sex",
+        "Life",
+        "Healing",
+        "Sunlight",
+        "Nature",
+        "Magic and art",
+        "Serenity",
+        "Spirit",
+      ],
     },
     description: "The original 8-color Pride flag that started the movement.",
     history:
@@ -120,6 +131,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Pride Flag",
     display: {
       stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"],
+      stripeMeanings: ["Life", "Healing", "Sunlight", "Nature", "Harmony", "Spirit"],
     },
     description: "The widely recognized 6-color Pride flag representing the LGBTQIA+ community.",
     history:
@@ -132,6 +144,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Progress Pride Flag",
     display: {
       stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"],
+      stripeMeanings: ["Life", "Healing", "Sunlight", "Nature", "Harmony", "Spirit"],
       svgForeground: {
         viewBox: "0 0 1025 654",
         paths: [
@@ -139,26 +152,31 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
             id: "progress-black-chevron",
             d: "M492 327.5L167.169 654H0V0H166.168L492 327.5Z",
             fill: "#000000",
+            meaning: "Black and LGBTQIA+ communities of color",
           },
           {
             id: "progress-brown-chevron",
             d: "M410 327.5L84.1016 654H0V0H84.1016L410 327.5Z",
             fill: "#613915",
+            meaning: "Brown and LGBTQIA+ communities of color",
           },
           {
             id: "progress-lightblue-triangle",
             d: "M0 0L327.534 326.534L0 654Z",
             fill: "#5BCEFA",
+            meaning: "Trans pride — light blue (often read as boys / trans masculine)",
           },
           {
             id: "progress-pink-triangle",
             d: "M0 82.5339L245.534 326.534L0 570.534V82.5339Z",
             fill: "#F5A9B8",
+            meaning: "Trans pride — pink (often read as girls / trans feminine)",
           },
           {
             id: "progress-white-triangle",
             d: "M0 164.034L163.068 326.534L0 489.034V164.034Z",
             fill: "#FFFFFF",
+            meaning: "Trans pride — center for those transitioning or outside the binary",
           },
         ],
       },
@@ -174,6 +192,13 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Transgender Pride Flag",
     display: {
       stripes: ["#5bcefa", "#f5a9b8", "#ffffff", "#f5a9b8", "#5bcefa"],
+      stripeMeanings: [
+        "Boys and trans masculine people (traditional reading)",
+        "Girls and trans feminine people (traditional reading)",
+        "Those transitioning or who are non-binary",
+        "Girls and trans feminine people (traditional reading)",
+        "Boys and trans masculine people (traditional reading)",
+      ],
     },
     description: "Represents the transgender community and gender identity.",
     history:
@@ -186,6 +211,11 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Bisexual Pride Flag",
     display: {
       stripes: ["#d60270", "#9b59b6", "#0038a8"],
+      stripeMeanings: [
+        "Same-gender attraction",
+        "Attraction across the spectrum",
+        "Different-gender attraction",
+      ],
     },
     description: "Represents bisexual identity and attraction to multiple genders.",
     history:
@@ -198,6 +228,15 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Lesbian Pride Flag",
     display: {
       stripes: ["#d52d00", "#ef7627", "#ff9a56", "#ffffff", "#d162a4", "#b55690", "#a30262"],
+      stripeMeanings: [
+        "Gender nonconformity",
+        "Independence",
+        "Community",
+        "Unique relationships to womanhood",
+        "Serenity and peace",
+        "Love and sex",
+        "Femininity",
+      ],
     },
     description: "Represents lesbian identity and women loving women.",
     history:
@@ -210,6 +249,15 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Gay Men Pride Flag",
     display: {
       stripes: ["#078d70", "#26ceaa", "#98e8c1", "#ffffff", "#7bade2", "#5049cc", "#3d1a78"],
+      stripeMeanings: [
+        "Teaching",
+        "Nature",
+        "Healing",
+        "Sunlight",
+        "Serenity",
+        "Art",
+        "Spirit",
+      ],
     },
     description: "Represents gay men and their community.",
     history:
@@ -222,6 +270,12 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Non-Binary Pride Flag",
     display: {
       stripes: ["#fcf434", "#ffffff", "#9c59d1", "#222222"],
+      stripeMeanings: [
+        "People whose gender sits outside the binary",
+        "People with many or all genders",
+        "People whose gender mixes masculine and feminine",
+        "People who are agender or without gender",
+      ],
     },
     description: "Represents non-binary gender identities.",
     history:
@@ -234,6 +288,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Pansexual Pride Flag",
     display: {
       stripes: ["#ff218c", "#ffd800", "#21b1ff"],
+      stripeMeanings: ["Attraction to women", "Attraction to non-binary people", "Attraction to men"],
     },
     description: "Represents pansexual identity and attraction regardless of gender.",
     history: "Created in 2010. Pink represents attraction to women, yellow to non-binary people, and blue to men.",
@@ -245,6 +300,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Asexual Pride Flag",
     display: {
       stripes: ["#222222", "#a3a3a3", "#ffffff", "#800080"],
+      stripeMeanings: ["Asexuality", "Grey-asexuality and demisexuality", "Allyship and non-asexual partners", "Community"],
     },
     description: "Represents asexual identity and the spectrum of asexuality.",
     history:
@@ -257,6 +313,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Intersex Pride Flag",
     display: {
       stripes: ["#ffd800"],
+      stripeMeanings: ["A hue intentionally outside traditional gender-color associations"],
       svgForeground: {
         viewBox: "0 0 900 600",
         paths: [
@@ -266,6 +323,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
             stroke: "#7902AA",
             strokeWidth: "30",
             fill: "none",
+            meaning: "Unbroken circle — bodily autonomy and wholeness for intersex people",
           },
         ],
       },
@@ -281,6 +339,13 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Aromantic Pride Flag",
     display: {
       stripes: ["#3da542", "#a7d379", "#ffffff", "#a9a9a9", "#222222"],
+      stripeMeanings: [
+        "Aromanticism",
+        "The aromantic spectrum",
+        "Platonic and non-romantic bonds",
+        "Grey-aromantic and demiromantic experiences",
+        "The broader sexuality spectrum alongside aromanticism",
+      ],
     },
     description: "Represents aromantic identity and the spectrum of romantic attraction.",
     history:
@@ -293,6 +358,12 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Demisexual Pride Flag",
     display: {
       stripes: ["#222222", "#a3a3a3", "#ffffff", "#800080"],
+      stripeMeanings: [
+        "Asexuality",
+        "Grey-asexuality and demisexuality",
+        "Sexuality when it emerges",
+        "Community",
+      ],
     },
     description:
       "Represents demisexual identity, experiencing sexual attraction only after forming strong emotional bonds.",
@@ -306,6 +377,13 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Genderfluid Pride Flag",
     display: {
       stripes: ["#ff75a2", "#ffffff", "#be18d6", "#222222", "#333ebd"],
+      stripeMeanings: [
+        "Femininity",
+        "Absence of gender",
+        "Both masculinity and femininity",
+        "Absence of gender",
+        "Masculinity",
+      ],
     },
     description: "Represents genderfluid identity and fluctuating gender expression.",
     history:
@@ -318,6 +396,15 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Agender Pride Flag",
     display: {
       stripes: ["#222222", "#c4c4c4", "#ffffff", "#b7f684", "#ffffff", "#c4c4c4", "#000000"],
+      stripeMeanings: [
+        "Absence of gender",
+        "Semi-genderlessness or partial gender",
+        "Absence of gender",
+        "Non-binary genders",
+        "Absence of gender",
+        "Semi-genderlessness or partial gender",
+        "Absence of gender",
+      ],
     },
     description: "Represents agender identity and the absence of gender.",
     history:
@@ -330,6 +417,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Polysexual Pride Flag",
     display: {
       stripes: ["#f714ba", "#01d66a", "#1594f6"],
+      stripeMeanings: ["Attraction to women", "Attraction to non-binary people", "Attraction to men"],
     },
     description: "Represents polysexual identity and attraction to multiple, but not all, genders.",
     history:
@@ -342,6 +430,13 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Omnisexual Pride Flag",
     display: {
       stripes: ["#fe9ace", "#ff6cab", "#ffffff", "#7902aa", "#ff6cab"],
+      stripeMeanings: [
+        "Attraction to femininity and women",
+        "Attraction to femininity and women (deeper tone)",
+        "Attraction to non-binary and gender-nonconforming people",
+        "Attraction to masculinity and men",
+        "Attraction to femininity and women",
+      ],
     },
     description:
       "Represents omnisexual identity and attraction to all genders with gender playing a role in attraction.",

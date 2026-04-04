@@ -34,7 +34,12 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AnimatedFlag } from "@/components/animated-flag"
-import { collectFlagPalette, PRIDE_FLAGS, type FlagPaletteSwatch } from "@/lib/flags"
+import {
+  canonicalFlagHex,
+  collectFlagPalette,
+  PRIDE_FLAGS,
+  type FlagPaletteSwatch,
+} from "@/lib/flags"
 import {
   ArrowDown,
   ArrowLeft,
@@ -268,7 +273,9 @@ function HomeV2StripePaletteStrip({
       {variant === "rail" && (
         <div>
           <p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">Flag colors</p>
-          <p className="mt-1 text-[0.65rem] leading-snug text-muted-foreground">Tap a swatch for the exact hex.</p>
+          <p className="mt-1 text-[0.65rem] leading-snug text-muted-foreground">
+            Tap a swatch for hex and what that color represents.
+          </p>
         </div>
       )}
       <div
@@ -276,13 +283,22 @@ function HomeV2StripePaletteStrip({
         role="list"
         aria-label="Flag color palette"
       >
-        {palette.map(({ hex, index: swatchIndex, label }) => {
+        {palette.map(({ hex, index: swatchIndex, label, meaning }) => {
           const active = activeStripe === swatchIndex
+          const title =
+            meaning !== undefined && meaning.length > 0
+              ? `${label} — ${meaning} · ${hex}`
+              : `${label} · ${hex}`
+          const a11yLabel =
+            meaning !== undefined && meaning.length > 0
+              ? `${label}, ${meaning}, color ${hex}`
+              : `${label}, color ${hex}`
           return (
             <button
               key={`${flagId}-${swatchIndex}-${hex}`}
               type="button"
               role="listitem"
+              title={title}
               className={cn(
                 "home-v2-stripe-cut relative flex-1 transition-[flex,transform] duration-200 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 minH,
@@ -291,19 +307,25 @@ function HomeV2StripePaletteStrip({
               style={{ backgroundColor: hex }}
               onClick={() => onStripeToggle(swatchIndex)}
               aria-pressed={active}
-              aria-label={`${label}, color ${hex}`}
+              aria-label={a11yLabel}
             >
               <span className="sr-only">
-                {label} {hex}
+                {label} {meaning !== undefined && meaning.length > 0 ? `· ${meaning} ` : ""}
+                {hex}
               </span>
             </button>
           )
         })}
       </div>
       {activeSwatch && (
-        <p className="font-mono text-xs text-foreground sm:text-sm">
-          {activeSwatch.label} · {activeSwatch.hex.toUpperCase()}
-        </p>
+        <div className="space-y-1.5">
+          <p className="font-mono text-xs text-foreground sm:text-sm">
+            {activeSwatch.label} · {activeSwatch.hex.toUpperCase()}
+          </p>
+          {activeSwatch.meaning !== undefined && activeSwatch.meaning.length > 0 && (
+            <p className="text-xs leading-snug text-muted-foreground sm:text-sm">{activeSwatch.meaning}</p>
+          )}
+        </div>
       )}
     </div>
   )
@@ -571,10 +593,17 @@ export function HomeV2ExploreContent() {
   const flag = PRIDE_FLAGS[index]
   const stripes = flag.display.stripes ?? []
   const flagPalette = useMemo(() => collectFlagPalette(flag.display), [flag])
-  const stripeAccent = useMemo(
-    () => averageStripeAccent(flagPalette.map((s) => s.hex)),
-    [flagPalette]
-  )
+  const stripeAccent = useMemo(() => {
+    const seen = new Set<string>()
+    const uniqueHexes: string[] = []
+    for (const s of flagPalette) {
+      const key = (canonicalFlagHex(s.hex) ?? s.hex.trim()).toLowerCase()
+      if (seen.has(key)) continue
+      seen.add(key)
+      uniqueHexes.push(s.hex)
+    }
+    return averageStripeAccent(uniqueHexes)
+  }, [flagPalette])
 
   const variants = useMemo(
     () => ({
@@ -1046,7 +1075,7 @@ export function HomeV2ExploreContent() {
               <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Palette</p>
               <DrawerTitle className={exploreDrawerTitleClass}>Flag colors</DrawerTitle>
               <DrawerDescription className={exploreDrawerDescriptionClass}>
-                Hex values for every band and overlay in this design—tap a swatch to inspect.
+                Hex values and what each color stands for—tap a swatch to inspect.
               </DrawerDescription>
             </DrawerHeader>
             <div className={exploreDrawerBodyClass}>
