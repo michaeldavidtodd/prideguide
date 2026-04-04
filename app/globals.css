@@ -513,3 +513,94 @@ html {
     animation: none !important;
   }
 }
+
+/* --- /home-v2 Focus: editorial canvas + pixel-stage framing (theme tokens) --- */
+.home-v2-root {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(ellipse 130% 100% at 0% -15%, hsl(var(--primary) / 0.16), transparent 52%),
+    radial-gradient(ellipse 90% 70% at 100% 10%, hsl(var(--secondary) / 0.11), transparent 48%),
+    radial-gradient(ellipse 80% 55% at 50% 110%, hsl(var(--accent) / 0.07), transparent 42%);
+}
+
+.chillwave .home-v2-root {
+  background-image:
+    radial-gradient(ellipse 120% 95% at -8% 0%, hsl(var(--primary) / 0.2), transparent 55%),
+    radial-gradient(ellipse 85% 65% at 108% 25%, hsl(var(--accent) / 0.14), transparent 50%);
+}
+
+.dark .home-v2-root {
+  background-image:
+    radial-gradient(ellipse 115% 90% at 5% -8%, hsl(var(--primary) / 0.2), transparent 58%),
+    radial-gradient(ellipse 75% 55% at 95% 35%, hsl(var(--ring) / 0.12), transparent 52%);
+}
+
+.home-v2-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.038;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.dark .home-v2-grain,
+.chillwave .home-v2-grain {
+  mix-blend-mode: overlay;
+  opacity: 0.055;
+}
+
+.home-v2-root > .home-v2-stack {
+  position: relative;
+  z-index: 1;
+}
+
+.home-v2-kicker-rule {
+  height: 3px;
+  width: clamp(3rem, 12vw, 6rem);
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(var(--secondary))
+  );
+  clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+}
+
+.home-v2-stage-shell {
+  position: relative;
+  padding: 4px;
+  background: linear-gradient(
+    145deg,
+    hsl(var(--foreground) / 0.45) 0%,
+    hsl(var(--foreground) / 0.06) 42%,
+    hsl(var(--foreground) / 0.28) 100%
+  );
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px));
+  box-shadow:
+    0 0 0 1px hsl(var(--foreground) / 0.08),
+    0 28px 56px -16px hsl(var(--foreground) / 0.35);
+}
+
+.home-v2-stage-inner {
+  background: oklch(0.11 0.02 290);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+.home-v2-stripe-cut {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+}
+
+.home-v2-accordion-trigger[data-state="open"] {
+  color: hsl(var(--foreground));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-v2-grain {
+    opacity: 0.02;
+  }
+}
