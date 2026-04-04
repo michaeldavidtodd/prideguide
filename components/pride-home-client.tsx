@@ -34,7 +34,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AnimatedFlag } from "@/components/animated-flag"
-import { PRIDE_FLAGS } from "@/lib/flags"
+import { collectFlagPalette, PRIDE_FLAGS, type FlagPaletteSwatch } from "@/lib/flags"
 import {
   ArrowDown,
   ArrowLeft,
@@ -250,38 +250,37 @@ function ExploreKeyboardLegend({ className }: { className?: string }) {
 
 function HomeV2StripePaletteStrip({
   flagId,
-  stripeLabels,
-  stripes,
+  palette,
   activeStripe,
   onStripeToggle,
   variant,
 }: {
   flagId: string
-  stripeLabels: { hex: string; index: number }[]
-  stripes: string[]
+  palette: FlagPaletteSwatch[]
   activeStripe: number | null
-  onStripeToggle: (stripeIndex: number) => void
+  onStripeToggle: (swatchIndex: number) => void
   variant: "rail" | "drawer"
 }) {
   const minH = variant === "rail" ? "min-h-11" : "min-h-16"
+  const activeSwatch = activeStripe !== null ? palette.find((s) => s.index === activeStripe) : undefined
   return (
     <div className="space-y-2">
       {variant === "rail" && (
         <div>
-          <p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">Read the stripes</p>
-          <p className="mt-1 text-[0.65rem] leading-snug text-muted-foreground">Tap a band for the exact hex.</p>
+          <p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">Flag colors</p>
+          <p className="mt-1 text-[0.65rem] leading-snug text-muted-foreground">Tap a swatch for the exact hex.</p>
         </div>
       )}
       <div
         className="flex gap-1 overflow-hidden rounded-sm shadow-sm"
         role="list"
-        aria-label="Flag color stripes"
+        aria-label="Flag color palette"
       >
-        {stripeLabels.map(({ hex, index: stripeIndex }) => {
-          const active = activeStripe === stripeIndex
+        {palette.map(({ hex, index: swatchIndex, label }) => {
+          const active = activeStripe === swatchIndex
           return (
             <button
-              key={`${flagId}-${stripeIndex}-${hex}`}
+              key={`${flagId}-${swatchIndex}-${hex}`}
               type="button"
               role="listitem"
               className={cn(
@@ -290,20 +289,20 @@ function HomeV2StripePaletteStrip({
                 active ? "z-[1] flex-[1.35] ring-2 ring-inset ring-foreground" : "hover:flex-[1.12] hover:brightness-105"
               )}
               style={{ backgroundColor: hex }}
-              onClick={() => onStripeToggle(stripeIndex)}
+              onClick={() => onStripeToggle(swatchIndex)}
               aria-pressed={active}
-              aria-label={`Stripe ${stripeIndex}, color ${hex}`}
+              aria-label={`${label}, color ${hex}`}
             >
               <span className="sr-only">
-                Stripe {stripeIndex} {hex}
+                {label} {hex}
               </span>
             </button>
           )
         })}
       </div>
-      {activeStripe !== null && stripes[activeStripe - 1] && (
+      {activeSwatch && (
         <p className="font-mono text-xs text-foreground sm:text-sm">
-          Band {activeStripe} · {stripes[activeStripe - 1]?.toUpperCase()}
+          {activeSwatch.label} · {activeSwatch.hex.toUpperCase()}
         </p>
       )}
     </div>
@@ -571,7 +570,11 @@ export function HomeV2ExploreContent() {
 
   const flag = PRIDE_FLAGS[index]
   const stripes = flag.display.stripes ?? []
-  const stripeAccent = useMemo(() => averageStripeAccent(stripes), [stripes])
+  const flagPalette = useMemo(() => collectFlagPalette(flag.display), [flag])
+  const stripeAccent = useMemo(
+    () => averageStripeAccent(flagPalette.map((s) => s.hex)),
+    [flagPalette]
+  )
 
   const variants = useMemo(
     () => ({
@@ -679,10 +682,6 @@ export function HomeV2ExploreContent() {
   const resetTilt = () => setTilt({ x: 0, y: 0 })
 
   const billow = waveBoost ? 1.35 : 0.85
-
-  const stripeLabels = useMemo(() => {
-    return stripes.map((hex, i) => ({ hex, index: i + 1 }))
-  }, [stripes])
 
   const frameRadiusStyle = useMemo((): CSSProperties | undefined => {
     if (cornerRadius <= 0) return undefined
@@ -961,12 +960,11 @@ export function HomeV2ExploreContent() {
                   <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
                   <HomeV2StripePaletteStrip
                     flagId={flag.id}
-                    stripeLabels={stripeLabels}
-                    stripes={stripes}
+                    palette={flagPalette}
                     activeStripe={activeStripe}
                     variant="rail"
-                    onStripeToggle={(stripeIndex) => {
-                      setActiveStripe((prev) => (prev === stripeIndex ? null : stripeIndex))
+                    onStripeToggle={(swatchIndex) => {
+                      setActiveStripe((prev) => (prev === swatchIndex ? null : swatchIndex))
                     }}
                   />
                 </div>
@@ -1046,20 +1044,19 @@ export function HomeV2ExploreContent() {
           <DrawerContent className={exploreDrawerContentClass}>
             <DrawerHeader className={exploreDrawerHeaderClass}>
               <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Palette</p>
-              <DrawerTitle className={exploreDrawerTitleClass}>Read the stripes</DrawerTitle>
+              <DrawerTitle className={exploreDrawerTitleClass}>Flag colors</DrawerTitle>
               <DrawerDescription className={exploreDrawerDescriptionClass}>
-                Exact hex values from the source design—tap a band to inspect.
+                Hex values for every band and overlay in this design—tap a swatch to inspect.
               </DrawerDescription>
             </DrawerHeader>
             <div className={exploreDrawerBodyClass}>
               <HomeV2StripePaletteStrip
                 flagId={flag.id}
-                stripeLabels={stripeLabels}
-                stripes={stripes}
+                palette={flagPalette}
                 activeStripe={activeStripe}
                 variant="drawer"
-                onStripeToggle={(stripeIndex) => {
-                  setActiveStripe((prev) => (prev === stripeIndex ? null : stripeIndex))
+                onStripeToggle={(swatchIndex) => {
+                  setActiveStripe((prev) => (prev === swatchIndex ? null : swatchIndex))
                 }}
               />
             </div>

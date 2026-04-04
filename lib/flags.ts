@@ -25,6 +25,83 @@ export interface FlagDefinition {
   category: string
 }
 
+function parseHexChannels(hex: string): { r: number; g: number; b: number } | null {
+  const h = hex.trim().replace(/^#/, "")
+  if (!h) return null
+  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h
+  if (full.length !== 6) return null
+  const n = Number.parseInt(full, 16)
+  if (Number.isNaN(n)) return null
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
+}
+
+/** Lowercase `#rrggbb` when parsable; otherwise `null`. */
+export function canonicalFlagHex(input: string): string | null {
+  const rgb = parseHexChannels(input)
+  if (!rgb) return null
+  return `#${[rgb.r, rgb.g, rgb.b].map((x) => x.toString(16).padStart(2, "0")).join("")}`
+}
+
+function paletteDedupeKey(raw: string): string {
+  const c = canonicalFlagHex(raw)
+  return c?.toLowerCase() ?? raw.trim().toLowerCase()
+}
+
+function formatSvgPathLabel(id: string): string {
+  return id
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ")
+}
+
+export interface FlagPaletteSwatch {
+  hex: string
+  /** 1-based index along the palette strip */
+  index: number
+  label: string
+}
+
+/**
+ * All distinct colors: horizontal bands first, then SVG overlays (path order).
+ * Fills and strokes are included; duplicates merge by normalized hex.
+ */
+export function collectFlagPalette(display: FlagDisplayData): FlagPaletteSwatch[] {
+  const seen = new Set<string>()
+  const out: FlagPaletteSwatch[] = []
+  let n = 0
+
+  const push = (raw: string, label: string) => {
+    const trimmed = raw.trim()
+    if (!trimmed || trimmed.toLowerCase() === "none") return
+    const key = paletteDedupeKey(trimmed)
+    if (seen.has(key)) return
+    seen.add(key)
+    n += 1
+    const hex = canonicalFlagHex(trimmed) ?? trimmed
+    out.push({ hex, index: n, label })
+  }
+
+  const stripes = display.stripes ?? []
+  for (let i = 0; i < stripes.length; i++) {
+    push(stripes[i]!, `Band ${i + 1}`)
+  }
+
+  for (const p of display.svgForeground?.paths ?? []) {
+    const base = formatSvgPathLabel(p.id)
+    if (p.fill?.trim() && p.fill.toLowerCase() !== "none") {
+      push(p.fill, base)
+    }
+    if (p.stroke?.trim() && p.stroke.toLowerCase() !== "none") {
+      const strokeLabel =
+        p.fill?.trim() && p.fill.toLowerCase() !== "none" ? `${base} · outline` : base
+      push(p.stroke, strokeLabel)
+    }
+  }
+
+  return out
+}
+
 export const PRIDE_FLAGS: FlagDefinition[] = [
   {
     id: "original-pride",
