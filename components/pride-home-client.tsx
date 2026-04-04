@@ -44,6 +44,7 @@ import {
   ChevronRight,
   Dices,
   Heart,
+  House,
   Info,
   Menu,
   Palette,
@@ -730,7 +731,7 @@ export function HomeV2ExploreContent() {
                   </div>
                 </div>
               </div>
-              <div className="flex min-w-0 flex-col items-end justify-start gap-2 justify-self-end sm:flex-row sm:flex-wrap sm:items-center lg:pt-1">
+              <div className="flex min-w-0 flex-col items-end justify-start gap-4 justify-self-end sm:flex-row sm:flex-wrap sm:items-center lg:pt-1">
                 <span
                   className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground sm:pt-0.5 sm:text-sm"
                   aria-label={`Flag ${index + 1} of ${FLAG_COUNT}`}
@@ -755,6 +756,13 @@ export function HomeV2ExploreContent() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="min-w-[11rem]">
+                      <DropdownMenuItem asChild>
+                        <Link href="/" className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
+                          <House className="size-4 opacity-80" aria-hidden />
+                          Home
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href={PRIDE_QUIZ_PATH} className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
                           <Trophy className="size-4 opacity-80" aria-hidden />
@@ -820,21 +828,7 @@ export function HomeV2ExploreContent() {
                     <SlidersHorizontal className="size-3.5" aria-hidden />
                     <span className="hidden sm:inline">Studio</span>
                   </Button>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
-                      style={studioShellStyle}
-                    >
-                      <Link href="/">
-                        <ChevronLeft className="size-3.5" aria-hidden />
-                        <span className="hidden sm:inline">Home</span>
-                      </Link>
-                    </Button>
-                    <ThemeToggle />
-                  </div>
+                  <ThemeToggle />
                 </div>
               </div>
             </header>
