@@ -1,7 +1,15 @@
 "use client"
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import Link from "next/link"
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+} from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import {
@@ -20,7 +28,7 @@ import { Switch } from "@/components/ui/switch"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { PRIDE_FLAGS } from "@/lib/flags"
-import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Dices, SlidersHorizontal, Sparkles } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, Dices, SlidersHorizontal, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const FLAG_COUNT = PRIDE_FLAGS.length
@@ -58,6 +66,8 @@ function HomeV2FocusContent() {
   const [columnCount, setColumnCount] = useState(18)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const [studioOpen, setStudioOpen] = useState(false)
+  const [stripeGap, setStripeGap] = useState(0)
+  const [cornerRadius, setCornerRadius] = useState(0)
   const pointerStart = useRef<{ x: number } | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -81,12 +91,10 @@ function HomeV2FocusContent() {
           transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
         },
       },
-      header: {
-        hidden: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 },
+      heroWrap: {
+        hidden: {},
         show: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+          transition: reduceMotion ? {} : { staggerChildren: 0.14, delayChildren: 0.05 },
         },
       },
     }),
@@ -159,7 +167,7 @@ function HomeV2FocusContent() {
     return () => window.removeEventListener("keydown", onKey)
   }, [next, prev, shuffle])
 
-  const handleStageMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleStageMove = (e: ReactMouseEvent<HTMLDivElement>) => {
     if (reduceMotion || !stageRef.current) return
     const rect = stageRef.current.getBoundingClientRect()
     const nx = (e.clientX - rect.left) / rect.width - 0.5
@@ -175,6 +183,28 @@ function HomeV2FocusContent() {
     return stripes.map((hex, i) => ({ hex, index: i + 1 }))
   }, [stripes])
 
+  const welcomeFlag = useMemo(() => PRIDE_FLAGS.find((f) => f.id === "pride") ?? PRIDE_FLAGS[0], [])
+
+  const frameRadiusStyle = useMemo((): CSSProperties | undefined => {
+    if (cornerRadius <= 0) return undefined
+    return { clipPath: "none", borderRadius: `${cornerRadius}px` }
+  }, [cornerRadius])
+
+  const studioShellStyle = useMemo((): CSSProperties | undefined => {
+    if (cornerRadius <= 0) return undefined
+    return { borderRadius: `${cornerRadius}px` }
+  }, [cornerRadius])
+
+  const scrollToFlagsSection = useCallback(
+    (e: ReactMouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      const el = document.getElementById("home-v2-main")
+      if (!el) return
+      el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" })
+    },
+    [reduceMotion]
+  )
+
   return (
     <div className="home-v2-root text-foreground">
       <div className="home-v2-grain" aria-hidden />
@@ -183,56 +213,89 @@ function HomeV2FocusContent() {
           href="#home-v2-main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
         >
-          Skip to flag focus
+          Skip to flags
         </a>
 
-        <motion.header
-          className="border-b border-foreground/10"
+        <motion.section
+          className="home-v2-hero"
+          aria-label="Welcome"
           initial="hidden"
           animate="show"
-          variants={variants.header}
+          variants={variants.heroWrap}
         >
-          <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-6 px-4 py-6 sm:px-8 sm:py-8">
-            <div className="max-w-2xl space-y-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="-ml-3 h-auto gap-2 px-3 py-1 text-muted-foreground hover:text-foreground"
-                asChild
-              >
-                <Link href="/">
-                  <ArrowLeft className="size-4 shrink-0" aria-hidden />
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em]">Classic guide</span>
-                </Link>
-              </Button>
-              <div className="space-y-3">
+          <motion.div variants={variants.item} className="mx-auto flex max-w-6xl justify-end px-4 pt-6 sm:px-8 sm:pt-10">
+            <ThemeToggle />
+          </motion.div>
+
+          <motion.div
+            variants={variants.item}
+            className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-14 pt-8 sm:px-8 sm:pb-16 sm:pt-10 lg:grid-cols-12 lg:gap-x-16 lg:pb-20 lg:pt-4"
+          >
+            <div className="space-y-8 lg:col-span-7">
+              <div className="space-y-5">
                 <div className="home-v2-kicker-rule" aria-hidden />
-                <p className="text-[0.7rem] font-bold uppercase tracking-[0.28em] text-muted-foreground">Prism · queer symbols</p>
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h1 className="font-display text-[clamp(1.75rem,5vw,3rem)] font-extrabold leading-[1.05] tracking-tight">
-                    Focus
-                  </h1>
-                  <Badge
-                    variant="outline"
-                    className="rounded-none border-foreground/25 bg-background/60 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.2em]"
+                <p className="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-primary">Prism · queer education</p>
+                <h1 className="font-display text-[clamp(2.75rem,11vw,5.25rem)] font-black leading-[0.92] tracking-tight">
+                  Pride
+                  <br />
+                  <span className="text-muted-foreground">Guide</span>
+                </h1>
+              </div>
+
+              <div className="space-y-5">
+                <p className="max-w-[40ch] text-pretty font-display text-[clamp(1.2rem,3.2vw,1.75rem)] font-bold leading-snug tracking-tight text-foreground">
+                  Welcome in. You're about to go deep on the symbols that hold our stories—color, history, and meaning,
+                  turned up loud.
+                </p>
+                <p className="max-w-[52ch] text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  Learn on your own terms. No one owes you their identity as a lesson plan—and you still deserve to walk
+                  away informed, fired up, and ready to show up for the community.
+                </p>
+              </div>
+
+              <div>
+                <a
+                  href="#home-v2-main"
+                  onClick={scrollToFlagsSection}
+                  className="group inline-flex items-center gap-3 border-b-2 border-primary pb-1 font-display text-sm font-extrabold uppercase tracking-[0.2em] text-foreground transition-colors hover:border-foreground hover:text-primary"
+                >
+                  Start exploring
+                  <span
+                    className="inline-block transition-transform duration-300 ease-out group-hover:translate-y-1"
+                    aria-hidden
                   >
-                    Lab
-                  </Badge>
+                    ↓
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <div className="mx-auto max-w-md lg:mx-0 lg:max-w-none">
+                <p className="mb-4 text-center text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:text-left text-balance">
+                  The rhythm you'll feel below—pixel columns, true hues
+                </p>
+                <div className="home-v2-hero-preview" style={frameRadiusStyle}>
+                  <div className="home-v2-hero-preview-inner overflow-hidden" style={frameRadiusStyle}>
+                    <AnimatedFlag
+                      backgroundColors={welcomeFlag.display.stripes ?? []}
+                      svgForeground={welcomeFlag.display.svgForeground}
+                      numOfColumns={22}
+                      billow={0.75}
+                      columnGapPx={stripeGap}
+                      stripeCornerRadiusPx={cornerRadius}
+                      className="w-full max-h-[min(28vh,220px)] min-h-[140px]"
+                    />
+                  </div>
                 </div>
-                <p className="max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  Self-directed learning that respects community time. One flag at full volume—history, color, and meaning
-                  without asking anyone to perform their identity for you.
+                <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground lg:text-left">
+                  Every flag here uses accurate colors and respectful copy. The vibe is ours; the symbols belong to the
+                  people they represent.
                 </p>
               </div>
             </div>
-            <div className="flex shrink-0 flex-col items-end gap-2 sm:pt-2">
-              <ThemeToggle />
-              <p className="hidden max-w-[14rem] text-right text-[0.65rem] leading-snug text-muted-foreground sm:block">
-                Accurate colors and narratives. The frame is ours; the symbols belong to the communities they represent.
-              </p>
-            </div>
-          </div>
-        </motion.header>
+          </motion.div>
+        </motion.section>
 
         <motion.main
           id="home-v2-main"
@@ -241,14 +304,6 @@ function HomeV2FocusContent() {
           initial="hidden"
           animate="show"
         >
-          <motion.p
-            variants={variants.item}
-            className="mb-12 max-w-[68ch] font-display text-[clamp(1.15rem,2.8vw,1.65rem)] font-bold leading-snug tracking-tight text-foreground"
-          >
-            Visibility is a practice.{" "}
-            <span className="font-normal text-muted-foreground">Read, remember, and carry it forward.</span>
-          </motion.p>
-
           <motion.div
             variants={variants.item}
             className="grid gap-14 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:items-start lg:gap-x-16 lg:gap-y-10"
@@ -311,8 +366,8 @@ function HomeV2FocusContent() {
                   }}
                   style={{ perspective: reduceMotion ? undefined : "1100px" }}
                 >
-                  <div className="home-v2-stage-shell">
-                    <div className="home-v2-stage-inner overflow-hidden">
+                  <div className="home-v2-stage-shell" style={frameRadiusStyle}>
+                    <div className="home-v2-stage-inner overflow-hidden" style={frameRadiusStyle}>
                       <motion.div
                         className="relative"
                         animate={reduceMotion ? {} : { rotateX: tilt.x, rotateY: tilt.y }}
@@ -348,6 +403,8 @@ function HomeV2FocusContent() {
                           svgForeground={flag.display.svgForeground}
                           numOfColumns={columnCount}
                           billow={billow}
+                          columnGapPx={stripeGap}
+                          stripeCornerRadiusPx={cornerRadius}
                           className="w-full"
                         />
                       </motion.div>
@@ -397,7 +454,11 @@ function HomeV2FocusContent() {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="group flex h-12 w-full max-w-md items-center justify-between rounded-none border border-dashed border-foreground/20 bg-muted/20 px-4 text-left font-display text-sm font-bold tracking-tight hover:bg-muted/40"
+                      className={cn(
+                        "group flex h-12 w-full max-w-md items-center justify-between border border-dashed border-foreground/20 bg-muted/20 px-4 text-left font-display text-sm font-bold tracking-tight hover:bg-muted/40",
+                        cornerRadius <= 0 && "rounded-none"
+                      )}
+                      style={studioShellStyle}
                       aria-expanded={studioOpen}
                     >
                       <span className="inline-flex items-center gap-2">
@@ -411,7 +472,10 @@ function HomeV2FocusContent() {
                     </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                    <div className="mt-4 space-y-5 border border-foreground/10 bg-card/30 p-5 sm:p-6">
+                    <div
+                      className="mt-4 space-y-5 border border-foreground/10 bg-card/30 p-5 sm:p-6"
+                      style={studioShellStyle}
+                    >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <Label
                           htmlFor="jump-flag"
@@ -456,6 +520,56 @@ function HomeV2FocusContent() {
                           </Label>
                         </div>
                         <Switch id="wave-boost" checked={waveBoost} onCheckedChange={setWaveBoost} />
+                      </div>
+
+                      <div className="space-y-2 border-t border-border/50 pt-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <Label
+                            htmlFor="stripe-gap"
+                            className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
+                          >
+                            Gap between stripes
+                          </Label>
+                          <span className="text-xs tabular-nums text-muted-foreground">{stripeGap}px</span>
+                        </div>
+                        <Slider
+                          id="stripe-gap"
+                          value={[stripeGap]}
+                          onValueChange={(v) => setStripeGap(v[0] ?? 0)}
+                          min={0}
+                          max={16}
+                          step={1}
+                          aria-label="Gap between flag stripe columns in pixels"
+                        />
+                        <p className="text-xs leading-relaxed text-muted-foreground">
+                          Reveals space between slices. Flags with chevrons or overlays may show seams—set to zero for a
+                          continuous look.
+                        </p>
+                      </div>
+
+                      <div className="space-y-2 border-t border-border/50 pt-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <Label
+                            htmlFor="frame-radius"
+                            className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
+                          >
+                            Rounded edges
+                          </Label>
+                          <span className="text-xs tabular-nums text-muted-foreground">{cornerRadius}px</span>
+                        </div>
+                        <Slider
+                          id="frame-radius"
+                          value={[cornerRadius]}
+                          onValueChange={(v) => setCornerRadius(v[0] ?? 0)}
+                          min={0}
+                          max={28}
+                          step={1}
+                          aria-label="Border radius for flag frames, studio panel, and stripe ends"
+                        />
+                        <p className="text-xs leading-relaxed text-muted-foreground">
+                          Zero keeps the cut-corner frames; turn it up to round the hero preview, main stage, studio panel,
+                          and stripe caps together.
+                        </p>
                       </div>
                     </div>
                   </CollapsibleContent>

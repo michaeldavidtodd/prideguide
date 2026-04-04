@@ -287,6 +287,15 @@ html {
   border-bottom-right-radius: 8px;
 }
 
+/* Inline stripeCornerRadiusPx overrides default end caps */
+.animated-flag--radius-controlled.animated-flag .flag-column:first-child,
+.animated-flag--radius-controlled.animated-flag .flag-column:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
 /* Pause animation on hover for better UX */
 .flag-container:hover .flag-column {
   animation-play-state: paused;
@@ -559,6 +568,46 @@ html {
   z-index: 1;
 }
 
+.home-v2-hero {
+  position: relative;
+}
+
+.home-v2-hero::after {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--foreground) / 0.12) 20%,
+    hsl(var(--foreground) / 0.12) 80%,
+    transparent
+  );
+}
+
+.home-v2-hero-preview {
+  position: relative;
+  padding: 3px;
+  background: linear-gradient(
+    125deg,
+    hsl(var(--foreground) / 0.4) 0%,
+    hsl(var(--foreground) / 0.08) 45%,
+    hsl(var(--foreground) / 0.25) 100%
+  );
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px));
+  box-shadow: 0 0 0 1px hsl(var(--foreground) / 0.06);
+}
+
+.home-v2-hero-preview-inner {
+  box-sizing: border-box;
+  padding: clamp(0.5rem, 2vw, 1rem);
+  background: oklch(0.11 0.02 290);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
 .home-v2-kicker-rule {
   height: 3px;
   width: clamp(3rem, 12vw, 6rem);
@@ -587,6 +636,8 @@ html {
 }
 
 .home-v2-stage-inner {
+  box-sizing: border-box;
+  padding: clamp(0.625rem, 2.5vw, 1.25rem);
   background: oklch(0.11 0.02 290);
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
 }

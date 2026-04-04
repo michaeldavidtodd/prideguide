@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useMemo } from "react"
+import { cn } from "@/lib/utils"
 
 interface SvgPathDefinition {
   d: string
@@ -18,6 +19,13 @@ interface AnimatedFlagProps {
   numOfColumns?: number
   staggeredDelay?: number
   billow?: number // Max billow amount for the wave
+  /** Horizontal gap between column slices (px). Slight seams may appear on SVG-overlay flags. */
+  columnGapPx?: number
+  /**
+   * When set, controls rounding on stripe columns (overrides default 8px end caps in CSS).
+   * With columnGapPx &gt; 0, applies the same radius to every column.
+   */
+  stripeCornerRadiusPx?: number
   svgForeground?: {
     viewBox: string // e.g., "0 0 900 600"
     paths: SvgPathDefinition[]
@@ -30,6 +38,8 @@ export function AnimatedFlag({
   numOfColumns = 15, // 100. Increased default for smoother waves on complex designs
   staggeredDelay = 150, // 20
   billow = .8, // 0.02. This is now an increment per column for the wave effect
+  columnGapPx = 0,
+  stripeCornerRadiusPx,
   svgForeground,
 }: AnimatedFlagProps) {
   const gradientString = useMemo(() => {
@@ -58,8 +68,44 @@ export function AnimatedFlag({
 
   const overallAspectRatio = 3 / 2
 
+  const rootStyle = useMemo((): React.CSSProperties => {
+    const s: React.CSSProperties = { aspectRatio: `${overallAspectRatio}` }
+    if (columnGapPx > 0) {
+      s.gap = columnGapPx
+    }
+    return s
+  }, [columnGapPx, overallAspectRatio])
+
+  const columnBorderRadius = useMemo(() => {
+    if (stripeCornerRadiusPx === undefined) {
+      return (_index: number) => ({} as React.CSSProperties)
+    }
+    const r = stripeCornerRadiusPx
+    if (columnGapPx > 0) {
+      return (_index: number) =>
+        ({
+          borderRadius: r,
+        }) as React.CSSProperties
+    }
+    return (index: number) => {
+      const edge: React.CSSProperties = {}
+      if (index === 0) {
+        edge.borderTopLeftRadius = r
+        edge.borderBottomLeftRadius = r
+      }
+      if (index === numOfColumns - 1) {
+        edge.borderTopRightRadius = r
+        edge.borderBottomRightRadius = r
+      }
+      return edge
+    }
+  }, [columnGapPx, numOfColumns, stripeCornerRadiusPx])
+
   return (
-    <div className={`animated-flag ${className}`} style={{ aspectRatio: `${overallAspectRatio}` }}>
+    <div
+      className={cn("animated-flag", className, stripeCornerRadiusPx !== undefined && "animated-flag--radius-controlled")}
+      style={rootStyle}
+    >
       {columnsData.map((colData, index) => {
         let columnSpecificViewBox = ""
         if (svgForeground && svgForeground.viewBox) {
@@ -76,6 +122,8 @@ export function AnimatedFlag({
           }
         }
 
+        const radiusStyle = columnBorderRadius(index)
+
         return (
           <div
             key={index}
@@ -85,6 +133,7 @@ export function AnimatedFlag({
                 "--billow": `${colData.billowAmount}px`, // Use the calculated billowAmount
                 background: gradientString,
                 animationDelay: `${colData.animationDelay}ms`,
+                ...radiusStyle,
               } as React.CSSProperties
             }
           >
