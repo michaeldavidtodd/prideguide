@@ -60,27 +60,27 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
         paths: [
           {
             id: "progress-black-chevron",
-            d: "M492 327.5L167.169 652H1V2H166.168L492 327.5Z",
+            d: "M492 327.5L167.169 654H0V0H166.168L492 327.5Z",
             fill: "#000000",
           },
           {
             id: "progress-brown-chevron",
-            d: "M410 327.5L84.1016 653H1V2H84.1016L410 327.5Z",
+            d: "M410 327.5L84.1016 654H0V0H84.1016L410 327.5Z",
             fill: "#613915",
           },
           {
             id: "progress-lightblue-triangle",
-            d: "M0.53418 0.0341797L327.534 326.534L0.53418 653.034V0.0341797Z",
+            d: "M0 0L327.534 326.534L0 654Z",
             fill: "#5BCEFA",
           },
           {
             id: "progress-pink-triangle",
-            d: "M0.53418 82.5339L245.534 326.534L0.53418 570.534V82.5339Z",
+            d: "M0 82.5339L245.534 326.534L0 570.534V82.5339Z",
             fill: "#F5A9B8",
           },
           {
             id: "progress-white-triangle",
-            d: "M1.06836 164.034L163.068 326.534L1.06836 489.034V164.034Z",
+            d: "M0 164.034L163.068 326.534L0 489.034V164.034Z",
             fill: "#FFFFFF",
           },
         ],
