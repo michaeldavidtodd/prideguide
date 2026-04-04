@@ -36,6 +36,9 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { PRIDE_FLAGS } from "@/lib/flags"
 import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -131,17 +134,40 @@ function HomeV2AboutBlock({
   )
 }
 
-function HomeV2ShortcutsFootnote({ className }: { className?: string }) {
+const exploreKbd =
+  "inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-md border border-foreground/20 bg-muted/90 px-2 font-mono text-sm font-semibold text-foreground shadow-[inset_0_1px_0_hsl(var(--background)/0.4)] sm:min-h-10 sm:min-w-10 sm:text-base"
+
+function ExploreKeyboardLegend({ className }: { className?: string }) {
   return (
-    <div className={cn("pt-4", className)}>
-      <p className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-muted-foreground lg:text-[0.65rem]">Shortcuts</p>
-      <p className="mt-2 text-xs text-muted-foreground sm:text-sm">
-        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">←</kbd>{" "}
-        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">→</kbd> change
-        flag ·{" "}
-        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">↓</kbd> or{" "}
-        <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">space</kbd> random
-      </p>
+    <div className={cn("space-y-2.5", className)} role="region" aria-label="Keyboard shortcuts">
+      {/* <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Keys</p> */}
+      <dl className="space-y-2 text-sm leading-snug sm:text-[0.9375rem] sm:leading-snug">
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+          <dt className="sr-only">Previous and next</dt>
+          <dd className="flex flex-wrap items-center gap-2 text-foreground">
+            <kbd className={exploreKbd} aria-label="Left arrow">
+              <ArrowLeft className="size-5 sm:size-6" aria-hidden strokeWidth={2.25} />
+            </kbd>
+            <kbd className={exploreKbd} aria-label="Right arrow">
+              <ArrowRight className="size-5 sm:size-6" aria-hidden strokeWidth={2.25} />
+            </kbd>
+            <span className="text-muted-foreground">Previous or next flag</span>
+          </dd>
+        </div>
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+          <dt className="sr-only">Random flag</dt>
+          <dd className="flex flex-wrap items-center gap-2 text-foreground">
+            <kbd className={exploreKbd} aria-label="Down arrow">
+              <ArrowDown className="size-5 sm:size-6" aria-hidden strokeWidth={2.25} />
+            </kbd>
+            <span className="text-muted-foreground">or</span>
+            <kbd className={cn(exploreKbd, "min-w-[4.75rem] px-3")} aria-label="Space bar">
+              Space
+            </kbd>
+            <span className="text-muted-foreground">Random flag</span>
+          </dd>
+        </div>
+      </dl>
     </div>
   )
 }
@@ -171,7 +197,7 @@ function HomeV2StripePaletteStrip({
         </div>
       )}
       <div
-        className="flex gap-px overflow-hidden rounded-sm border border-foreground/15 bg-foreground/15 shadow-sm"
+        className="flex gap-1 overflow-hidden rounded-sm shadow-sm"
         role="list"
         aria-label="Flag color stripes"
       >
@@ -748,8 +774,8 @@ export function HomeV2ExploreContent() {
                     </div>
                   </div>
                 </div>
-                <p className="mx-auto mt-2 min-h-[2.5rem] max-w-lg shrink-0 text-center text-[0.65rem] leading-snug text-muted-foreground sm:min-h-[2.75rem] sm:text-xs lg:mt-3">
-                  Hover stills the wave · drag or swipe to change flags
+                <p className="mx-auto mt-3 max-w-lg shrink-0 text-balance text-center text-sm leading-relaxed text-muted-foreground">
+                  Hover stills the wave · drag or swipe the flag to change
                 </p>
               </div>
 
@@ -769,41 +795,63 @@ export function HomeV2ExploreContent() {
                       setActiveStripe((prev) => (prev === stripeIndex ? null : stripeIndex))
                     }}
                   />
-                  <HomeV2ShortcutsFootnote className="mt-auto shrink-0 pb-1" />
                 </div>
               </aside>
             </div>
 
-            <div className="home-v2-explore-footer flex shrink-0 flex-wrap items-center justify-center gap-2 border border-foreground/10 py-3 sm:gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={prev}
-                aria-label="Previous flag"
-                className="size-11 rounded-none border-2 border-foreground/20 bg-background/80 shadow-none sm:size-12"
-              >
-                <ChevronLeft className="size-5 sm:size-6" />
-              </Button>
-              <Button
-                type="button"
-                onClick={shuffle}
-                className="h-11 gap-2 rounded-none border-2 border-transparent bg-foreground px-5 text-sm font-bold tracking-tight text-background shadow-none sm:h-12 sm:px-6 sm:text-base"
-              >
-                <Dices className="size-4 sm:size-5" aria-hidden />
-                Draw another
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={next}
-                aria-label="Next flag"
-                className="size-11 rounded-none border-2 border-foreground/20 bg-background/80 shadow-none sm:size-12"
-              >
-                <ChevronRight className="size-5 sm:size-6" />
-              </Button>
-            </div>
+            <footer className="home-v2-explore-dock shrink-0" aria-label="Flag navigation">
+              <div className="home-v2-explore-dock-frame">
+                <div className="home-v2-explore-dock-surface">
+                  <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+                    {/* <div className="order-2 flex flex-col items-center gap-1 lg:order-1 lg:w-36 lg:shrink-0 lg:items-start">
+                      <span className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">
+                        Position
+                      </span>
+                      <p
+                        className="font-mono text-2xl font-semibold tabular-nums tracking-tight text-foreground sm:text-3xl"
+                        aria-live="polite"
+                      >
+                        {String(index + 1).padStart(2, "0")}
+                        <span className="text-lg font-normal text-muted-foreground sm:text-xl">/{FLAG_COUNT}</span>
+                      </p>
+                    </div> */}
+
+                    <div className="order-1 flex w-full items-center justify-center gap-2 sm:gap-3 lg:order-2 lg:flex-1 lg:px-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={prev}
+                        aria-label="Previous flag"
+                        className="size-12 rounded-none border-2 border-foreground/25 bg-background shadow-sm transition-[transform,box-shadow] hover:border-foreground/40 hover:shadow-md active:scale-[0.98] sm:size-14"
+                      >
+                        <ChevronLeft className="size-6 sm:size-7" />
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={shuffle}
+                        className="h-12 min-w-[12.5rem] gap-2.5 rounded-none border-2 border-transparent bg-foreground px-6 font-display text-sm font-extrabold uppercase tracking-[0.12em] text-background shadow-lg transition-[transform,box-shadow] hover:brightness-110 active:scale-[0.99] sm:h-14 sm:min-w-[15rem] sm:px-10 sm:text-base sm:tracking-[0.14em]"
+                      >
+                        <Dices className="size-5 shrink-0 sm:size-6" aria-hidden />
+                        Draw another
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={next}
+                        aria-label="Next flag"
+                        className="size-12 rounded-none border-2 border-foreground/25 bg-background shadow-sm transition-[transform,box-shadow] hover:border-foreground/40 hover:shadow-md active:scale-[0.98] sm:size-14"
+                      >
+                        <ChevronRight className="size-6 sm:size-7" />
+                      </Button>
+                    </div>
+
+                    <ExploreKeyboardLegend className="order-3 border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]" />
+                  </div>
+                </div>
+              </div>
+            </footer>
           </motion.div>
         </motion.main>
 
@@ -815,7 +863,6 @@ export function HomeV2ExploreContent() {
             </DrawerHeader>
             <div className="overflow-y-auto px-4 pb-8 pt-0">
               <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
-              <HomeV2ShortcutsFootnote className="mt-8 pt-6" />
             </div>
           </DrawerContent>
         </Drawer>
