@@ -296,6 +296,8 @@ html {
   animation: oscillate 650ms alternate infinite ease-in-out both;
   /* Ensure columns fill the full height */
   height: 100%;
+  /* Clip SVG/foreground to rounded corners (background alone is clipped by radius; children are not) */
+  overflow: hidden;
 }
 
 .animated-flag .flag-column:first-child {
@@ -644,23 +646,23 @@ html {
 .home-v2-stage-shell {
   position: relative;
   padding: 4px;
-  background: linear-gradient(
+  /* background: linear-gradient(
     145deg,
     hsl(var(--foreground) / 0.45) 0%,
     hsl(var(--foreground) / 0.06) 42%,
     hsl(var(--foreground) / 0.28) 100%
-  );
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px));
-  box-shadow:
+  ); */
+  /* clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px)); */
+  /* box-shadow:
     0 0 0 1px hsl(var(--foreground) / 0.08),
-    0 28px 56px -16px hsl(var(--foreground) / 0.35);
+    0 28px 56px -16px hsl(var(--foreground) / 0.35); */
 }
 
 .home-v2-stage-inner {
   box-sizing: border-box;
   padding: clamp(0.625rem, 2.5vw, 1.25rem);
-  background: oklch(0.11 0.02 290);
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+  /* background: oklch(0.11 0.02 290); */
+  /* clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px)); */
 }
 
 .home-v2-stripe-cut {
@@ -669,6 +671,29 @@ html {
 
 .home-v2-accordion-trigger[data-state="open"] {
   color: hsl(var(--foreground));
+}
+
+/* Explore (/home-v2/explore): layout rules live here so they always apply (not dependent on Tailwind JIT). */
+.home-v2-browse .home-v2-explore-header {
+  min-height: 8.5rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .home-v2-browse .home-v2-explore-header {
+    min-height: 9rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-v2-browse .home-v2-explore-flag {
+    justify-content: flex-start;
+  }
+}
+
+.home-v2-browse .home-v2-explore-footer {
+  min-height: 4.75rem;
+  box-sizing: border-box;
 }
 
 @media (prefers-reduced-motion: reduce) {

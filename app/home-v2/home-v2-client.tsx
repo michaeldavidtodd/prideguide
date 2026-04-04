@@ -133,7 +133,7 @@ function HomeV2AboutBlock({
 
 function HomeV2ShortcutsFootnote({ className }: { className?: string }) {
   return (
-    <div className={cn("border-t border-foreground/10 pt-4", className)}>
+    <div className={cn("pt-4", className)}>
       <p className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-muted-foreground lg:text-[0.65rem]">Shortcuts</p>
       <p className="mt-2 text-xs text-muted-foreground sm:text-sm">
         <kbd className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.65rem] sm:text-xs">←</kbd>{" "}
@@ -594,16 +594,16 @@ export function HomeV2ExploreContent() {
             variants={variants.item}
             className="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col px-4 py-4 sm:px-8 sm:py-5"
           >
-            <header className="flex shrink-0 flex-wrap items-start justify-between gap-3 border-b border-foreground/10 pb-3">
-              <div className="relative min-w-0 flex-1 pr-2">
+            <header className="home-v2-explore-header grid shrink-0 grid-cols-1 gap-x-4 gap-y-3 pb-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-y-2">
+              <div className="relative min-w-0">
                 <span
-                  className="pointer-events-none absolute -left-1 -top-1 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.04] dark:text-foreground/[0.06] sm:-left-2 sm:top-0"
+                  className="pointer-events-none absolute -left-1 -top-1 z-0 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.04] dark:text-foreground/[0.06] sm:-left-2 sm:top-0"
                   aria-hidden
                 >
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <div className="relative space-y-2 pt-1">
-                  <div className="flex flex-wrap items-end justify-between gap-2 gap-y-1">
+                <div className="relative z-10 flex min-h-0 flex-col gap-2 pt-1 pl-[clamp(2.75rem,11vw,4.5rem)]">
+                  <div className="min-h-0">
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div
                         key={flag.id}
@@ -613,80 +613,87 @@ export function HomeV2ExploreContent() {
                         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                         className="min-w-0 max-w-[min(100%,42rem)]"
                       >
-                        <h2 className="line-clamp-2 font-display text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1.08] tracking-tight">
+                        <h2 className="line-clamp-2 min-h-[calc(2*1lh)] font-display text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1.08] tracking-tight">
                           {flag.name}
                         </h2>
                       </motion.div>
                     </AnimatePresence>
-                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground sm:text-sm">
-                      {index + 1}/{FLAG_COUNT}
-                    </span>
                   </div>
-                  <Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
-                    {flag.category}
-                  </Badge>
+                  <div className="flex min-h-[1.75rem] shrink-0 items-center">
+                    <Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
+                      {flag.category}
+                    </Badge>
+                  </div>
                 </div>
               </div>
-              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
-                  style={studioShellStyle}
+              <div className="flex min-w-0 flex-col items-end justify-start gap-2 justify-self-end sm:flex-row sm:flex-wrap sm:items-center lg:pt-1">
+                <span
+                  className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground sm:pt-0.5 sm:text-sm"
+                  aria-label={`Flag ${index + 1} of ${FLAG_COUNT}`}
                 >
-                  <Link href="/home-v2">
-                    <ChevronLeft className="size-3.5" aria-hidden />
-                    <span className="hidden sm:inline">Welcome</span>
-                  </Link>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "gap-1.5 font-display text-xs font-bold uppercase tracking-wide lg:hidden",
-                    cornerRadius <= 0 && "rounded-none"
-                  )}
-                  style={studioShellStyle}
-                  onClick={() => setBrowsePanel("details")}
-                >
-                  <BookOpen className="size-3.5" aria-hidden />
-                  <span className="hidden sm:inline">About</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "gap-1.5 font-display text-xs font-bold uppercase tracking-wide lg:hidden",
-                    cornerRadius <= 0 && "rounded-none"
-                  )}
-                  style={studioShellStyle}
-                  onClick={() => setBrowsePanel("palette")}
-                >
-                  <Palette className="size-3.5" aria-hidden />
-                  <span className="hidden sm:inline">Colors</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
-                  style={studioShellStyle}
-                  onClick={() => setBrowsePanel("studio")}
-                >
-                  <SlidersHorizontal className="size-3.5" aria-hidden />
-                  <span className="hidden sm:inline">Studio</span>
-                </Button>
-                <ThemeToggle />
+                  {index + 1}/{FLAG_COUNT}
+                </span>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
+                    style={studioShellStyle}
+                  >
+                    <Link href="/home-v2">
+                      <ChevronLeft className="size-3.5" aria-hidden />
+                      <span className="hidden sm:inline">Welcome</span>
+                    </Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "gap-1.5 font-display text-xs font-bold uppercase tracking-wide lg:hidden",
+                      cornerRadius <= 0 && "rounded-none"
+                    )}
+                    style={studioShellStyle}
+                    onClick={() => setBrowsePanel("details")}
+                  >
+                    <BookOpen className="size-3.5" aria-hidden />
+                    <span className="hidden sm:inline">About</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "gap-1.5 font-display text-xs font-bold uppercase tracking-wide lg:hidden",
+                      cornerRadius <= 0 && "rounded-none"
+                    )}
+                    style={studioShellStyle}
+                    onClick={() => setBrowsePanel("palette")}
+                  >
+                    <Palette className="size-3.5" aria-hidden />
+                    <span className="hidden sm:inline">Colors</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
+                    style={studioShellStyle}
+                    onClick={() => setBrowsePanel("studio")}
+                  >
+                    <SlidersHorizontal className="size-3.5" aria-hidden />
+                    <span className="hidden sm:inline">Studio</span>
+                  </Button>
+                  <ThemeToggle />
+                </div>
               </div>
             </header>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-4 py-2 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
+            <div className="home-v2-explore-body flex min-h-0 flex-1 flex-col gap-4 py-3 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
               <div
                 ref={stageRef}
-                className="flag-container relative mx-auto flex min-h-0 w-full min-w-0 flex-1 cursor-grab touch-pan-y flex-col justify-center active:cursor-grabbing lg:mx-0 lg:max-w-[min(36rem,46vw)] lg:flex-none xl:max-w-[min(38rem,44vw)]"
+                className="home-v2-explore-flag flag-container relative mx-auto flex min-h-0 w-full min-w-0 flex-1 cursor-grab touch-pan-y flex-col justify-center active:cursor-grabbing lg:mx-0 lg:max-w-[min(36rem,46vw)] lg:flex-none xl:max-w-[min(38rem,44vw)]"
                 onMouseMove={handleStageMove}
                 onMouseLeave={resetTilt}
                 onPointerDown={(e) => {
@@ -728,19 +735,6 @@ export function HomeV2ExploreContent() {
                             <div className="h-full w-[28%] bg-gradient-to-r from-transparent via-[hsl(var(--foreground)/0.12)] to-transparent" />
                           </motion.div>
                         )}
-                        <div
-                          className="pointer-events-none absolute inset-0 z-[1] opacity-[0.06]"
-                          style={{
-                            backgroundImage: `repeating-linear-gradient(
-                              90deg,
-                              hsl(var(--foreground)) 0px,
-                              hsl(var(--foreground)) 1px,
-                              transparent 1px,
-                              transparent 4px
-                            )`,
-                          }}
-                          aria-hidden
-                        />
                         <AnimatedFlag
                           backgroundColors={stripes}
                           svgForeground={flag.display.svgForeground}
@@ -754,16 +748,16 @@ export function HomeV2ExploreContent() {
                     </div>
                   </div>
                 </div>
-                <p className="mx-auto mt-2 max-w-lg shrink-0 text-center text-[0.65rem] leading-snug text-muted-foreground sm:text-xs lg:mt-3">
+                <p className="mx-auto mt-2 min-h-[2.5rem] max-w-lg shrink-0 text-center text-[0.65rem] leading-snug text-muted-foreground sm:min-h-[2.75rem] sm:text-xs lg:mt-3">
                   Hover stills the wave · drag or swipe to change flags
                 </p>
               </div>
 
               <aside
-                className="home-v2-browse-rail hidden min-h-0 min-w-0 w-full shrink-0 border-foreground/10 lg:flex lg:min-w-[min(18rem,32%)] lg:flex-1 lg:flex-col lg:border-l lg:pl-7 xl:min-w-[min(20rem,34%)] xl:pl-9"
+                className="home-v2-explore-rail home-v2-browse-rail hidden min-h-0 min-w-0 w-full shrink-0 border-foreground/10 lg:flex lg:min-w-[min(18rem,32%)] lg:flex-1 lg:flex-col lg:pl-7 xl:min-w-[min(20rem,34%)] xl:pl-9"
                 aria-label="About this flag and colors"
               >
-                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden pr-1 pt-1">
+                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden overscroll-contain pr-1 pt-0">
                   <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
                   <HomeV2StripePaletteStrip
                     flagId={flag.id}
@@ -780,7 +774,7 @@ export function HomeV2ExploreContent() {
               </aside>
             </div>
 
-            <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 border-t border-foreground/10 pt-3 sm:gap-3">
+            <div className="home-v2-explore-footer flex shrink-0 flex-wrap items-center justify-center gap-2 border border-foreground/10 py-3 sm:gap-3">
               <Button
                 type="button"
                 variant="outline"
