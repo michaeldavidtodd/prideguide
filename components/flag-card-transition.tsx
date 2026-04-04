@@ -2,13 +2,16 @@
 
 import type React from "react"
 
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Flag, Share2, X } from "lucide-react"
+import { Flag, Share2, X, Download } from "lucide-react"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ShareModal } from "@/components/share-modal"
+import { useToast } from "@/hooks/use-toast"
+import { defaultGifSpecFromFlag, downloadAnimatedFlagGif, gifFilenameForFlag } from "@/lib/animated-flag-gif"
+import { PRIDE_FLAGS, type FlagDefinition } from "@/lib/flags"
 
 interface FlagData {
   id: string
@@ -33,8 +36,10 @@ interface FlagCardTransitionProps {
 }
 
 export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransitionProps) {
+  const { toast } = useToast()
   const [showShareModal, setShowShareModal] = useState(false)
   const [shareTarget, setShareTarget] = useState<Pick<FlagData, "id" | "name" | "description"> | null>(null)
+  const [gifExporting, setGifExporting] = useState(false)
   const flagBandBackground = useMemo(() => {
     const colors = flag?.display?.stripes?.filter(Boolean) ?? []
     if (colors.length === 0) {
@@ -62,6 +67,36 @@ export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransition
       setShowShareModal(true)
     }, 0)
   }
+
+  const canonicalFlag: FlagDefinition | null = useMemo(() => {
+    if (!flag) return null
+    return PRIDE_FLAGS.find((f) => f.id === flag.id) ?? null
+  }, [flag])
+
+  const handleDownloadGif = useCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (!canonicalFlag || gifExporting) return
+      setGifExporting(true)
+      try {
+        const spec = defaultGifSpecFromFlag(canonicalFlag)
+        await downloadAnimatedFlagGif(spec, canonicalFlag.id)
+        toast({
+          title: "GIF downloaded",
+          description: `Saved as ${gifFilenameForFlag(canonicalFlag.id)}.`,
+        })
+      } catch {
+        toast({
+          title: "Could not create GIF",
+          description: "Try again, or use a different browser.",
+          variant: "destructive",
+        })
+      } finally {
+        setGifExporting(false)
+      }
+    },
+    [canonicalFlag, gifExporting, toast]
+  )
 
   return (
     <>
@@ -121,12 +156,20 @@ export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransition
                       <p className="text-[0.95rem] leading-tight text-muted-foreground">{flag.significance}</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between border-t pt-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
                     <p className="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">Share this flag</p>
-                    <Button size="sm" variant="outline" onClick={handleShare}>
-                      <Share2 className="mr-1 h-4 w-4" />
-                      Share
-                    </Button>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      {canonicalFlag ? (
+                        <Button size="sm" variant="outline" disabled={gifExporting} onClick={handleDownloadGif}>
+                          <Download className="mr-1 h-4 w-4" aria-hidden />
+                          {gifExporting ? "…" : "GIF"}
+                        </Button>
+                      ) : null}
+                      <Button size="sm" variant="outline" onClick={handleShare}>
+                        <Share2 className="mr-1 h-4 w-4" />
+                        Share
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

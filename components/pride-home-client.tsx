@@ -43,11 +43,17 @@ import { Switch } from "@/components/ui/switch"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { AnimatedFlag } from "@/components/animated-flag"
 import {
+  downloadAnimatedFlagGif,
+  gifFilenameForFlag,
+  type AnimatedFlagGifSpec,
+} from "@/lib/animated-flag-gif"
+import {
   canonicalFlagHex,
   collectFlagPalette,
   PRIDE_FLAGS,
   type FlagPaletteSwatch,
 } from "@/lib/flags"
+import { useToast } from "@/hooks/use-toast"
 import {
   ArrowDown,
   ArrowLeft,
@@ -56,6 +62,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Dices,
+  Download,
   Heart,
   House,
   Info,
@@ -719,6 +726,7 @@ export function HomeV2WelcomeContent() {
 export function HomeV2ExploreContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { toast } = useToast()
   const systemPrefersReducedMotion = useReducedMotion()
   const [motionPreference, setMotionPreference] = useState<ExploreMotionPreference>("system")
   const [studioPersist, setStudioPersist] = useState(false)
@@ -734,6 +742,7 @@ export function HomeV2ExploreContent() {
   const [flagNavDir, setFlagNavDir] = useState<1 | -1>(1)
   const [stripeGap, setStripeGap] = useState(0)
   const [cornerRadius, setCornerRadius] = useState(0)
+  const [gifExporting, setGifExporting] = useState(false)
   const pointerStart = useRef<{ x: number } | null>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 
@@ -946,6 +955,38 @@ export function HomeV2ExploreContent() {
 
   const billow = waveBoost ? 1.35 : 0.85
 
+  const exploreGifSpec = useMemo((): AnimatedFlagGifSpec => {
+    return {
+      backgroundColors: stripes,
+      svgForeground: flag.display.svgForeground,
+      numOfColumns: columnCount,
+      staggeredDelayMs: 150,
+      billow,
+      columnGapPx: stripeGap,
+      stripeCornerRadiusPx: cornerRadius > 0 ? cornerRadius : undefined,
+    }
+  }, [billow, columnCount, cornerRadius, flag.display.svgForeground, stripeGap, stripes])
+
+  const handleDownloadAnimatedGif = useCallback(async () => {
+    if (gifExporting) return
+    setGifExporting(true)
+    try {
+      await downloadAnimatedFlagGif(exploreGifSpec, flag.id)
+      toast({
+        title: "GIF downloaded",
+        description: `Saved as ${gifFilenameForFlag(flag.id)}.`,
+      })
+    } catch {
+      toast({
+        title: "Could not create GIF",
+        description: "Try again, or use a different browser.",
+        variant: "destructive",
+      })
+    } finally {
+      setGifExporting(false)
+    }
+  }, [exploreGifSpec, flag.id, gifExporting, toast])
+
   const frameRadiusStyle = useMemo((): CSSProperties | undefined => {
     if (cornerRadius <= 0) return undefined
     return { clipPath: "none", borderRadius: `${cornerRadius}px` }
@@ -1108,6 +1149,18 @@ export function HomeV2ExploreContent() {
                           Classic layout
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        disabled={gifExporting}
+                        onSelect={(e) => {
+                          e.preventDefault()
+                          void handleDownloadAnimatedGif()
+                        }}
+                        className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide"
+                      >
+                        <Download className="size-4 opacity-80" aria-hidden />
+                        {gifExporting ? "Encoding GIF…" : "Download GIF"}
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Button
@@ -1229,6 +1282,23 @@ export function HomeV2ExploreContent() {
                 <p className="mx-auto mt-3 max-w-lg shrink-0 text-balance text-center text-sm leading-relaxed text-muted-foreground">
                   Drag, swipe, or use arrow keys to change flags
                 </p>
+                <div className="mx-auto mt-2 flex shrink-0 justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "gap-2 font-display text-xs font-bold uppercase tracking-wide",
+                      cornerRadius <= 0 && "rounded-none"
+                    )}
+                    style={studioShellStyle}
+                    disabled={gifExporting}
+                    onClick={() => void handleDownloadAnimatedGif()}
+                  >
+                    <Download className="size-3.5 shrink-0 opacity-80" aria-hidden />
+                    {gifExporting ? "Encoding GIF…" : "Download GIF"}
+                  </Button>
+                </div>
               </div>
 
               <aside
@@ -1505,6 +1575,30 @@ export function HomeV2ExploreContent() {
                   step={1}
                   aria-label="Border radius for flag frames, studio panel, and stripe ends"
                 />
+              </div>
+
+              <div
+                data-slot="download-gif"
+                className={cn("space-y-2 p-4 bg-foreground/5", cornerRadius > 0 && "rounded-lg")}
+                style={studioShellStyle}
+              >
+                <Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                  Export
+                </Label>
+                <p className="text-xs leading-snug text-muted-foreground text-balance">
+                  Save the waving flag as an animated GIF using your current studio layout and motion.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn("w-full gap-2 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
+                  style={studioShellStyle}
+                  disabled={gifExporting}
+                  onClick={() => void handleDownloadAnimatedGif()}
+                >
+                  <Download className="size-4 shrink-0 opacity-80" aria-hidden />
+                  {gifExporting ? "Encoding…" : "Download animated GIF"}
+                </Button>
               </div>
             </div>
           </SheetContent>

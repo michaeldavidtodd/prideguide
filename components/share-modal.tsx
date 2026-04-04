@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Share2, Twitter, Facebook, Mail, Copy, Check, ExternalLink, MessageCircle, Users } from "lucide-react"
+import { Share2, Twitter, Facebook, Mail, Copy, Check, ExternalLink, MessageCircle, Users, Download } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { defaultGifSpecFromFlag, downloadAnimatedFlagGif, gifFilenameForFlag } from "@/lib/animated-flag-gif"
+import { PRIDE_FLAGS } from "@/lib/flags"
 
 interface ShareModalProps {
   flag: {
@@ -19,9 +21,33 @@ interface ShareModalProps {
 
 export function ShareModal({ flag, isOpen, onClose }: ShareModalProps) {
   const [copied, setCopied] = useState(false)
+  const [gifExporting, setGifExporting] = useState(false)
   const { toast } = useToast()
 
   if (!isOpen || !flag) return null
+
+  const fullFlag = PRIDE_FLAGS.find((f) => f.id === flag.id) ?? null
+
+  const handleDownloadGif = useCallback(async () => {
+    if (!fullFlag || gifExporting) return
+    setGifExporting(true)
+    try {
+      const spec = defaultGifSpecFromFlag(fullFlag)
+      await downloadAnimatedFlagGif(spec, fullFlag.id)
+      toast({
+        title: "GIF downloaded",
+        description: `Saved as ${gifFilenameForFlag(fullFlag.id)}.`,
+      })
+    } catch {
+      toast({
+        title: "Could not create GIF",
+        description: "Try again, or use a different browser.",
+        variant: "destructive",
+      })
+    } finally {
+      setGifExporting(false)
+    }
+  }, [fullFlag, gifExporting, toast])
 
   // Generate shareable content
   const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/flag/${flag.id}`
@@ -185,6 +211,18 @@ export function ShareModal({ flag, isOpen, onClose }: ShareModalProps) {
                 </div>
               </div>
             </div>
+
+            {fullFlag ? (
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                disabled={gifExporting}
+                onClick={() => void handleDownloadGif()}
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                {gifExporting ? "Encoding GIF…" : "Download animated GIF"}
+              </Button>
+            ) : null}
 
             {/* Close Button */}
             <Button variant="outline" onClick={onClose} className="w-full">
