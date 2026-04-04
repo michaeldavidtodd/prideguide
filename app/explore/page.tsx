@@ -1,7 +1,7 @@
 import { Suspense } from "react"
-import { HomeV2ExploreContent, HomeV2Fallback } from "../home-v2-client"
+import { HomeV2ExploreContent, HomeV2Fallback } from "@/components/pride-home-client"
 
-export default function HomeV2ExplorePage() {
+export default function ExplorePage() {
   return (
     <Suspense fallback={<HomeV2Fallback />}>
       <HomeV2ExploreContent />

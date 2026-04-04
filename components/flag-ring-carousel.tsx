@@ -189,7 +189,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
             aria-label={`Open details for ${flag.name}`}
           >
             <div
-              className="flag-ticker-card-bob transition-transform duration-200 ease-out motion-reduce:transition-none sm:duration-300 sm:ease-[cubic-bezier(0.22,1,0.36,1)] sm:group-hover:[animation-play-state:paused] sm:group-hover:-translate-y-1.5"
+              className="flag-ticker-card-bob transition-transform duration-200 ease-out motion-reduce:transition-none sm:duration-300 sm:ease-editorial sm:group-hover:[animation-play-state:paused] sm:group-hover:-translate-y-1.5"
               style={{
                 ["--bob-amp" as string]: `${bobAmplitude}px`,
                 ["--bob-tilt" as string]: `${bobTilt}deg`,
@@ -199,7 +199,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
               }}
             >
               <div
-                className="origin-bottom transition-[filter,transform] duration-200 ease-out motion-reduce:transition-none sm:duration-300 sm:ease-[cubic-bezier(0.22,1,0.36,1)] drop-shadow-[0_3px_10px_hsl(var(--foreground)/0.14)] sm:group-hover:scale-[1.02] sm:group-hover:drop-shadow-[0_14px_32px_hsl(var(--foreground)/0.28)]"
+                className="origin-bottom transition-[filter,transform] duration-200 ease-out motion-reduce:transition-none sm:duration-300 sm:ease-editorial drop-shadow-[0_3px_10px_hsl(var(--foreground)/0.14)] sm:group-hover:scale-[1.02] sm:group-hover:drop-shadow-[0_14px_32px_hsl(var(--foreground)/0.28)]"
               >
                 <div className="overflow-hidden rounded-md">
                   <AnimatedFlag
@@ -227,7 +227,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
     >
       <header
         id="flag-ring-carousel-hint"
-        className="pointer-events-none mx-auto max-w-3xl px-4 pb-6 text-left sm:px-6 sm:pb-8"
+        className="pointer-events-none mx-auto max-w-7xl px-4 pb-6 text-left sm:px-6 sm:pb-8"
       >
         <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
           Flag guide
@@ -241,7 +241,7 @@ export function FlagRingCarousel<F extends RingFlag>({ flags, onSelect }: FlagRi
             <h3 className="font-display text-[1.65rem] font-bold leading-[1.1] tracking-tight text-foreground sm:text-3xl sm:leading-[1.08]">
               Explore the flags
             </h3>
-            <p className="mt-2 max-w-[28rem] text-pretty text-sm leading-relaxed text-muted-foreground sm:mt-3 sm:text-base sm:leading-relaxed">
+            <p className="mt-2 max-w-[28rem] text-balance text-sm leading-relaxed text-muted-foreground sm:mt-3 sm:text-base sm:leading-relaxed">
               <span className="sm:hidden">Select a flag to learn about it.</span>
               <span className="hidden sm:inline">
                 Select a flag to learn more. Drag a flag to control the flow.

@@ -43,13 +43,32 @@ import {
   ChevronLeft,
   ChevronRight,
   Dices,
+  Heart,
+  Info,
+  Menu,
   Palette,
   SlidersHorizontal,
   Sparkles,
+  Trophy,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import {
+  PRIDE_ABOUT_APP_PATH,
+  PRIDE_ALLY_PATH,
+  PRIDE_CLASSIC_PATH,
+  PRIDE_EXPLORE_PATH,
+  PRIDE_QUIZ_PATH,
+} from "@/lib/pride-routes"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-export const HOME_V2_EXPLORE_PATH = "/home-v2/explore" as const
+/** @deprecated Use PRIDE_EXPLORE_PATH from @/lib/pride-routes */
+export const HOME_V2_EXPLORE_PATH = PRIDE_EXPLORE_PATH
 
 const FLAG_COUNT = PRIDE_FLAGS.length
 
@@ -149,7 +168,7 @@ function HomeV2AboutBlock({
           <p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:text-[0.65rem]">
             Why it matters
           </p>
-          <p className="mt-2 text-pretty text-sm font-medium leading-relaxed text-foreground sm:text-base">{flag.significance}</p>
+          <p className="mt-2 text-balance text-sm font-medium leading-relaxed text-foreground sm:text-base">{flag.significance}</p>
         </div>
       </blockquote>
       <Accordion type="single" collapsible defaultValue="overview" className="border border-foreground/10 bg-background/40">
@@ -383,7 +402,7 @@ export function HomeV2WelcomeContent() {
     const id = searchParams.get("f")
     if (!id) return
     const q = searchParams.toString()
-    router.replace(`${HOME_V2_EXPLORE_PATH}${q ? `?${q}` : ""}`)
+    router.replace(`${PRIDE_EXPLORE_PATH}${q ? `?${q}` : ""}`)
   }, [router, searchParams])
 
   const variants = useMemo(
@@ -410,7 +429,7 @@ export function HomeV2WelcomeContent() {
 
   return (
     <div
-      className="home-v2-root flex h-dvh min-h-0 flex-col overflow-hidden text-foreground"
+      className="home-v2-root flex h-dvh min-h-0 flex-col text-foreground"
       aria-busy={bootPhase !== "off"}
     >
       <p className="sr-only" aria-live="polite" aria-atomic="true">
@@ -423,14 +442,14 @@ export function HomeV2WelcomeContent() {
       )}
       <div className="home-v2-stack flex min-h-0 flex-1 flex-col">
         <Link
-          href={HOME_V2_EXPLORE_PATH}
+          href={PRIDE_EXPLORE_PATH}
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[260] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
         >
           Skip to flags
         </Link>
 
         <motion.section
-          className="home-v2-hero flex min-h-0 flex-1 flex-col overflow-hidden"
+          className="home-v2-hero flex min-h-0 flex-1 flex-col"
           aria-label="Welcome"
           initial="hidden"
           animate={bootContentRevealed ? "show" : "hidden"}
@@ -442,7 +461,7 @@ export function HomeV2WelcomeContent() {
 
           <motion.div
             variants={variants.item}
-            className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center overflow-y-auto px-4 py-10 sm:px-8 sm:py-14 lg:py-20"
+            className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center"
           >
             <div className="max-w-2xl space-y-8">
               <div className="space-y-5">
@@ -456,11 +475,11 @@ export function HomeV2WelcomeContent() {
               </div>
 
               <div className="space-y-5">
-                <p className="max-w-[44ch] text-pretty font-display text-[clamp(1.25rem,3.4vw,1.85rem)] font-bold leading-snug tracking-tight text-foreground">
+                <p className="max-w-[44ch] text-balance font-display text-[clamp(1.25rem,3.4vw,1.85rem)] font-bold leading-snug tracking-tight text-foreground">
                   Welcome in. You're about to go deep on the symbols that hold our stories—color, history, and meaning,
                   turned up loud.
                 </p>
-                <p className="max-w-[54ch] text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <p className="max-w-[54ch] text-balance text-base leading-relaxed text-muted-foreground sm:text-lg">
                   Learn on your own terms. No one owes you their identity as a lesson plan—and you still deserve to walk
                   away informed, fired up, and ready to show up for the community.
                 </p>
@@ -468,7 +487,7 @@ export function HomeV2WelcomeContent() {
 
               <div>
                 <Link
-                  href={HOME_V2_EXPLORE_PATH}
+                  href={PRIDE_EXPLORE_PATH}
                   className="group inline-flex items-center gap-3 border-b-2 border-primary pb-1 font-display text-sm font-extrabold uppercase tracking-[0.2em] text-foreground transition-colors hover:border-foreground hover:text-primary"
                 >
                   Start exploring
@@ -480,6 +499,43 @@ export function HomeV2WelcomeContent() {
                   </span>
                 </Link>
               </div>
+
+              <nav className="max-w-2xl space-y-4 border-t border-foreground/10 pt-8" aria-label="More ways to learn">
+                <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  Also on Prism
+                </p>
+                <ul className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-10 sm:gap-y-2">
+                  <li>
+                    <Link
+                      href={PRIDE_QUIZ_PATH}
+                      className="group inline-flex border-b border-transparent pb-0.5 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-primary hover:text-primary"
+                    >
+                      Quiz
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={PRIDE_ALLY_PATH}
+                      className="group inline-flex border-b border-transparent pb-0.5 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-primary hover:text-primary"
+                    >
+                      Ally guide
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={PRIDE_ABOUT_APP_PATH}
+                      className="group inline-flex border-b border-transparent pb-0.5 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-primary hover:text-primary"
+                    >
+                      About the app
+                    </Link>
+                  </li>
+                </ul>
+                <p className="text-xs text-muted-foreground">
+                  <Link href={PRIDE_CLASSIC_PATH} className="underline underline-offset-4 hover:text-foreground">
+                    Original single-page layout
+                  </Link>
+                </p>
+              </nav>
             </div>
           </motion.div>
         </motion.section>
@@ -530,7 +586,7 @@ export function HomeV2ExploreContent() {
   const syncUrl = useCallback(
     (i: number) => {
       const id = PRIDE_FLAGS[i].id
-      router.replace(`${HOME_V2_EXPLORE_PATH}?f=${id}`, { scroll: false })
+      router.replace(`${PRIDE_EXPLORE_PATH}?f=${id}`, { scroll: false })
     },
     [router]
   )
@@ -554,7 +610,7 @@ export function HomeV2ExploreContent() {
 
   useEffect(() => {
     if (searchParams.get("f")) return
-    router.replace(`${HOME_V2_EXPLORE_PATH}?f=${PRIDE_FLAGS[0].id}`, { scroll: false })
+    router.replace(`${PRIDE_EXPLORE_PATH}?f=${PRIDE_FLAGS[0].id}`, { scroll: false })
   }, [router, searchParams])
 
   useEffect(() => {
@@ -625,7 +681,7 @@ export function HomeV2ExploreContent() {
   }, [cornerRadius])
 
   return (
-    <div className="home-v2-root flex h-dvh min-h-0 flex-col overflow-hidden text-foreground">
+    <div className="home-v2-root flex h-dvh min-h-0 flex-col text-foreground">
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         Pride Guide flag explorer.
       </p>
@@ -682,18 +738,49 @@ export function HomeV2ExploreContent() {
                   {index + 1}/{FLAG_COUNT}
                 </span>
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
-                    style={studioShellStyle}
-                  >
-                    <Link href="/home-v2">
-                      <ChevronLeft className="size-3.5" aria-hidden />
-                      <span className="hidden sm:inline">Welcome</span>
-                    </Link>
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "gap-1.5 font-display text-xs font-bold uppercase tracking-wide",
+                          cornerRadius <= 0 && "rounded-none"
+                        )}
+                        style={studioShellStyle}
+                      >
+                        <Menu className="size-3.5" aria-hidden />
+                        <span className="hidden sm:inline">More</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="min-w-[11rem]">
+                      <DropdownMenuItem asChild>
+                        <Link href={PRIDE_QUIZ_PATH} className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
+                          <Trophy className="size-4 opacity-80" aria-hidden />
+                          Quiz
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={PRIDE_ALLY_PATH} className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
+                          <Heart className="size-4 opacity-80" aria-hidden />
+                          Ally guide
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={PRIDE_ABOUT_APP_PATH} className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
+                          <Info className="size-4 opacity-80" aria-hidden />
+                          About the app
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href={PRIDE_CLASSIC_PATH} className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
+                          Classic layout
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button
                     type="button"
                     variant="outline"
@@ -733,7 +820,21 @@ export function HomeV2ExploreContent() {
                     <SlidersHorizontal className="size-3.5" aria-hidden />
                     <span className="hidden sm:inline">Studio</span>
                   </Button>
-                  <ThemeToggle />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className={cn("gap-1.5 font-display text-xs font-bold uppercase tracking-wide", cornerRadius <= 0 && "rounded-none")}
+                      style={studioShellStyle}
+                    >
+                      <Link href="/">
+                        <ChevronLeft className="size-3.5" aria-hidden />
+                        <span className="hidden sm:inline">Home</span>
+                      </Link>
+                    </Button>
+                    <ThemeToggle />
+                  </div>
                 </div>
               </div>
             </header>

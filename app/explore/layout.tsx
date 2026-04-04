@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: "Browse pride flags with accurate colors, history, and meaning.",
 }
 
-export default function HomeV2ExploreLayout({ children }: { children: ReactNode }) {
+export default function ExploreLayout({ children }: { children: ReactNode }) {
   return children
 }
