@@ -276,10 +276,10 @@ function ExploreKeyboardLegend({ className }: { className?: string }) {
           <dt className="sr-only">Previous and next</dt>
           <dd className="flex flex-wrap items-center gap-2 text-foreground">
             <kbd className={exploreKbd} aria-label="Left arrow">
-              <ArrowLeft className="size-5 sm:size-6" aria-hidden strokeWidth={2.25} />
+              <ArrowLeft className="size-4" aria-hidden strokeWidth={2.25} />
             </kbd>
             <kbd className={exploreKbd} aria-label="Right arrow">
-              <ArrowRight className="size-5 sm:size-6" aria-hidden strokeWidth={2.25} />
+              <ArrowRight className="size-4" aria-hidden strokeWidth={2.25} />
             </kbd>
             <span className="text-muted-foreground">Previous or next flag</span>
           </dd>
@@ -288,10 +288,10 @@ function ExploreKeyboardLegend({ className }: { className?: string }) {
           <dt className="sr-only">Random flag</dt>
           <dd className="flex flex-wrap items-center gap-2 text-foreground">
             <kbd className={exploreKbd} aria-label="Down arrow">
-              <ArrowDown className="size-5 sm:size-6" aria-hidden strokeWidth={2.25} />
+              <ArrowDown className="size-4" aria-hidden strokeWidth={2.25} />
             </kbd>
             <span className="text-muted-foreground">or</span>
-            <kbd className={cn(exploreKbd, "min-w-[4.75rem] px-3")} aria-label="Space bar">
+            <kbd className={cn(exploreKbd, "min-w-[4.75rem] px-3 !text-sm")} aria-label="Space bar">
               Space
             </kbd>
             <span className="text-muted-foreground">Random flag</span>
@@ -308,12 +308,15 @@ function HomeV2StripePaletteStrip({
   activeStripe,
   onStripeToggle,
   variant,
+  position,
 }: {
   flagId: string
   palette: FlagPaletteSwatch[]
   activeStripe: number | null
   onStripeToggle: (swatchIndex: number) => void
   variant: "rail" | "drawer"
+  /** Shown below the palette (1-based index, total flags). */
+  position: { current: number; total: number }
 }) {
   const minH = variant === "rail" ? "min-h-11" : "min-h-16"
   const activeSwatch = activeStripe !== null ? palette.find((s) => s.index === activeStripe) : undefined
@@ -376,6 +379,19 @@ function HomeV2StripePaletteStrip({
           )}
         </div>
       )}
+      <div className="mt-4 border-t border-foreground/10 pt-4">
+        {/* <span className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">
+          Position
+        </span> */}
+        <p
+          className="font-mono text-2xl font-semibold tabular-nums tracking-tight text-foreground sm:text-3xl"
+          aria-live="polite"
+          aria-label={`Flag ${position.current} of ${position.total}`}
+        >
+          {String(position.current).padStart(2, "0")}
+          <span className="text-lg font-normal text-muted-foreground sm:text-xl">/{position.total}</span>
+        </p>
+      </div>
     </div>
   )
 }
@@ -1149,6 +1165,7 @@ export function HomeV2ExploreContent() {
                     palette={flagPalette}
                     activeStripe={activeStripe}
                     variant="rail"
+                    position={{ current: index + 1, total: FLAG_COUNT }}
                     onStripeToggle={(swatchIndex) => {
                       setActiveStripe((prev) => (prev === swatchIndex ? null : swatchIndex))
                     }}
@@ -1161,20 +1178,7 @@ export function HomeV2ExploreContent() {
               <div className="home-v2-explore-dock-frame">
                 <div className="home-v2-explore-dock-surface">
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
-                    {/* <div className="order-2 flex flex-col items-center gap-1 lg:order-1 lg:w-36 lg:shrink-0 lg:items-start">
-                      <span className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">
-                        Position
-                      </span>
-                      <p
-                        className="font-mono text-2xl font-semibold tabular-nums tracking-tight text-foreground sm:text-3xl"
-                        aria-live="polite"
-                      >
-                        {String(index + 1).padStart(2, "0")}
-                        <span className="text-lg font-normal text-muted-foreground sm:text-xl">/{FLAG_COUNT}</span>
-                      </p>
-                    </div> */}
-
-                    <div className="order-1 flex w-full items-center justify-center gap-2 sm:gap-3 lg:order-2 lg:flex-1 lg:px-4">
+                    <div className="flex w-full items-center justify-center gap-2 sm:gap-3 lg:flex-1 lg:px-4">
                       <Button
                         type="button"
                         variant="outline"
@@ -1205,7 +1209,20 @@ export function HomeV2ExploreContent() {
                       </Button>
                     </div>
 
-                    <ExploreKeyboardLegend className="order-3 border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]" />
+                    <button
+                      type="button"
+                      onClick={() => setBrowsePanel("studio")}
+                      aria-label="Open Studio: motion and layout settings"
+                      className={cn(
+                        "flex items-center gap-2 font-display text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground underline decoration-transparent underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground/25",
+                        cornerRadius <= 0 && "rounded-none"
+                      )}
+                    >
+                      <SlidersHorizontal className="size-8 shrink-0 opacity-80" aria-hidden />
+                      <span className="text-left">Studio<br/>Settings</span>
+                    </button>
+
+                    <ExploreKeyboardLegend className="border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]" />
                   </div>
                 </div>
               </div>
@@ -1241,6 +1258,7 @@ export function HomeV2ExploreContent() {
                 palette={flagPalette}
                 activeStripe={activeStripe}
                 variant="drawer"
+                position={{ current: index + 1, total: FLAG_COUNT }}
                 onStripeToggle={(swatchIndex) => {
                   setActiveStripe((prev) => (prev === swatchIndex ? null : swatchIndex))
                 }}
