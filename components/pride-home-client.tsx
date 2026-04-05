@@ -172,25 +172,87 @@ function auroraBlobsForIndex(
 
 function useWelcomeAuroraPalette(reduceMotion: boolean | null) {
   const auroraFlags = useAuroraFlagsList()
+  const n = auroraFlags.length
   const [paletteIndex, setPaletteIndex] = useState(0)
 
+  useLayoutEffect(() => {
+    if (n < 2) return
+    setPaletteIndex(Math.floor(Math.random() * n))
+  }, [n])
+
   useEffect(() => {
-    if (reduceMotion === true || auroraFlags.length < 2) return
+    if (reduceMotion === true || n < 2) return
     const t = window.setInterval(() => {
-      setPaletteIndex((prev) => (prev + 1) % auroraFlags.length)
+      setPaletteIndex((prev) => (prev + 1) % n)
     }, AURORA_CYCLE_MS)
     return () => window.clearInterval(t)
-  }, [reduceMotion, auroraFlags.length])
+  }, [reduceMotion, n])
 
   return auroraBlobsForIndex(auroraFlags, paletteIndex)
 }
 
-function FlagAurora() {
+/** Matches `animation` durations in globals.css for each blob variant. */
+const AURORA_BLOB_DURATION_S = { 1: 18, 2: 22, 3: 26 } as const
+type AuroraBlobId = keyof typeof AURORA_BLOB_DURATION_S
+
+function shuffledAuroraBlobIds(): AuroraBlobId[] {
+  const ids: AuroraBlobId[] = [1, 2, 3]
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = ids[i]!
+    ids[i] = ids[j]!
+    ids[j] = tmp
+  }
+  return ids
+}
+
+/** Random assignment of first/middle/last stripe colors to the three fixed blob slots. */
+function shuffledStripePermutation(): readonly [number, number, number] {
+  const a = [0, 1, 2]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = a[i]!
+    a[i] = a[j]!
+    a[j] = tmp
+  }
+  return [a[0]!, a[1]!, a[2]!]
+}
+
+function FlagAurora({ blobs }: { blobs: readonly [string, string, string] }) {
+  const [blobOrder, setBlobOrder] = useState<AuroraBlobId[]>([1, 2, 3])
+  const [stripePerm, setStripePerm] = useState<readonly [number, number, number]>([0, 1, 2])
+  const [phaseDelays, setPhaseDelays] = useState<Record<AuroraBlobId, string>>({
+    1: "0s",
+    2: "0s",
+    3: "0s",
+  })
+
+  useLayoutEffect(() => {
+    setBlobOrder(shuffledAuroraBlobIds())
+    setStripePerm(shuffledStripePermutation())
+    setPhaseDelays({
+      1: `${-(Math.random() * AURORA_BLOB_DURATION_S[1])}s`,
+      2: `${-(Math.random() * AURORA_BLOB_DURATION_S[2])}s`,
+      3: `${-(Math.random() * AURORA_BLOB_DURATION_S[3])}s`,
+    })
+  }, [])
+
   return (
     <div className="home-v2-aurora" aria-hidden>
-      <div className="home-v2-aurora-blob home-v2-aurora-blob--1" />
-      <div className="home-v2-aurora-blob home-v2-aurora-blob--2" />
-      <div className="home-v2-aurora-blob home-v2-aurora-blob--3" />
+      {blobOrder.map((id) => {
+        const slot = id - 1
+        const stripeIdx = stripePerm[slot]!
+        return (
+          <div
+            key={id}
+            className={`home-v2-aurora-blob home-v2-aurora-blob--${id}`}
+            style={{
+              background: blobs[stripeIdx],
+              animationDelay: phaseDelays[id],
+            }}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -459,7 +521,7 @@ function HomeV2BootOverlay({ phase, prideStripes }: { phase: BootPhase; prideStr
 
   return (
     <motion.div
-      className="fixed inset-0 z-[250] flex flex-col items-center justify-end bg-[oklch(0.07_0.02_290)] pb-[min(22vh,10rem)] sm:pb-[min(26vh,12rem)]"
+      className="fixed inset-0 z-[250] flex flex-col items-center justify-center py-[min(22vh,10rem)] sm:pb-[min(26vh,12rem)]"
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === "fade" ? 0 : 1 }}
       transition={{ duration: BOOT_FADE_MS / 1000, ease: [0.22, 1, 0.36, 1] }}
@@ -594,8 +656,7 @@ export function HomeV2WelcomeContent() {
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {bootPhase === "off" ? "Pride Guide ready." : "Starting Pride Guide, please wait."}
       </p>
-      <FlagAurora />
-      <div className="home-v2-grain" aria-hidden />
+      <FlagAurora blobs={[blob1, blob2, blob3]} />
       {reduceMotion !== true && bootPhase !== "off" && (
         <HomeV2BootOverlay phase={bootPhase} prideStripes={welcomeFlag.display.stripes ?? []} />
       )}
@@ -620,7 +681,7 @@ export function HomeV2WelcomeContent() {
 
           <motion.div
             variants={variants.item}
-            className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center pb-10"
+            className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col justify-center pb-10 px-12"
           >
             <div className="max-w-2xl space-y-8">
               <div className="space-y-5">
@@ -1048,7 +1109,6 @@ export function HomeV2ExploreContent() {
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         Pride Guide flag explorer.
       </p>
-      <div className="home-v2-grain" aria-hidden />
       <div className="home-v2-stack flex min-h-0 flex-1 flex-col">
         <motion.main
           id="home-v2-main"

@@ -775,22 +775,6 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   }
 }
 
-.home-v2-grain {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.038;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-.dark .home-v2-grain,
-.chillwave .home-v2-grain {
-  mix-blend-mode: overlay;
-  opacity: 0.055;
-}
-
 .home-v2-root > .home-v2-stack {
   position: relative;
   z-index: 1;
@@ -986,11 +970,5 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 @media (min-width: 1024px) {
   .home-v2-browse .home-v2-explore-flag {
     justify-content: flex-start;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-v2-grain {
-    opacity: 0.02;
   }
 }

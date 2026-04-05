@@ -33,7 +33,6 @@ export function PrideLearnChrome({
 
   return (
     <div className="home-v2-root flex min-h-dvh flex-col text-foreground">
-      <div className="home-v2-grain" aria-hidden />
       <div
         data-slot="chrome-header"
         className="mx-auto flex w-full max-w-7xl shrink-0 flex-wrap items-center justify-end gap-2 px-4 pt-6 sm:px-8"
