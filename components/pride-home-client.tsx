@@ -998,7 +998,7 @@ export function HomeV2ExploreContent() {
   }, [cornerRadius])
 
   const exploreDrawerContentClass =
-    "home-v2-explore-drawer-content flex max-h-[min(92dvh,56rem)] flex-col gap-0 rounded-none border-0 bg-transparent p-0 outline-none"
+    "home-v2-explore-drawer-content flex max-h-[min(92dvh,56rem)] flex-col gap-0 rounded-none border-0 p-0 outline-none"
   const exploreDrawerHeaderClass =
     "home-v2-explore-drawer-header space-y-1 px-5 pb-4 pt-0 text-left sm:px-6"
   const exploreDrawerTitleClass =
@@ -1007,7 +1007,7 @@ export function HomeV2ExploreContent() {
   const exploreDrawerBodyClass = "min-h-0 flex-1 overflow-y-auto px-5 pb-8 pt-4 sm:px-6"
 
   const exploreStudioSheetContentClass =
-    cn("flex flex-col gap-0 bg-background p-0 sm:max-w-md lg:max-w-lg", cornerRadius > 0 && "rounded-lg")
+    cn("flex flex-col gap-0 bg-card p-0 max-md:w-full sm:max-w-md lg:max-w-lg", cornerRadius > 0 && "rounded-lg")
   const exploreStudioSheetHeaderClass =
     cn("home-v2-explore-sheet-header space-y-1 border-b border-border/60 px-6 pb-4 pt-6 pr-14 text-left sm:pr-16", cornerRadius > 0 && "rounded-t-lg")
   const exploreStudioSheetBodyClass =
@@ -1061,15 +1061,16 @@ export function HomeV2ExploreContent() {
             variants={variants.item}
             className="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col px-4 py-4 sm:px-8 sm:py-5"
           >
-            <header className="home-v2-explore-header grid shrink-0 grid-cols-1 gap-x-4 gap-y-3 pb-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-y-2">
-              <div className="relative min-w-0">
+            {/* Explore Header */}
+            <header data-slot="explore-header" className="home-v2-explore-header max-lg:order-2 max-lg:flex-1 max-md:mt-3 flex flex-col lg:grid shrink-0 grid-cols-1 gap-x-4 gap-y-3 pb-3 lg:grid-cols-[minmax(0,1fr)_auto] md:items-center lg:items-start lg:gap-y-2">
+              <div className="relative min-w-0 max-lg:flex-1">
                 <span
-                  className="pointer-events-none absolute -left-8 z-0 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.1] dark:text-foreground/[0.06]"
+                  className="max-md:hidden pointer-events-none absolute -left-8 z-0 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.1] dark:text-foreground/[0.06]"
                   aria-hidden
                 >
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <div className="relative z-10 flex min-h-0 flex-col gap-2 pt-1 pl-[clamp(2.75rem,11vw,4.5rem)] md:-ml-12">
+                <div className="relative z-10 flex min-h-0 flex-col gap-2 pt-1 max-md:px-4 md:pl-[clamp(2.75rem,11vw,4.5rem)] md:-ml-12">
                   <div className="h-[calc(2*2lh)]">
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div
@@ -1080,7 +1081,7 @@ export function HomeV2ExploreContent() {
                         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                         className="min-w-0 max-w-[min(100%,42rem)]"
                       >
-                        <h2 className="line-clamp-2 font-display text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1.08] tracking-tight">
+                        <h2 className="line-clamp-2 font-display text-2xl lg:text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1.08] tracking-tight">
                           {flag.name}
                         </h2>
                         <div className="flex min-h-[1.75rem] shrink-0 items-center mt-2">
@@ -1093,14 +1094,15 @@ export function HomeV2ExploreContent() {
                   </div>
                 </div>
               </div>
-              <div className="flex min-w-0 flex-col items-end justify-start gap-4 justify-self-end sm:flex-row sm:flex-wrap sm:items-center lg:pt-1">
+
+              <div className="flex min-w-0 flex-col items-center justify-start gap-4 lg:justify-self-end sm:flex-row sm:flex-wrap lg:pt-1">
                 <span
                   className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground sm:pt-0.5 sm:text-sm"
                   aria-label={`Flag ${index + 1} of ${FLAG_COUNT}`}
                 >
                   {index + 1}/{FLAG_COUNT}
                 </span>
-                <div  className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -1117,7 +1119,7 @@ export function HomeV2ExploreContent() {
                         <span className="hidden sm:inline">More</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="min-w-[11rem]">
+                    <DropdownMenuContent align="end" className="min-w-[11rem]" style={studioShellStyle}>
                       <DropdownMenuItem asChild>
                         <Link href="/" className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
                           <House className="size-4 opacity-80" aria-hidden />
@@ -1144,11 +1146,11 @@ export function HomeV2ExploreContent() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
+                      {/* <DropdownMenuItem asChild>
                         <Link href={PRIDE_CLASSIC_PATH} className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide">
                           Classic layout
                         </Link>
-                      </DropdownMenuItem>
+                      </DropdownMenuItem> */}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         disabled={gifExporting}
@@ -1156,7 +1158,7 @@ export function HomeV2ExploreContent() {
                           e.preventDefault()
                           void handleDownloadAnimatedGif()
                         }}
-                        className="flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide"
+                        className="hidden lg:flex cursor-pointer items-center gap-2 font-display text-xs font-bold uppercase tracking-wide"
                       >
                         <Download className="size-4 opacity-80" aria-hidden />
                         {gifExporting ? "Encoding GIF…" : "Download GIF"}
@@ -1207,10 +1209,11 @@ export function HomeV2ExploreContent() {
               </div>
             </header>
 
-            <div className="home-v2-explore-body flex min-h-0 flex-1 flex-col gap-4 py-3 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
+            {/* Explore Body */}
+            <div className="home-v2-explore-body max-lg:order-1 flex min-h-0 lg:flex-1 flex-col gap-4 pt-3 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
               <div
                 ref={stageRef}
-                className="home-v2-explore-flag flag-container relative mx-auto flex min-h-0 w-full min-w-0 flex-1 cursor-grab touch-pan-y flex-col justify-center active:cursor-grabbing lg:mx-0 lg:max-w-[min(36rem,46vw)] lg:flex-none xl:max-w-[min(38rem,44vw)]"
+                className="home-v2-explore-flag flag-container relative mx-auto flex min-h-0 w-full min-w-0 lg:flex-1 cursor-grab touch-pan-y flex-col justify-center active:cursor-grabbing lg:mx-0 lg:max-w-[min(36rem,46vw)] xl:max-w-[min(38rem,44vw)]"
                 onMouseMove={handleStageMove}
                 onMouseLeave={resetTilt}
                 onPointerDown={(e) => {
@@ -1228,7 +1231,7 @@ export function HomeV2ExploreContent() {
               >
                 <div className="mx-auto flex w-full max-w-4xl justify-center lg:max-w-full">
                   <div
-                    className="home-v2-stage-shell flex h-[min(52dvh,560px)] w-full max-w-full flex-col"
+                    className="home-v2-stage-shell flex aspect-[1.3] md:h-[min(52dvh,560px)] w-full max-w-full flex-col"
                     style={frameRadiusStyle}
                   >
                     <div
@@ -1279,10 +1282,10 @@ export function HomeV2ExploreContent() {
                     </div>
                   </div>
                 </div>
-                <p className="mx-auto mt-3 max-w-lg shrink-0 text-balance text-center text-sm leading-relaxed text-muted-foreground">
-                  Drag, swipe, or use arrow keys to change flags
+                <p className="max-lg:hidden mx-auto mt-3 max-w-lg shrink-0 text-balance text-center text-sm leading-relaxed text-muted-foreground">
+                  Drag or swipe, or use arrow keys to change flags
                 </p>
-                <div className="mx-auto mt-2 flex shrink-0 justify-center">
+                <div className="hidden lg:flex mx-auto mt-2 shrink-0 justify-center">
                   <Button
                     type="button"
                     variant="outline"
@@ -1305,7 +1308,7 @@ export function HomeV2ExploreContent() {
                 className="home-v2-explore-rail home-v2-browse-rail hidden min-h-0 min-w-0 w-full shrink-0 border-foreground/10 lg:flex lg:min-w-[min(18rem,32%)] lg:flex-1 lg:flex-col lg:pl-7 xl:min-w-[min(20rem,34%)] xl:pl-9"
                 aria-label="About this flag and colors"
               >
-                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden overscroll-contain pr-1 pt-8">
+                <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden overscroll-contain p-8 border" style={studioShellStyle}>
                   <HomeV2AboutBlock flag={flag} stripeAccent={stripeAccent} />
                   <HomeV2StripePaletteStrip
                     flagId={flag.id}
@@ -1321,11 +1324,31 @@ export function HomeV2ExploreContent() {
               </aside>
             </div>
 
-            <footer className="home-v2-explore-dock shrink-0" aria-label="Flag navigation">
+            {/* Explore Footer */}
+            <footer className="home-v2-explore-dock max-lg:order-3 shrink-0" aria-label="Flag navigation">
               <div className="home-v2-explore-dock-frame">
                 <div className="home-v2-explore-dock-surface">
-                  <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
-                    <div className="flex w-full items-center justify-center gap-2 sm:gap-3 lg:flex-1 lg:px-4">
+                  <p className="mx-auto mb-3 max-w-lg shrink-0 text-balance text-center text-sm leading-relaxed text-muted-foreground">
+                    Swipe or use buttons to change flags
+                  </p>
+                  <div className="flex flex-col gap-5 lg:grid lg:grid-cols-3 lg:items-center lg:justify-around lg:gap-8">
+
+                    {/* Studio Settings button */}
+                    <button
+                      type="button"
+                      onClick={() => setBrowsePanel("studio")}
+                      aria-label="Open Studio: motion and layout settings"
+                      className={cn(
+                        "max-lg:hidden flex items-center gap-2 font-display text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground underline decoration-transparent underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground/25",
+                        cornerRadius <= 0 && "rounded-none"
+                      )}
+                    >
+                      <SlidersHorizontal className="size-8 shrink-0 opacity-80" aria-hidden />
+                      <span className="text-left">Studio<br/>Settings</span>
+                    </button>
+
+                    {/* Flag Navigation */}
+                    <div data-slot="flag-navigation" className="w-full flex items-center justify-center gap-2 sm:gap-3 lg:px-4">
                       <Button
                         type="button"
                         variant="outline"
@@ -1333,16 +1356,18 @@ export function HomeV2ExploreContent() {
                         onClick={prev}
                         aria-label="Previous flag"
                         className="size-12 rounded-none border-2 border-foreground/25 bg-background shadow-sm transition-[transform,box-shadow] hover:border-foreground/40 hover:shadow-md active:scale-[0.98] sm:size-14"
+                        style={studioShellStyle}
                       >
                         <ChevronLeft className="size-6 sm:size-7" />
                       </Button>
                       <Button
                         type="button"
                         onClick={shuffle}
-                        className="h-12 min-w-[12.5rem] gap-2.5 rounded-none border-2 border-transparent bg-foreground px-6 font-display text-sm font-extrabold uppercase tracking-[0.12em] text-background shadow-lg transition-[transform,box-shadow] hover:brightness-110 active:scale-[0.99] sm:h-14 sm:min-w-[15rem] sm:px-10 sm:text-base sm:tracking-[0.14em]"
+                        className="flex-1 h-12 gap-2.5 rounded-none border-2 border-transparent bg-foreground px-6 font-display text-sm font-extrabold uppercase tracking-[0.12em] text-background shadow-lg transition-[transform,box-shadow] hover:brightness-110 active:scale-[0.99] sm:h-14 sm:px-10 sm:text-base sm:tracking-[0.14em]"
+                        style={studioShellStyle}
                       >
-                        <Dices className="size-5 shrink-0 sm:size-6" aria-hidden />
-                        Draw another
+                        <Dices className="shrink-0 !size-8" aria-hidden />
+                        {/* Random */}
                       </Button>
                       <Button
                         type="button"
@@ -1351,26 +1376,15 @@ export function HomeV2ExploreContent() {
                         onClick={next}
                         aria-label="Next flag"
                         className="size-12 rounded-none border-2 border-foreground/25 bg-background shadow-sm transition-[transform,box-shadow] hover:border-foreground/40 hover:shadow-md active:scale-[0.98] sm:size-14"
+                        style={studioShellStyle}
                       >
                         <ChevronRight className="size-6 sm:size-7" />
                       </Button>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setBrowsePanel("studio")}
-                      aria-label="Open Studio: motion and layout settings"
-                      className={cn(
-                        "flex items-center gap-2 font-display text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground underline decoration-transparent underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground/25",
-                        cornerRadius <= 0 && "rounded-none"
-                      )}
-                    >
-                      <SlidersHorizontal className="size-8 shrink-0 opacity-80" aria-hidden />
-                      <span className="text-left">Studio<br/>Settings</span>
-                    </button>
-
+                    {/* Keyboard Legend */}
                     <ExploreKeyboardLegend
-                      className="border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]"
+                      className="max-lg:hidden border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]"
                       onPrevious={prev}
                       onNext={next}
                       onRandom={shuffle}
@@ -1383,7 +1397,7 @@ export function HomeV2ExploreContent() {
         </motion.main>
 
         <Drawer open={browsePanel === "details"} onOpenChange={(open) => setBrowsePanel(open ? "details" : null)}>
-          <DrawerContent className={exploreDrawerContentClass}>
+          <DrawerContent className={exploreDrawerContentClass} style={studioShellStyle}>
             <DrawerHeader className={exploreDrawerHeaderClass}>
               <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Focus</p>
               <DrawerTitle className={exploreDrawerTitleClass}>About this flag</DrawerTitle>
@@ -1396,7 +1410,7 @@ export function HomeV2ExploreContent() {
         </Drawer>
 
         <Drawer open={browsePanel === "palette"} onOpenChange={(open) => setBrowsePanel(open ? "palette" : null)}>
-          <DrawerContent className={exploreDrawerContentClass}>
+          <DrawerContent className={exploreDrawerContentClass} style={studioShellStyle}>
             <DrawerHeader className={exploreDrawerHeaderClass}>
               <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Palette</p>
               <DrawerTitle className={exploreDrawerTitleClass}>Flag colors</DrawerTitle>

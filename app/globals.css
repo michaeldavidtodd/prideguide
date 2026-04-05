@@ -293,6 +293,7 @@ html {
   /* Ensure proper aspect ratio is maintained */
   width: 100%;
   height: auto;
+  filter: drop-shadow(0 1rem 4rem hsl(var(--primary) / 0.6));
 }
 
 /*
@@ -926,7 +927,9 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 /* Explore: control dock — same chrome language as .home-v2-hero-preview */
 .home-v2-explore-dock {
   position: relative;
-  margin-top: 0.5rem;
+  @media (min-width: 766px) {
+    margin-top: 2rem;
+  }
 }
 
 .home-v2-explore-dock-frame {
@@ -956,14 +959,16 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 /* Explore bottom sheets — angular frame + token tint (pairs with dock chrome) */
 .home-v2-explore-drawer-content {
   width: 100%;
-  max-width: min(40rem, 100vw);
+  max-width: min(40rem, calc(100vw - 2rem));
+  bottom: 1rem;
   margin-inline: auto;
   border-radius: 0;
-  border-top: 2px solid hsl(var(--foreground) / 0.2);
-  background: hsl(var(--background) / 0.97);
+  border: 2px solid hsl(var(--foreground) / 0.2);
+  /* background: hsl(var(--background) / 0.97); */
   box-shadow:
     0 0 0 1px hsl(var(--foreground) / 0.08),
     0 -24px 56px -20px hsl(var(--foreground) / 0.2);
+  overflow: hidden;
 }
 
 .home-v2-explore-drawer-content [data-drawer-handle] {
