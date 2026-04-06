@@ -900,7 +900,74 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 }
 
 .home-v2-stripe-cut {
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+  --stripe-cut-notch: 6px;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--stripe-cut-notch)),
+    calc(100% - var(--stripe-cut-notch)) 100%,
+    0 100%
+  );
+}
+
+/*
+ * Rim on an inner span (not the <button>): pseudo-elements on buttons are inconsistently painted,
+ * and clip-path on the same box as the rim fights stacking. Fill uses .home-v2-stripe-cut; overlay
+ * uses .home-v2-stripe-rim ::before/::after with the same polygon.
+ */
+[data-slot="stripe-palette"] .home-v2-stripe-swatch {
+  --stripe-cut-notch: 6px;
+}
+
+[data-slot="stripe-palette"] .home-v2-stripe-swatch[aria-pressed="true"] {
+  --stripe-swatch-rim: hsl(var(--foreground));
+}
+
+[data-slot="stripe-palette"] .home-v2-stripe-swatch:focus-visible {
+  outline: none;
+  --stripe-swatch-rim: hsl(var(--ring));
+}
+
+[data-slot="stripe-palette"]
+  .home-v2-stripe-swatch:is(:focus-visible, [aria-pressed="true"])
+  .home-v2-stripe-rim::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: calc(
+    100% - (var(--stripe-cut-notch) / 2) - (var(--stripe-cut-notch) * 1.41421356237 / 2)
+  );
+  top: calc(100% - (var(--stripe-cut-notch) / 2) - 1px);
+  width: calc(var(--stripe-cut-notch) * 1.41421356237);
+  height: 2px;
+  background: var(--stripe-swatch-rim);
+  transform: rotate(-45deg);
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+[data-slot="stripe-palette"]
+  .home-v2-stripe-swatch:is(:focus-visible, [aria-pressed="true"])
+  .home-v2-stripe-rim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--stripe-cut-notch)),
+    calc(100% - var(--stripe-cut-notch)) 100%,
+    0 100%
+  );
+  background:
+    linear-gradient(var(--stripe-swatch-rim), var(--stripe-swatch-rim)) 0 0 / 100% 2px no-repeat,
+    linear-gradient(var(--stripe-swatch-rim), var(--stripe-swatch-rim)) 0 0 / 2px 100% no-repeat,
+    linear-gradient(var(--stripe-swatch-rim), var(--stripe-swatch-rim)) 0 100% /
+      calc(100% - var(--stripe-cut-notch)) 2px no-repeat,
+    linear-gradient(var(--stripe-swatch-rim), var(--stripe-swatch-rim)) 100% 0 / 2px
+      calc(100% - var(--stripe-cut-notch)) no-repeat;
 }
 
 .home-v2-accordion-trigger[data-state="open"] {
@@ -979,9 +1046,9 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   @apply
     max-lg:order-2
     max-lg:flex-1
-    flex shrink-0 flex-row flex-wrap items-center justify-between gap-x-4 gap-y-3
+    flex shrink-0 flex-row flex-wrap items-center gap-x-4 gap-y-3
     max-md:mt-3 pb-3
-    px-4 sm:px-6 lg:grid lg:grid-cols-[auto_1fr] lg:items-center lg:gap-x-8 lg:gap-y-2 lg:px-12 lg:py-8
+    px-4 sm:px-6 lg:px-12 lg:py-8
   ;
 }
 
