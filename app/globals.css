@@ -988,7 +988,7 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 .explore-body {
   @apply
     max-lg:order-1
-    flex min-h-0 lg:flex-1 flex-col lg:grid lg:grid-cols-2 lg:items-center lg:w-full
+    flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-2 lg:items-stretch lg:w-full
     pt-3 lg:px-12 gap-4
   ;
   .animated-flag {
@@ -999,18 +999,29 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   @apply
     relative
     cursor-grab touch-pan-y
-    min-h-0 w-full min-w-0 lg:flex-1
+    min-h-0 max-h-full w-full min-w-0 flex-1
     flex flex-col justify-center active:cursor-grabbing lg:mx-0
     mx-auto gap-8 lg:gap-12
   ;
   .explore-flag-motion-container {
-    @apply flex justify-center items-center;
+    container-type: size;
+    @apply flex flex-col gap-8 xl:gap-12 min-h-0 min-w-0 max-h-full flex-1 justify-center items-center;
   }
+}
+
+/*
+ * Main stage: one size from the slot, height from aspect-ratio so W/H stays exactly --flag-ar
+ * (paired min(cqw)+min(cqh) rounds independently and the ratio creeps on resize).
+ */
+.explore-flag .explore-flag-motion-container .animated-flag.explore-flag-stage.animated-flag--contain {
+  width: min(100cqw, calc(100cqh * var(--flag-ar, 1.5))) !important;
+  height: auto !important;
+  aspect-ratio: var(--flag-ar) / 1 !important;
 }
 .explore-content {
   @apply
     hidden min-h-0 min-w-0 lg:min-w-[min(18rem,32%)] xl:min-w-[min(20rem,34%)] max-w-[800px] w-full shrink-0
-    lg:flex lg:flex-1 lg:flex-col
+    lg:flex lg:flex-1 lg:flex-col items-center justify-center
     lg:pl-7 xl:pl-9 lg:mb-20
     border-foreground/10
   ;
@@ -1027,7 +1038,7 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 
 .explore-flag-thumbnails {
   @apply
-  mx-auto flex w-full max-w-full justify-center gap-0 overflow-x-auto overscroll-x-contain h-40 [scrollbar-width:thin]
+  mx-auto flex w-full max-w-full justify-center gap-0 overflow-x-auto overscroll-x-contain h-20 [scrollbar-width:thin]
   ;
   /* Wider hit targets overlap via negative margin → no cursor dead zones between flags */
   --explore-thumb-hit-pad: 0.5rem;

@@ -56,14 +56,10 @@ import {
 } from "@/lib/flags"
 import { useToast } from "@/hooks/use-toast"
 import {
-	ArrowDown,
 	ArrowLeft,
 	ArrowRight,
 	BookOpen,
 	Check,
-	ChevronLeft,
-	ChevronRight,
-	Dices,
 	Download,
 	Heart,
 	House,
@@ -78,6 +74,7 @@ import {
 	Waves,
 	CircleArrowRight,
 	Telescope,
+	Keyboard,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -99,6 +96,7 @@ import {
 	NavigationMenuTrigger,
 	navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 /** @deprecated Use PRIDE_EXPLORE_PATH from @/lib/pride-routes */
 export const HOME_V2_EXPLORE_PATH = PRIDE_EXPLORE_PATH
@@ -334,6 +332,51 @@ function indexDeltaDir(from: number, to: number): 1 | -1 {
 	return forward <= backward ? 1 : -1
 }
 
+/** Skip flag hotkeys only where arrows/space are part of native or Radix widget UX (not plain buttons/links). */
+function eventTargetClaimsExploreNavKeys(target: EventTarget | null): boolean {
+	const el = target as HTMLElement | null
+	if (!el?.closest) return false
+	if (el.closest("[contenteditable='true'], textarea, select")) return true
+	if (
+		el.closest(
+			'[role="combobox"], [role="textbox"], [role="searchbox"], [role="slider"], [role="listbox"], [role="menu"], [role="menubar"], [role="radiogroup"]'
+		)
+	) {
+		return true
+	}
+	const input = el.closest("input")
+	if (input) {
+		const t = (input as HTMLInputElement).type
+		if (
+			t === "hidden" ||
+			t === "button" ||
+			t === "submit" ||
+			t === "reset" ||
+			t === "checkbox" ||
+			t === "radio" ||
+			t === "file" ||
+			t === "image"
+		) {
+			return false
+		}
+		if (t === "range" || t === "number") return true
+		if (t === "" || t === "text") return true
+		return /^(search|email|password|tel|url|date|datetime-local|month|time|week)$/i.test(t)
+	}
+	return false
+}
+
+/** Space toggles these; don’t hijack for shuffle (buttons/links use Enter / click instead). */
+function eventTargetUsesSpaceToActivate(target: EventTarget | null): boolean {
+	const el = target as HTMLElement | null
+	if (!el?.closest) return false
+	return Boolean(
+		el.closest(
+			'[role="checkbox"], [role="switch"], [role="radio"], input[type="checkbox"], input[type="radio"]'
+		)
+	)
+}
+
 function parseHex(hex: string): { r: number; g: number; b: number } | null {
 	const h = hex.trim().replace(/^#/, "")
 	if (!h) return null
@@ -449,7 +492,7 @@ function ExploreKeyboardLegend({
 						>
 							<ArrowRight className="size-4" aria-hidden strokeWidth={2.25} />
 						</button>
-						<span className="text-muted-foreground">Previous or next flag</span>
+						<span className="text-muted-foreground">Navigate flags</span>
 					</dd>
 				</div>
 				<div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
@@ -457,16 +500,7 @@ function ExploreKeyboardLegend({
 					<dd className="flex flex-wrap items-center gap-2 text-foreground">
 						<button
 							type="button"
-							className={cn(exploreKbd, exploreKbdBtn)}
-							aria-label="Random flag. Keyboard: Down arrow."
-							onClick={onRandom}
-						>
-							<ArrowDown className="size-4" aria-hidden strokeWidth={2.25} />
-						</button>
-						<span className="text-muted-foreground">or</span>
-						<button
-							type="button"
-							className={cn(exploreKbd, exploreKbdBtn, "min-w-[4.75rem] px-3 !text-sm")}
+							className={cn(exploreKbd, exploreKbdBtn, "min-w-[4.75rem] px-[1.38rem] !text-sm")}
 							aria-label="Random flag. Keyboard: Space."
 							onClick={onRandom}
 						>
@@ -845,7 +879,7 @@ export function HomeV2WelcomeContent() {
 								className="mx-auto flex w-full shrink-0 flex-col space-y-3 lg:mx-0 lg:w-[min(100%,380px)] xl:w-[min(100%,380px)]"
 								aria-label="Background aurora palette"
 							>
-								<div className="home-v2-flag-bounds aspect-[3/2.2] w-full mb-2 overflow-hidden rounded-lg border border-foreground/10 bg-background/25 p-6 shadow-sm backdrop-blur-[2px]">
+								<div className="home-v2-flag-bounds aspect-[3/2.5] w-full rounded-xl border border-foreground/10 bg-background/25 p-8 shadow-sm backdrop-blur-[2px]">
 									<AnimatePresence mode="wait" initial={false}>
 										<motion.div
 											key={welcomeFlag.id}
@@ -1138,10 +1172,7 @@ export function HomeV2ExploreContent() {
 
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
-			const target = e.target as HTMLElement | null
-			if (target?.closest("button, input, textarea, select, [role='combobox'], [contenteditable='true']")) {
-				return
-			}
+			if (eventTargetClaimsExploreNavKeys(e.target)) return
 			if (e.key === "ArrowRight") {
 				e.preventDefault()
 				next()
@@ -1150,7 +1181,8 @@ export function HomeV2ExploreContent() {
 				e.preventDefault()
 				prev()
 			}
-			if (e.key === "ArrowDown" || e.key === " ") {
+			if (e.key === " ") {
+				if (eventTargetUsesSpaceToActivate(e.target)) return
 				e.preventDefault()
 				shuffle()
 			}
@@ -1322,6 +1354,25 @@ export function HomeV2ExploreContent() {
 								>
 									{index + 1}/{FLAG_COUNT}
 								</span>
+								<Popover>
+									<PopoverTrigger asChild>
+										<button
+											type="button"
+											className={exploreNavOutlineBtn}
+											style={studioShellStyle}
+										>
+											<Keyboard className="size-3.5" aria-hidden />
+											<span className="hidden sm:inline">Keyboard</span>
+										</button>
+									</PopoverTrigger>
+									<PopoverContent style={studioShellStyle} className="w-fit">
+										<ExploreKeyboardLegend
+											onPrevious={prev}
+											onNext={next}
+											onRandom={shuffle}
+										/>
+									</PopoverContent>
+								</Popover>
 								<button
 									type="button"
 									className={exploreNavOutlineBtn}
@@ -1489,29 +1540,28 @@ export function HomeV2ExploreContent() {
 											billow={billow}
 											columnGapPx={stripeGap}
 											stripeCornerRadiusPx={cornerRadius}
+											className="explore-flag-stage"
 										/>
+										<div className="hidden lg:flex mx-auto mt-2 shrink-0 justify-center">
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												className={cn(
+													"gap-2 font-display text-xs font-bold uppercase tracking-wide",
+													cornerRadius <= 0 && "rounded-none"
+												)}
+												style={studioShellStyle}
+												disabled={gifExporting}
+												onClick={() => void handleDownloadAnimatedGif()}
+											>
+												<Download className="size-3.5 shrink-0 opacity-80" aria-hidden />
+												{gifExporting ? "Encoding GIF…" : "Download GIF"}
+											</Button>
+										</div>
 									</motion.div>
 								</AnimatePresence>
 
-								<div className="explore-flag-footer">
-									<div className="hidden lg:flex mx-auto mt-2 shrink-0 justify-center">
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											className={cn(
-												"gap-2 font-display text-xs font-bold uppercase tracking-wide",
-												cornerRadius <= 0 && "rounded-none"
-											)}
-											style={studioShellStyle}
-											disabled={gifExporting}
-											onClick={() => void handleDownloadAnimatedGif()}
-										>
-											<Download className="size-3.5 shrink-0 opacity-80" aria-hidden />
-											{gifExporting ? "Encoding GIF…" : "Download GIF"}
-										</Button>
-									</div>
-								</div>
 							</div>
 
 							<aside
@@ -1567,7 +1617,7 @@ export function HomeV2ExploreContent() {
 
 						<nav
 							data-slot="explore-flag-thumbs"
-							className="explore-flag-thumbnail-strip max-lg:hidden max-lg:order-1 shrink-0 border-t border-border/15 bg-background/25 px-4 py-3 lg:px-12"
+							className="explore-flag-thumbnail-strip max-lg:hidden max-lg:order-1 shrink-0 px-4 py-3 lg:px-12"
 							aria-label="All flags"
 						>
 							<div data-slot="explore-flag-thumbnails" className="explore-flag-thumbnails">
@@ -1604,76 +1654,7 @@ export function HomeV2ExploreContent() {
 								})}
 							</div>
 						</nav>
-
-						{/* Explore Footer */}
-						<footer className="home-v2-explore-dock max-lg:order-3 shrink-0" aria-label="Flag navigation">
-							<div className="home-v2-explore-dock-frame">
-								<div className="home-v2-explore-dock-surface">
-									<p className="mx-auto mb-3 max-w-lg shrink-0 text-balance text-center text-sm leading-relaxed text-muted-foreground">
-										Swipe or use buttons to change flags
-									</p>
-									<div className="flex flex-col gap-5 lg:grid lg:grid-cols-3 lg:items-center lg:justify-around lg:gap-8">
-
-										{/* Studio Settings button */}
-										<button
-											type="button"
-											onClick={() => setBrowsePanel("studio")}
-											aria-label="Open Studio: motion and layout settings"
-											className={cn(
-												"max-lg:hidden flex items-center gap-2 font-display text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground underline decoration-transparent underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground/25",
-												cornerRadius <= 0 && "rounded-none"
-											)}
-										>
-											<SlidersHorizontal className="size-8 shrink-0 opacity-80" aria-hidden />
-											<span className="text-left">Studio<br/>Settings</span>
-										</button>
-
-										{/* Flag Navigation */}
-										<div data-slot="flag-navigation" className="w-full flex items-center justify-center gap-2 sm:gap-3 lg:px-4">
-											<Button
-												type="button"
-												variant="outline"
-												size="icon"
-												onClick={prev}
-												aria-label="Previous flag"
-												className="size-12 rounded-none border-2 border-foreground/25 bg-background shadow-sm transition-[transform,box-shadow] hover:border-foreground/40 hover:shadow-md active:scale-[0.98] sm:size-14"
-												style={studioShellStyle}
-											>
-												<ChevronLeft className="size-6 sm:size-7" />
-											</Button>
-											<Button
-												type="button"
-												onClick={shuffle}
-												className="flex-1 h-12 gap-2.5 rounded-none border-2 border-transparent bg-foreground px-6 font-display text-sm font-extrabold uppercase tracking-[0.12em] text-background shadow-lg transition-all hover:brightness-110 active:scale-[0.99] sm:h-14 sm:px-10 sm:text-base sm:tracking-[0.14em]"
-												style={studioShellStyle}
-											>
-												<Dices className="shrink-0 !size-8" aria-hidden />
-												{/* Random */}
-											</Button>
-											<Button
-												type="button"
-												variant="outline"
-												size="icon"
-												onClick={next}
-												aria-label="Next flag"
-												className="size-12 rounded-none border-2 border-foreground/25 bg-background shadow-sm transition-[transform,box-shadow] hover:border-foreground/40 hover:shadow-md active:scale-[0.98] sm:size-14"
-												style={studioShellStyle}
-											>
-												<ChevronRight className="size-6 sm:size-7" />
-											</Button>
-										</div>
-
-										{/* Keyboard Legend */}
-										<ExploreKeyboardLegend
-											className="max-lg:hidden border-t border-foreground/10 pt-4 lg:w-[min(100%,20rem)] lg:shrink-0 lg:border-t-0 lg:pl-8 lg:pt-0 xl:w-[min(100%,22rem)]"
-											onPrevious={prev}
-											onNext={next}
-											onRandom={shuffle}
-										/>
-									</div>
-								</div>
-							</div>
-						</footer>
+						
 					</motion.div>
 				</motion.main>
 
