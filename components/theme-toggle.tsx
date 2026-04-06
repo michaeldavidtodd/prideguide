@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef, type CSSProperties } from "react"
+import { useState, useEffect, type CSSProperties } from "react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { Sun, Moon, Monitor, Check, Waves } from "lucide-react" // Re-added Waves icon
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Sun, Moon, Monitor, Check, Waves } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export type ThemeToggleProps = {
@@ -14,125 +15,77 @@ export type ThemeToggleProps = {
 export function ThemeToggle({ className, style }: ThemeToggleProps = {}) {
   const { theme, setTheme, themes: availableThemes } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
-  const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isOpen])
-
   if (!mounted) {
     return (
-      <Button variant="outline" size="icon" className={cn("w-9 h-9", className)} style={style}>
+      <Button variant="outline" size="icon" className={cn("h-9 w-9", className)} style={style}>
         <Sun className="h-4 w-4" />
       </Button>
     )
   }
 
   const themes = [
-    {
-      name: "Light",
-      value: "light",
-      icon: Sun,
-    },
-    {
-      name: "Dark",
-      value: "dark",
-      icon: Moon,
-    },
-    {
-      name: "Chillwave",
-      value: "chillwave",
-      icon: Waves, // Re-assigned Waves icon for Chillwave
-    },
-    {
-      name: "System",
-      value: "system",
-      icon: Monitor,
-    },
+    { name: "Light", value: "light", icon: Sun },
+    { name: "Dark", value: "dark", icon: Moon },
+    { name: "Chillwave", value: "chillwave", icon: Waves },
+    { name: "System", value: "system", icon: Monitor },
   ]
 
   const getCurrentIcon = () => {
     const currentThemeOption = themes.find((t) => t.value === theme)
     if (currentThemeOption) return currentThemeOption.icon
-    // Fallback for system theme if it resolves to light/dark not explicitly in our list
     if (theme === "system") {
       const systemResolvedTheme =
-        availableThemes.includes("light") && window.matchMedia("(prefers-color-scheme: light)").matches
+        availableThemes?.includes("light") && window.matchMedia("(prefers-color-scheme: light)").matches
           ? "light"
           : "dark"
       const systemThemeOption = themes.find((t) => t.value === systemResolvedTheme)
       if (systemThemeOption) return systemThemeOption.icon
     }
-    return Sun // Default icon
+    return Sun
   }
 
   const CurrentIcon = getCurrentIcon()
 
-  const handleThemeSelect = (themeValue: string) => {
-    setTheme(themeValue)
-    // Don't close the popover automatically
-  }
-
   return (
-    <div className="relative" ref={popoverRef}>
-      <Button
-        variant="outline"
-        size="icon"
-        className={cn("w-9 h-9", className)}
-        style={style}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <CurrentIcon className="h-4 w-4" />
-        <span className="sr-only">Toggle theme</span>
-      </Button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-border bg-popover shadow-xl z-50 p-3">
-          <div className="space-y-1">
-            {themes.map((themeOption) => {
-              const Icon = themeOption.icon
-              const isActive = theme === themeOption.value
-
-              return (
-                <button
-                  key={themeOption.value}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-md transition-all duration-200 border
-                    ${
-                      isActive
-                        ? "bg-primary/15 text-primary border-primary/45"
-                        : "border-transparent text-popover-foreground hover:bg-accent/60 hover:border-border/50"
-                    }
-                  `}
-                  onClick={() => handleThemeSelect(themeOption.value)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-4 w-4" />
-                    <span className="font-medium">{themeOption.name}</span>
-                  </div>
-                  {isActive && <Check className="h-4 w-4" />}
-                </button>
-              )
-            })}
-          </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="icon" className={cn("h-9 w-9", className)} style={style} type="button">
+          <CurrentIcon className="h-4 w-4" />
+          <span className="sr-only">Theme</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" side="bottom" sideOffset={8} className="w-48 p-3">
+        <div className="space-y-1">
+          {themes.map((themeOption) => {
+            const Icon = themeOption.icon
+            const isActive = theme === themeOption.value
+            return (
+              <button
+                key={themeOption.value}
+                type="button"
+                className={cn(
+                  "flex w-full items-center justify-between rounded-md border px-3 py-2.5 text-sm transition-colors",
+                  isActive
+                    ? "border-primary/45 bg-primary/15 text-primary"
+                    : "border-transparent hover:bg-accent/60"
+                )}
+                onClick={() => setTheme(themeOption.value)}
+              >
+                <span className="flex items-center gap-3">
+                  <Icon className="h-4 w-4" />
+                  <span className="font-medium">{themeOption.name}</span>
+                </span>
+                {isActive ? <Check className="h-4 w-4" aria-hidden /> : null}
+              </button>
+            )
+          })}
         </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   )
 }

@@ -36,6 +36,7 @@ interface AnimatedFlagProps {
    * `contain` — scale uniformly inside a parent with a definite height (see `.animated-flag--contain`).
    */
   fit?: "fill" | "contain"
+  style?: React.CSSProperties
 }
 
 function parseViewBoxDims(viewBox: string | undefined): { w: number; h: number } | null {
@@ -58,6 +59,7 @@ export function AnimatedFlag({
   stripeCornerRadiusPx,
   svgForeground,
   fit = "fill",
+  style,
 }: AnimatedFlagProps) {
   const gradientString = useMemo(() => {
     if (!backgroundColors || backgroundColors.length === 0) return "transparent"
@@ -136,7 +138,7 @@ export function AnimatedFlag({
         className,
         stripeCornerRadiusPx !== undefined && "animated-flag--radius-controlled"
       )}
-      style={rootStyle}
+      style={{ ...rootStyle, ...style }}
     >
       {columnsData.map((colData, index) => {
         let columnSpecificViewBox = ""

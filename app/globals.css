@@ -293,7 +293,7 @@ html {
   /* Ensure proper aspect ratio is maintained */
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 1rem 4rem hsl(var(--primary) / 0.6));
+  filter: drop-shadow(0 1rem 2rem hsl(var(--primary) / 0.4));
 }
 
 /*
@@ -304,8 +304,11 @@ html {
  */
 .animated-flag--contain {
   box-sizing: border-box;
-  width: min(100cqw, calc(100cqh * var(--flag-ar, 1.5))) !important;
-  height: min(100cqh, calc(100cqw / var(--flag-ar, 1.5))) !important;
+  /* width: min(100cqw, calc(100cqh * var(--flag-ar, 1.5))) !important;
+  height: min(100cqh, calc(100cqw / var(--flag-ar, 1.5))) !important; */
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 3/2.2;
   flex: 0 0 auto !important;
 }
 
@@ -654,8 +657,9 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 /* --- /home-v2 Focus: editorial canvas + pixel-stage framing (theme tokens) --- */
 /*
  * JS sets --welcome-stripe-1/2/3 from the active flag’s stripes (exact palette).
- * Blobs + kicker bar use raw stripes. Headline/CTA mix stripe toward --foreground for contrast
- * (no primary/secondary mix — that was shifting hues away from the real flags).
+ * Blobs + kicker bar use raw stripes.
+ * --welcome-text-1/2: client picks two contrasting stripes, or neutral oklch grays vs --background
+ * (fallback before JS: foreground / muted).
  */
 .home-v2-root {
   position: relative;
@@ -664,8 +668,8 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   --welcome-stripe-1: #e40303;
   --welcome-stripe-2: #7848f5;
   --welcome-stripe-3: #0080ff;
-  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 66%, hsl(var(--foreground)) 34%);
-  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 66%, hsl(var(--foreground)) 34%);
+  --welcome-text-1: hsl(var(--foreground));
+  --welcome-text-2: hsl(var(--muted-foreground));
   background-color: hsl(var(--background));
   background-image:
     radial-gradient(ellipse 130% 100% at 0% -15%, hsl(var(--primary) / 0.16), transparent 52%),
@@ -674,8 +678,6 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 }
 
 .light .home-v2-root {
-  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 52%, hsl(var(--foreground)) 48%);
-  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 52%, hsl(var(--foreground)) 48%);
   background-image:
     radial-gradient(ellipse 125% 100% at 0% -12%, hsl(var(--primary) / 0.48), transparent 50%),
     radial-gradient(ellipse 100% 78% at 100% 4%, hsl(var(--secondary) / 0.44), transparent 46%),
@@ -683,8 +685,6 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 }
 
 .chillwave .home-v2-root {
-  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 58%, hsl(var(--foreground)) 42%);
-  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 58%, hsl(var(--foreground)) 42%);
   background-image:
     radial-gradient(ellipse 118% 95% at -10% -2%, hsl(var(--primary) / 0.52), transparent 50%),
     radial-gradient(ellipse 92% 72% at 108% 12%, hsl(var(--secondary) / 0.42), transparent 46%),
@@ -692,8 +692,6 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 }
 
 .dark .home-v2-root {
-  --welcome-text-1: color-mix(in oklch, var(--welcome-stripe-1) 55%, hsl(var(--foreground)) 45%);
-  --welcome-text-2: color-mix(in oklch, var(--welcome-stripe-2) 55%, hsl(var(--foreground)) 45%);
   background-image:
     radial-gradient(ellipse 115% 90% at 4% -10%, hsl(var(--primary) / 0.45), transparent 52%),
     radial-gradient(ellipse 84% 62% at 98% 26%, hsl(var(--secondary) / 0.38), transparent 48%),
@@ -820,13 +818,14 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px));
 }
 
-/* Welcome hero: kicker bar = exact stripe; type/CTA = contrast-mixed toward foreground. */
+/* Welcome hero: kicker bar = flag stripe band (solid or gradient from JS); type/CTA use welcome-text tokens. */
 .home-v2-kicker-rule {
   height: 3px;
   width: clamp(3rem, 12vw, 6rem);
-  background-color: var(--welcome-stripe-1);
+  background: var(--welcome-stripe-1);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
-  transition: background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .home-v2-welcome-accent-text {
@@ -840,11 +839,11 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 }
 
 .home-v2-welcome-cta {
-  color: var(--welcome-text-1);
-  border-bottom-color: var(--welcome-text-1);
+  color: hsl(var(--background));
+  background-color: var(--welcome-text-1);
   transition:
     color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 1.4s cubic-bezier(0.22, 1, 0.36, 1),
     filter 0.25s ease;
 }
 
@@ -915,7 +914,7 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
     margin-top: 2rem;
   }
 }
-
+/* 
 .home-v2-explore-dock-frame {
   padding: 3px;
   background: linear-gradient(
@@ -926,13 +925,16 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   );
   clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
   box-shadow: 0 0 0 1px hsl(var(--foreground) / 0.07);
-}
+} */
 
 .home-v2-explore-dock-surface {
   box-sizing: border-box;
-  background: hsl(var(--background) / 0.94);
+  background: hsl(var(--card) / 0.5);
   padding: 1rem 1.125rem;
-  clip-path: polygon(0 9px, 9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%);
+  /* clip-path: polygon(0 9px, 9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%); */
+  @media (min-width: 1025px) {
+    border-top: 2px solid hsl(var(--border));
+  }
 }
 
 .dark .home-v2-explore-dock-surface,
@@ -970,5 +972,251 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 @media (min-width: 1024px) {
   .home-v2-browse .home-v2-explore-flag {
     justify-content: flex-start;
+  }
+}
+
+.explore-header {
+  @apply
+    max-lg:order-2
+    max-lg:flex-1
+    flex shrink-0 flex-row flex-wrap items-center justify-between gap-x-4 gap-y-3
+    max-md:mt-3 pb-3
+    px-4 sm:px-6 lg:grid lg:grid-cols-[auto_1fr] lg:items-center lg:gap-x-8 lg:gap-y-2 lg:px-12 lg:py-8
+  ;
+}
+
+.explore-body {
+  @apply
+    max-lg:order-1
+    flex min-h-0 lg:flex-1 flex-col lg:grid lg:grid-cols-2 lg:items-center lg:w-full
+    pt-3 lg:px-12 gap-4
+  ;
+  .animated-flag {
+    max-width: 800px;
+  }
+}
+.explore-flag {
+  @apply
+    relative
+    cursor-grab touch-pan-y
+    min-h-0 w-full min-w-0 lg:flex-1
+    flex flex-col justify-center active:cursor-grabbing lg:mx-0
+    mx-auto gap-8 lg:gap-12
+  ;
+  .explore-flag-motion-container {
+    @apply flex justify-center items-center;
+  }
+}
+.explore-content {
+  @apply
+    hidden min-h-0 min-w-0 lg:min-w-[min(18rem,32%)] xl:min-w-[min(20rem,34%)] max-w-[800px] w-full shrink-0
+    lg:flex lg:flex-1 lg:flex-col
+    lg:pl-7 xl:pl-9 lg:mb-20
+    border-foreground/10
+  ;
+}
+
+/* Explore carousel: static mini flags (no column oscillation, no drop shadow) */
+.explore-flag-thumbnail-strip .animated-flag {
+  filter: none;
+}
+
+.explore-flag-thumbnail-strip .animated-flag .flag-column {
+  animation: none !important;
+}
+
+.explore-flag-thumbnails {
+  @apply
+  mx-auto flex w-full max-w-full justify-center gap-0 overflow-x-auto overscroll-x-contain h-40 [scrollbar-width:thin]
+  ;
+  /* Wider hit targets overlap via negative margin → no cursor dead zones between flags */
+  --explore-thumb-hit-pad: 0.5rem;
+  --explore-thumb-hit-pad-y: 0.35rem;
+}
+
+/*
+ * Dock-style strip: layout width + :has() / + so each distance from :hover gets its own size.
+ * Right: .thumb:hover + .thumb …   Left: .thumb:has(+ .thumb:has(+ … :hover)).
+ */
+.explore-flag-thumbnails > .explore-flag-thumbnail {
+  /* display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  flex-shrink: 0;
+  width: 2.75rem; */
+  transition-property: width, border-color, box-shadow, opacity;
+  transition-duration: 0.40s;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.explore-flag-thumbnails > .explore-flag-thumbnail > .explore-flag-thumbnail-visual {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+
+/* —— distance 0 (hovered) —— */
+.explore-flag-thumbnails > .explore-flag-thumbnail:hover {
+  z-index: 20;
+  width: 4.125rem;
+}
+
+/* —— distance 1 —— */
+.explore-flag-thumbnails > .explore-flag-thumbnail:hover + .explore-flag-thumbnail,
+.explore-flag-thumbnails > .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover) {
+  z-index: 16;
+  width: 3.62rem;
+}
+
+/* —— distance 2 —— */
+.explore-flag-thumbnails > .explore-flag-thumbnail:hover + .explore-flag-thumbnail + .explore-flag-thumbnail,
+.explore-flag-thumbnails
+  > .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover)) {
+  z-index: 12;
+  width: 3.28rem;
+}
+
+/* —— distance 3 —— */
+.explore-flag-thumbnails
+  > .explore-flag-thumbnail:hover
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail,
+.explore-flag-thumbnails
+  > .explore-flag-thumbnail:has(
+    + .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover))
+  ) {
+  z-index: 8;
+  width: 3.02rem;
+}
+
+/* —— distance 4 —— */
+.explore-flag-thumbnails
+  > .explore-flag-thumbnail:hover
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail,
+.explore-flag-thumbnails
+  > .explore-flag-thumbnail:has(
+    + .explore-flag-thumbnail:has(
+      + .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover))
+    )
+  ) {
+  z-index: 4;
+  width: 2.86rem;
+}
+
+/* —— distance 5 —— */
+.explore-flag-thumbnails
+  > .explore-flag-thumbnail:hover
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail
+  + .explore-flag-thumbnail,
+.explore-flag-thumbnails
+  > .explore-flag-thumbnail:has(
+    + .explore-flag-thumbnail:has(
+      + .explore-flag-thumbnail:has(
+        + .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover))
+      )
+    )
+  ) {
+  z-index: 2;
+  width: 2.78rem;
+}
+
+@media (min-width: 640px) {
+  .explore-flag-thumbnails > .explore-flag-thumbnail {
+    width: 3rem;
+  }
+
+  .explore-flag-thumbnails > .explore-flag-thumbnail:hover {
+    width: 4.5rem;
+  }
+
+  .explore-flag-thumbnails > .explore-flag-thumbnail:hover + .explore-flag-thumbnail,
+  .explore-flag-thumbnails > .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover) {
+    width: 3.88rem;
+  }
+
+  .explore-flag-thumbnails > .explore-flag-thumbnail:hover + .explore-flag-thumbnail + .explore-flag-thumbnail,
+  .explore-flag-thumbnails
+    > .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover)) {
+    width: 3.52rem;
+  }
+
+  .explore-flag-thumbnails
+    > .explore-flag-thumbnail:hover
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail,
+  .explore-flag-thumbnails
+    > .explore-flag-thumbnail:has(
+      + .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover))
+    ) {
+    width: 3.28rem;
+  }
+
+  .explore-flag-thumbnails
+    > .explore-flag-thumbnail:hover
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail,
+  .explore-flag-thumbnails
+    > .explore-flag-thumbnail:has(
+      + .explore-flag-thumbnail:has(
+        + .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover))
+      )
+    ) {
+    width: 3.12rem;
+  }
+
+  .explore-flag-thumbnails
+    > .explore-flag-thumbnail:hover
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail
+    + .explore-flag-thumbnail,
+  .explore-flag-thumbnails
+    > .explore-flag-thumbnail:has(
+      + .explore-flag-thumbnail:has(
+        + .explore-flag-thumbnail:has(
+          + .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:has(+ .explore-flag-thumbnail:hover))
+        )
+      )
+    ) {
+    width: 3.04rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore-flag-thumbnails > .explore-flag-thumbnail {
+    transition-duration: 0.01ms;
+    width: 2.75rem !important;
+    z-index: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 640px) {
+  .explore-flag-thumbnails > .explore-flag-thumbnail {
+    width: 3rem !important;
+  }
+}
+
+.home-v2-explore-reduce-motion .explore-flag-thumbnails > .explore-flag-thumbnail {
+  transition-duration: 0.01ms;
+  width: 2.75rem !important;
+  z-index: auto !important;
+}
+
+@media (min-width: 640px) {
+  .home-v2-explore-reduce-motion .explore-flag-thumbnails > .explore-flag-thumbnail {
+    width: 3rem !important;
   }
 }
