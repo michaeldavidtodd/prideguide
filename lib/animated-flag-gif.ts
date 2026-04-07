@@ -1,3 +1,8 @@
+/**
+ * Animated flag → GIF encoder (layout resolution, canvas frames, gifenc).
+ *
+ * Behavior and the integer-width math are documented in docs/animated-flag-gif.md.
+ */
 import type { FlagDefinition } from "@/lib/flags"
 import { GIFEncoder, quantize, applyPalette } from "gifenc"
 
@@ -6,6 +11,107 @@ export const FLAG_OSCILLATE_HALF_MS = 650
 export const FLAG_OSCILLATE_PERIOD_MS = FLAG_OSCILLATE_HALF_MS * 2
 
 const REFERENCE_LAYOUT_WIDTH_PX = 720
+
+function gcd(a: number, b: number): number {
+  let x = Math.abs(Math.floor(a))
+  let y = Math.abs(Math.floor(b))
+  while (y !== 0) {
+    const t = y
+    y = x % y
+    x = t
+  }
+  return x || 1
+}
+
+/**
+ * Integer layout for GIF export: columns and gaps align to whole pixels, matching
+ * scaled reference layout (720px wide). Foreground SVG is rasterized at width n×colW
+ * so each column samples an exact horizontal strip (same as per-column viewBox in the browser).
+ */
+export type AnimatedFlagGifLayout = {
+  /** Layout scale vs 720px reference (canvasWidth / 720). */
+  scaleK: number
+  canvasWidth: number
+  gapPx: number
+  colW: number
+  /** Flag area width excluding inter-column gaps (n × colW). */
+  usableFlagWidth: number
+}
+
+function scaleKStepForIntegerColumns(spec: AnimatedFlagGifSpec): number {
+  const n = Math.max(1, Math.floor(spec.numOfColumns))
+  const gapRef = Math.max(0, Math.floor(spec.columnGapPx))
+  const baseUsable =
+    REFERENCE_LAYOUT_WIDTH_PX - gapRef * Math.max(0, n - 1)
+  if (baseUsable <= 0) return 1
+  const g = gcd(baseUsable, n)
+  return n / g
+}
+
+function resolveGifLayoutWidth(spec: AnimatedFlagGifSpec, requestedWidth: number): AnimatedFlagGifLayout {
+  const n = Math.max(1, Math.floor(spec.numOfColumns))
+  const gapRef = Math.max(0, Math.floor(spec.columnGapPx))
+  const minW = 120
+  const maxW = 4096
+  const step = scaleKStepForIntegerColumns(spec)
+
+  const tryK = (k: number): AnimatedFlagGifLayout | null => {
+    if (k < 1) return null
+    const canvasWidth = k * REFERENCE_LAYOUT_WIDTH_PX
+    if (canvasWidth < minW || canvasWidth > maxW) return null
+    const gapPx = gapRef * k
+    const totalGap = gapPx * Math.max(0, n - 1)
+    const usable = canvasWidth - totalGap
+    if (usable <= 0 || usable % n !== 0) return null
+    const colW = usable / n
+    return {
+      scaleK: k,
+      canvasWidth,
+      gapPx,
+      colW,
+      usableFlagWidth: usable,
+    }
+  }
+
+  let best: AnimatedFlagGifLayout | null = null
+  let bestDist = Infinity
+
+  for (let k = step; k * REFERENCE_LAYOUT_WIDTH_PX <= maxW; k += step) {
+    const layout = tryK(k)
+    if (!layout) continue
+    const d = Math.abs(layout.canvasWidth - requestedWidth)
+    if (d < bestDist || (d === bestDist && layout.canvasWidth > (best?.canvasWidth ?? 0))) {
+      bestDist = d
+      best = layout
+    }
+  }
+
+  if (!best) {
+    for (let w = minW; w <= maxW; w += 2) {
+      const gapPx = gapRef === 0 ? 0 : Math.round((gapRef * w) / REFERENCE_LAYOUT_WIDTH_PX)
+      const totalGap = gapPx * Math.max(0, n - 1)
+      const usable = w - totalGap
+      if (usable <= 0 || usable % n !== 0) continue
+      const d = Math.abs(w - requestedWidth)
+      if (d < bestDist || (d === bestDist && w > (best?.canvasWidth ?? 0))) {
+        bestDist = d
+        best = {
+          scaleK: w / REFERENCE_LAYOUT_WIDTH_PX,
+          canvasWidth: w,
+          gapPx,
+          colW: usable / n,
+          usableFlagWidth: usable,
+        }
+      }
+    }
+  }
+
+  if (!best) {
+    throw new Error("Could not resolve GIF export dimensions for this column and gap configuration")
+  }
+
+  return best
+}
 
 export type AnimatedFlagGifSpec = {
   backgroundColors: string[]
@@ -18,6 +124,11 @@ export type AnimatedFlagGifSpec = {
 }
 
 export type AnimatedFlagGifEncodeOptions = {
+  /**
+   * Target width in pixels. The encoder snaps to a width where each column and each gap are
+   * whole pixels at the 720px reference scale (integer k×720 when possible), so the GIF matches
+   * on-screen column math. The final width may differ slightly from this value.
+   */
   width: number
   /**
    * GIF frame delay in ms, snapped to 10ms. Use 30–40 ms for smooth + universally honored timing.
@@ -51,7 +162,11 @@ function escapeXml(s: string): string {
     .replace(/"/g, "&quot;")
 }
 
-function buildForegroundSvgMarkup(svgForeground: NonNullable<AnimatedFlagGifSpec["svgForeground"]>): string {
+function buildForegroundSvgMarkup(
+  svgForeground: NonNullable<AnimatedFlagGifSpec["svgForeground"]>,
+  rasterWidth: number,
+  rasterHeight: number
+): string {
   const { viewBox, paths } = svgForeground
   const pathEls = paths
     .map((p) => {
@@ -62,7 +177,9 @@ function buildForegroundSvgMarkup(svgForeground: NonNullable<AnimatedFlagGifSpec
       return `<path ${attrs.join(" ")} />`
     })
     .join("")
-  return `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeXml(viewBox)}">${pathEls}</svg>`
+  const w = Math.max(1, Math.floor(rasterWidth))
+  const h = Math.max(1, Math.floor(rasterHeight))
+  return `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="${escapeXml(viewBox)}" width="${w}" height="${h}">${pathEls}</svg>`
 }
 
 function loadSvgDataUrlImage(svgMarkup: string): Promise<HTMLImageElement> {
@@ -231,15 +348,14 @@ function renderFlagFrame(
   canvasHeight: number,
   flagTopY: number,
   flagHeight: number,
+  gifLayout: Pick<AnimatedFlagGifLayout, "colW" | "gapPx">,
   spec: AnimatedFlagGifSpec,
   fgImage: HTMLImageElement | null,
   timeMs: number
 ): void {
   const n = Math.max(1, Math.floor(spec.numOfColumns))
+  const { colW, gapPx } = gifLayout
   const layoutScale = canvasWidth / REFERENCE_LAYOUT_WIDTH_PX
-  const gap = Math.max(0, spec.columnGapPx * layoutScale)
-  const totalGap = gap * Math.max(0, n - 1)
-  const colW = (canvasWidth - totalGap) / n
   const billowPx = billowAmplitudePx(spec, canvasWidth)
   const scaledStripeR =
     spec.stripeCornerRadiusPx !== undefined && spec.stripeCornerRadiusPx > 0
@@ -248,20 +364,22 @@ function renderFlagFrame(
 
   ctx.save()
   ctx.clearRect(0, 0, canvasWidth, canvasHeight)
+  ctx.imageSmoothingEnabled = false
 
   const iw = fgImage?.naturalWidth ?? 0
   const ih = fgImage?.naturalHeight ?? 0
   const hasFg = Boolean(fgImage && iw > 0 && ih > 0)
+  const srcColW = hasFg ? Math.floor(iw / n) : 0
 
   for (let i = 0; i < n; i++) {
-    const x = i * (colW + gap)
+    const x = i * (colW + gapPx)
     const yOff = columnTranslateYAt(timeMs, i, n, spec.staggeredDelayMs, billowPx)
     const { tl, tr, br, bl } = columnCornerRadiiPx(
       i,
       n,
       colW,
       flagHeight,
-      gap,
+      gapPx,
       scaledStripeR,
       layoutScale
     )
@@ -275,9 +393,9 @@ function renderFlagFrame(
     ctx.fillStyle = grad
     ctx.fillRect(x, flagTopY, colW, flagHeight)
 
-    if (hasFg && fgImage) {
-      const sx = (i / n) * iw
-      const sw = iw / n
+    if (hasFg && fgImage && srcColW > 0) {
+      const sx = i * srcColW
+      const sw = i === n - 1 ? iw - sx : srcColW
       ctx.drawImage(fgImage, sx, 0, sw, ih, x, flagTopY, colW, flagHeight)
     }
 
@@ -311,7 +429,7 @@ function ensureEvenPx(n: number): number {
 
 async function prepareFlagExportCanvas(
   spec: AnimatedFlagGifSpec,
-  width: number
+  layout: AnimatedFlagGifLayout
 ): Promise<{
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
@@ -320,14 +438,11 @@ async function prepareFlagExportCanvas(
   flagTopY: number
   flagHeight: number
   fgImage: HTMLImageElement | null
+  gifLayout: AnimatedFlagGifLayout
 }> {
-  if (width < 120 || width > 4096) {
-    throw new Error("Export width must be between 120 and 4096 pixels")
-  }
-
   const dims = parseViewBoxDims(spec.svgForeground?.viewBox)
   const ar = dims ? dims.w / dims.h : 3 / 2
-  const canvasWidth = ensureEvenPx(width)
+  const canvasWidth = layout.canvasWidth
   const flagHeight = Math.max(1, Math.round(canvasWidth / ar))
   const padY = Math.ceil(billowAmplitudePx(spec, canvasWidth))
   const canvasHeight = ensureEvenPx(flagHeight + 2 * padY)
@@ -335,7 +450,11 @@ async function prepareFlagExportCanvas(
 
   let fgImage: HTMLImageElement | null = null
   if (spec.svgForeground?.paths?.length) {
-    fgImage = await loadSvgDataUrlImage(buildForegroundSvgMarkup(spec.svgForeground))
+    const fgW = layout.usableFlagWidth
+    const fgH = Math.max(1, Math.round(fgW / ar))
+    fgImage = await loadSvgDataUrlImage(
+      buildForegroundSvgMarkup(spec.svgForeground, fgW, fgH)
+    )
   }
 
   const canvas = document.createElement("canvas")
@@ -344,7 +463,7 @@ async function prepareFlagExportCanvas(
   const ctx = canvas.getContext("2d", { alpha: true })
   if (!ctx) throw new Error("Could not get 2D canvas context")
 
-  return { canvas, ctx, canvasWidth, canvasHeight, flagTopY, flagHeight, fgImage }
+  return { canvas, ctx, canvasWidth, canvasHeight, flagTopY, flagHeight, fgImage, gifLayout: layout }
 }
 
 const TRANSPARENT_KEY_R = 254
@@ -409,21 +528,24 @@ function applyTransparentIndexToChromaKey(
 /**
  * Encode animated flag GIF.
  *
- * Default: 720px wide, 30ms/frame (3cs GCE delay → ~33fps), 2 wave cycles.
- * 1300ms period / 30ms = ~43 frames per cycle — smooth enough, and 30ms (3cs)
- * is reliably honored by browsers, macOS Preview, Slack, iMessage, Discord, etc.
- * The old 20ms (2cs) delay was being clamped to 100ms by some viewers.
+ * Default target width 1080px (snapped to an integer-layout width), 20ms/frame, 2 wave cycles.
+ * Width is chosen so column width and stripe gaps are whole-pixel multiples of the 720px layout.
+ * 1300ms period / delay = frames per cycle; use 30–40ms delays for broad viewer compatibility.
  */
 export async function encodeAnimatedFlagGif(
   spec: AnimatedFlagGifSpec,
   options: Partial<AnimatedFlagGifEncodeOptions> = {}
 ): Promise<Blob> {
-  const width = options.width ?? DEFAULT_ENCODE.width
+  const requestedWidth = options.width ?? DEFAULT_ENCODE.width
+  if (requestedWidth < 120 || requestedWidth > 4096) {
+    throw new Error("Export width must be between 120 and 4096 pixels")
+  }
+  const layout = resolveGifLayoutWidth(spec, requestedWidth)
   const waveCycles = options.waveCycles ?? DEFAULT_ENCODE.waveCycles
   const delayMs = effectiveGifDelayMs(options.frameDelayMs ?? DEFAULT_ENCODE.frameDelayMs)
 
-  const { ctx, canvasWidth, canvasHeight, flagTopY, flagHeight, fgImage } =
-    await prepareFlagExportCanvas(spec, width)
+  const { ctx, canvasWidth, canvasHeight, flagTopY, flagHeight, fgImage, gifLayout } =
+    await prepareFlagExportCanvas(spec, layout)
 
   const framesPerPeriod = Math.max(1, Math.round(FLAG_OSCILLATE_PERIOD_MS / delayMs))
   const totalFrames = framesPerPeriod * Math.max(1, waveCycles)
@@ -435,7 +557,17 @@ export async function encodeAnimatedFlagGif(
 
   for (let f = 0; f < totalFrames; f++) {
     const t = f * simStepMs
-    renderFlagFrame(ctx, canvasWidth, canvasHeight, flagTopY, flagHeight, spec, fgImage, t)
+    renderFlagFrame(
+      ctx,
+      canvasWidth,
+      canvasHeight,
+      flagTopY,
+      flagHeight,
+      gifLayout,
+      spec,
+      fgImage,
+      t
+    )
     const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight)
     const keyed = new Uint8ClampedArray(imageData.data)
     rgbaToChromaKeyTransparent(keyed)
