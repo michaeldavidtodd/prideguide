@@ -37,6 +37,11 @@ interface AnimatedFlagProps {
    */
   fit?: "fill" | "contain"
   style?: React.CSSProperties
+  /**
+   * When set, the root drop shadow uses this color (e.g. hex) at 40% mix with transparent,
+   * matching the default `.animated-flag` glow strength.
+   */
+  dropShadowColor?: string
 }
 
 function parseViewBoxDims(viewBox: string | undefined): { w: number; h: number } | null {
@@ -60,6 +65,7 @@ export function AnimatedFlag({
   svgForeground,
   fit = "fill",
   style,
+  dropShadowColor,
 }: AnimatedFlagProps) {
   const gradientString = useMemo(() => {
     if (!backgroundColors || backgroundColors.length === 0) return "transparent"
@@ -102,8 +108,11 @@ export function AnimatedFlag({
     if (columnGapPx > 0) {
       s.gap = columnGapPx
     }
+    if (dropShadowColor !== undefined && dropShadowColor.length > 0) {
+      s.filter = `drop-shadow(0 0 7rem color-mix(in srgb, ${dropShadowColor} 70%, transparent))`
+    }
     return s
-  }, [columnGapPx, fit, overallAspectRatio])
+  }, [columnGapPx, dropShadowColor, fit, overallAspectRatio])
 
   const columnBorderRadius = useMemo(() => {
     if (stripeCornerRadiusPx === undefined) {
