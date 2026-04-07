@@ -1790,6 +1790,37 @@ export function HomeV2ExploreContent() {
 															Fine-tune motion, slice layout, and frames.
 														</p>
 													</header>
+
+													{/* Save studio settings */}
+													<div
+														data-slot="save-studio-settings"
+														className={cn(
+															"flex flex-col justify-between gap-3 p-4 bg-foreground/5",
+															cornerRadius > 0 && "rounded-lg"
+														)}
+														style={studioShellStyle}
+													>
+														<div className="min-w-0 space-y-0.5">
+															<Label
+																htmlFor="studio-persist-drawer"
+																className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
+															>
+																Save studio settings
+															</Label>
+															<p className="text-xs leading-snug text-muted-foreground text-balance">
+																{studioPersist
+																	? "Layout and motion sliders stay as you left them."
+																	: "Random slice layout, wave, gap, and corners on each visit."}
+															</p>
+														</div>
+														<Switch
+															id="studio-persist-drawer"
+															checked={studioPersist}
+															onCheckedChange={onStudioPersistChange}
+														/>
+													</div>
+
+													{/* Motion */}
 													<div
 														data-slot="motion"
 														className={cn(
@@ -1843,34 +1874,7 @@ export function HomeV2ExploreContent() {
 															</div>
 														</RadioGroup>
 													</div>
-													<div
-														data-slot="save-studio-settings"
-														className={cn(
-															"flex flex-col justify-between gap-3 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<div className="min-w-0 space-y-0.5">
-															<Label
-																htmlFor="studio-persist-drawer"
-																className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-															>
-																Save studio settings
-															</Label>
-															<p className="text-xs leading-snug text-muted-foreground text-balance">
-																{studioPersist
-																	? "Layout and motion sliders stay as you left them."
-																	: "Random slice layout, wave, gap, and corners on each visit."}
-															</p>
-														</div>
-														<Switch
-															id="studio-persist-drawer"
-															checked={studioPersist}
-															onCheckedChange={onStudioPersistChange}
-														/>
-													</div>
-													<div
+													{/* <div
 														data-slot="layout"
 														className={cn(
 															"flex flex-col justify-between gap-3 p-4 bg-foreground/5",
@@ -1897,7 +1901,9 @@ export function HomeV2ExploreContent() {
 																/>
 															</div>
 														</div>
-													</div>
+													</div> */}
+
+													{/* Slice resolution */}
 													<div
 														data-slot="slice-resolution"
 														className={cn(
@@ -1923,6 +1929,8 @@ export function HomeV2ExploreContent() {
 															aria-label="Adjust pixel column count for the flag animation"
 														/>
 													</div>
+
+													{/* Gap between stripes */}
 													<div
 														data-slot="gap-between-stripes"
 														className={cn(
@@ -1956,6 +1964,8 @@ export function HomeV2ExploreContent() {
 															zero gap for continuity.
 														</p>
 													</div>
+
+													{/* Rounded edges */}
 													<div
 														data-slot="rounded-edges"
 														className={cn(
@@ -1985,6 +1995,8 @@ export function HomeV2ExploreContent() {
 															aria-label="Border radius for flag frames, studio panel, and stripe ends"
 														/>
 													</div>
+
+													{/* Download GIF */}
 													<div
 														data-slot="download-gif"
 														className={cn(
@@ -2029,8 +2041,6 @@ export function HomeV2ExploreContent() {
 												<ExploreMoreLinkGrid
 													shellStyle={studioShellStyle}
 													cornerRadius={cornerRadius}
-													gifExporting={gifExporting}
-													onDownloadGif={() => void handleDownloadAnimatedGif()}
 												/>
 											</div>
 										</motion.div>

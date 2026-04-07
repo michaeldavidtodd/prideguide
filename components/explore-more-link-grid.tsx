@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import type { CSSProperties } from "react"
-import { Download, Heart, House, Info, Trophy } from "lucide-react"
+import { Heart, House, Info, Trophy } from "lucide-react"
 import { PopoverClose } from "@/components/ui/popover"
 import { PRIDE_ABOUT_APP_PATH, PRIDE_ALLY_PATH, PRIDE_QUIZ_PATH } from "@/lib/pride-routes"
 import { cn } from "@/lib/utils"
@@ -21,15 +21,11 @@ const PRIDE_HAIRLINE =
 export type ExploreMoreLinkGridProps = {
 	shellStyle?: CSSProperties
 	cornerRadius: number
-	gifExporting: boolean
-	onDownloadGif: () => void
 }
 
 export function ExploreMoreLinkGrid({
 	shellStyle,
 	cornerRadius,
-	gifExporting,
-	onDownloadGif,
 }: ExploreMoreLinkGridProps) {
 	const cornerSoft = cornerRadius > 0
 	const thumbStyle: CSSProperties | undefined =
@@ -85,30 +81,6 @@ export function ExploreMoreLinkGrid({
 					</Link>
 				</PopoverClose>
 			))}
-			<button
-				type="button"
-				disabled={gifExporting}
-				onClick={onDownloadGif}
-				className={cn(
-					cellClass,
-					"col-span-2 hidden lg:flex disabled:cursor-wait disabled:opacity-50"
-				)}
-				style={shellStyle}
-			>
-				<div
-					className={cn(
-						thumbClass,
-						gifExporting && "pointer-events-none saturate-[0.65] contrast-[0.95]"
-					)}
-					style={thumbStyle}
-				>
-					<div className={hairlineClass} style={{ background: PRIDE_HAIRLINE }} aria-hidden />
-					<span className={iconTileClass}>
-						<Download className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />
-					</span>
-				</div>
-				<span className={labelClass}>{gifExporting ? "Encoding…" : "Download GIF"}</span>
-			</button>
 		</nav>
 	)
 }
