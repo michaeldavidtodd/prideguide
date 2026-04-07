@@ -758,7 +758,7 @@ export function HomeV2WelcomeContent() {
 	return (
 		<div
 			ref={homeRootRef}
-			className="home-v2-root flex h-dvh min-h-0 flex-col text-foreground"
+			className="home-v2-root flex lg:h-dvh flex-col text-foreground"
 			aria-busy={bootPhase !== "off"}
 			style={
 				{
@@ -790,7 +790,7 @@ export function HomeV2WelcomeContent() {
 				</Link>
 
 				<motion.section
-					className="home-v2-hero home-v2-welcome flex min-h-0 flex-1 flex-col"
+					className="home-v2-hero home-v2-welcome flex flex-1 flex-col"
 					aria-label="Welcome"
 					initial="hidden"
 					animate={bootContentRevealed ? "show" : "hidden"}
@@ -802,9 +802,9 @@ export function HomeV2WelcomeContent() {
 
 					<motion.div
 						variants={variants.item}
-						className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col justify-center pb-10 px-12"
+						className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col justify-center pb-10 px-6 md:px-12"
 					>
-						<div className="flex w-full min-h-0 flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-4 xl:gap-10">
+						<div className="flex w-full min-h-0 flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-4 xl:gap-10 py-12">
 							<div className="min-w-0 flex-1 space-y-8 lg:max-w-[min(100%,40rem)] lg:pr-2">
 								<div className="space-y-5">
 									<div
@@ -854,9 +854,10 @@ export function HomeV2WelcomeContent() {
 								<div>
 									<Link
 										href={PRIDE_EXPLORE_PATH}
-										className="home-v2-welcome-cta group inline-flex items-center gap-3 border-none px-12 py-4 font-display text-sm font-extrabold border-2 rounded-full uppercase tracking-[0.2em]"
+										className="home-v2-welcome-cta group inline-flex items-center gap-3 border-none px-12 py-4 font-display text-xs md:text-sm font-extrabold border-2 rounded-full uppercase tracking-[0.2em] max-md:w-full max-md:justify-center"
 									>
-										Start exploring
+										<span className="hidden md:inline">Start exploring</span>
+										<span className="inline md:hidden">Explore</span>
 										<span
 											className="inline-block transition-transform duration-300 ease-out group-hover:translate-x-0.5"
 											aria-hidden
@@ -895,12 +896,12 @@ export function HomeV2WelcomeContent() {
 										</motion.div>
 									</AnimatePresence>
 								</div>
-								<p className="text-center font-display text-xl font-bold leading-snug text-foreground lg:text-left">
+								<p className="font-display text-xl font-bold leading-snug text-foreground text-center lg:text-left">
 									{welcomeFlag.name}
 								</p>
 								<Link
 									href={`${PRIDE_EXPLORE_PATH}?f=${welcomeFlag.id}`}
-									className="flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary underline-offset-4 transition-colors hover:text-primary/90 hover:underline"
+									className="flex items-center justify-center lg:justify-start gap-1 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary underline-offset-4 transition-colors hover:text-primary/90 hover:underline"
 								>
 									Explore this flag
 									<CircleArrowRight className="w-4 h-4" />
