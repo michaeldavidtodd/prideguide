@@ -55,7 +55,6 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { SwipeLeft09Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 import { ExpandableTabBar, ExpandableTabBarDock } from "@/components/expandable-tab-bar"
-import { ExploreSiteHeader } from "@/components/explore-site-header"
 import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
 import { PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
 import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
@@ -1216,12 +1215,11 @@ export function HomeV2ExploreContent() {
 	return (
 		<div
 			className={cn(
-				"home-v2-root flex md:h-dvh flex-col text-foreground max-md:pb-20",
+				"flex md:h-dvh flex-1 flex-col max-md:pb-20",
 				effectiveReduceMotion && "home-v2-explore-reduce-motion",
 				forceFlagWaveMotion && "home-v2-explore-force-motion"
 			)}
 		>
-			<ExploreSiteHeader />
 			<p className="sr-only" aria-live="polite" aria-atomic="true">
 				Pride Guide flag explorer.
 			</p>

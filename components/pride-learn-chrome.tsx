@@ -4,9 +4,8 @@ import type { ReactNode } from "react"
 import { useEffect, useState } from "react"
 import { useTheme } from "next-themes"
 import { ExpandableTabBar, ExpandableTabBarDock } from "@/components/expandable-tab-bar"
-import { ExploreSiteHeader } from "@/components/explore-site-header"
 import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
-import { StudioShellProvider, useStudioShell } from "@/components/studio-shell-context"
+import { useStudioShell } from "@/components/studio-shell-context"
 import { getPrismLearnDockLinkTabs } from "@/lib/prism-nav"
 import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
 
@@ -17,11 +16,7 @@ import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
  * so the body crossfades while header/dock stay put.
  */
 export function PrideLearnShell({ children }: { children: ReactNode }) {
-  return (
-    <StudioShellProvider>
-      <PrideLearnShellInner>{children}</PrideLearnShellInner>
-    </StudioShellProvider>
-  )
+  return <PrideLearnShellInner>{children}</PrideLearnShellInner>
 }
 
 function PrideLearnShellInner({ children }: { children: ReactNode }) {
@@ -36,8 +31,7 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
   const ThemeDockIcon = resolveThemeDockTriggerIcon(theme, themeIconMounted, availableThemes)
 
   return (
-    <div className="home-v2-root flex min-h-dvh flex-col text-foreground">
-      <ExploreSiteHeader />
+    <>
       <div
         className="learn-body mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col px-4 pb-28 pt-6 sm:px-6 sm:pt-8 lg:px-12"
       >
@@ -68,7 +62,7 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
           ]}
         />
       </ExpandableTabBarDock>
-    </div>
+    </>
   )
 }
 
