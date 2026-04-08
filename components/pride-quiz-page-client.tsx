@@ -274,6 +274,7 @@ export function PrideQuizPageClient() {
       title="Flag knowledge quiz"
       description="Test what you know about LGBTQIA+ flags—ten questions, no pressure."
       wideLayout
+      introAnimation
     >
       {quizBody}
     </PrideLearnPageContent>

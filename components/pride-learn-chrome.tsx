@@ -1,7 +1,8 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { motion, useReducedMotion } from "framer-motion"
 import { useTheme } from "next-themes"
 import { ExpandableTabBar, ExpandableTabBarDock } from "@/components/expandable-tab-bar"
 import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
@@ -66,8 +67,41 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
   )
 }
 
+const learnIntroEase = [0.25, 1, 0.5, 1] as const
+
+/** Staggered intro variants for Prism learn pages (opacity + translateY; honors reduced motion). */
+export function useLearnPageIntroVariants() {
+  const prefersReducedMotion = useReducedMotion()
+
+  return useMemo(() => {
+    const reduce = prefersReducedMotion === true
+    const duration = reduce ? 0.01 : 0.44
+    const stagger = reduce ? 0 : 0.11
+    const delayChildren = reduce ? 0 : 0.05
+    const y = reduce ? 0 : 14
+
+    return {
+      containerVariants: {
+        hidden: {},
+        show: {
+          transition: { staggerChildren: stagger, delayChildren },
+        },
+      },
+      itemVariants: {
+        hidden: { opacity: reduce ? 1 : 0, y },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration, ease: learnIntroEase },
+        },
+      },
+    }
+  }, [prefersReducedMotion])
+}
+
 /**
  * Per-page content header (kicker, title, description) rendered inside the shell body.
+ * Set `introAnimation` for a short staggered entrance (respects reduced motion).
  */
 export function PrideLearnPageContent({
   kicker,
@@ -75,29 +109,71 @@ export function PrideLearnPageContent({
   description,
   children,
   wideLayout = false,
+  introAnimation = false,
+  /** When true with `introAnimation`, body is a stagger container — wrap sections in `motion.*` with `itemVariants` from `useLearnPageIntroVariants`. */
+  introBodyStagger = false,
 }: {
   kicker: string
   title: string
   description?: string
   children: ReactNode
   wideLayout?: boolean
+  introAnimation?: boolean
+  introBodyStagger?: boolean
 }) {
+  const { containerVariants, itemVariants } = useLearnPageIntroVariants()
+
+  const headerClass = wideLayout ? "max-w-4xl lg:max-w-none" : "max-w-[min(100%,42rem)]"
+  const kickerClass =
+    "font-display text-[0.65rem] font-bold uppercase leading-none tracking-[0.28em] text-primary sm:text-[0.7rem]"
+  const titleClass =
+    "mt-3 font-display text-[clamp(1.75rem,4.5vw,2.5rem)] font-black leading-[1.08] tracking-tight"
+  const descriptionClass =
+    "mt-4 text-balance text-base leading-relaxed text-muted-foreground sm:mt-5 sm:text-[1.0625rem] sm:leading-[1.65]"
+
+  if (!introAnimation) {
+    return (
+      <>
+        <header className={headerClass}>
+          <p className={kickerClass}>{kicker}</p>
+          <h1 className={titleClass}>{title}</h1>
+          {description ? <p className={descriptionClass}>{description}</p> : null}
+        </header>
+        <div className="mt-8 w-full sm:mt-12">{children}</div>
+      </>
+    )
+  }
+
   return (
-    <>
-      <header className={wideLayout ? "max-w-4xl lg:max-w-none" : "max-w-[min(100%,42rem)]"}>
-        <p className="font-display text-[0.65rem] font-bold uppercase leading-none tracking-[0.28em] text-primary sm:text-[0.7rem]">
+    <motion.div
+      className="flex flex-col"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      <header className={headerClass}>
+        <motion.p className={kickerClass} variants={itemVariants}>
           {kicker}
-        </p>
-        <h1 className="mt-3 font-display text-[clamp(1.75rem,4.5vw,2.5rem)] font-black leading-[1.08] tracking-tight">
+        </motion.p>
+        <motion.h1 className={titleClass} variants={itemVariants}>
           {title}
-        </h1>
+        </motion.h1>
         {description ? (
-          <p className="mt-4 text-balance text-base leading-relaxed text-muted-foreground sm:mt-5 sm:text-[1.0625rem] sm:leading-[1.65]">
+          <motion.p className={descriptionClass} variants={itemVariants}>
             {description}
-          </p>
+          </motion.p>
         ) : null}
       </header>
-      <div className="mt-8 w-full sm:mt-12">{children}</div>
-    </>
+      <motion.div
+        className={
+          introBodyStagger
+            ? "mt-8 flex w-full flex-col gap-8 sm:mt-12"
+            : "mt-8 w-full sm:mt-12"
+        }
+        variants={introBodyStagger ? containerVariants : itemVariants}
+      >
+        {children}
+      </motion.div>
+    </motion.div>
   )
 }

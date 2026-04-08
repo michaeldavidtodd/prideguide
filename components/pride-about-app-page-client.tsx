@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { BookOpen } from "lucide-react"
-import { PrideLearnPageContent } from "@/components/pride-learn-chrome"
+import { PrideLearnPageContent, useLearnPageIntroVariants } from "@/components/pride-learn-chrome"
 import { useStudioShell } from "@/components/studio-shell-context"
 import { PrismMarkLogo } from "@/components/prism-mark-logo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,14 +14,18 @@ import { cn } from "@/lib/utils"
 
 export function PrideAboutAppPageClient() {
   const { cornerRadius, studioShellStyle } = useStudioShell()
+  const { itemVariants } = useLearnPageIntroVariants()
 
   return (
     <PrideLearnPageContent
       kicker="Prism · about"
       title="About Pride Guide"
       description="Education and celebration through accurate colors, history, and the stories flags carry."
+      introAnimation
+      introBodyStagger
     >
-      <div className="space-y-8">
+      {[
+        <motion.div key="about-features" variants={itemVariants}>
         <Card
           className={cn("border-foreground/15 bg-background/40 shadow-none", cornerRadius <= 0 && "rounded-none")}
           style={studioShellStyle}
@@ -52,7 +57,9 @@ export function PrideAboutAppPageClient() {
             </div>
           </CardContent>
         </Card>
+        </motion.div>,
 
+        <motion.div key="about-prism" variants={itemVariants}>
         <Card
           className={cn(
             "border-foreground/15 bg-background/40 shadow-none lg:flex lg:flex-row lg:justify-center lg:gap-8",
@@ -74,8 +81,13 @@ export function PrideAboutAppPageClient() {
             </p>
           </CardContent>
         </Card>
+        </motion.div>,
 
-        <p className="text-center text-base leading-normal text-muted-foreground">
+        <motion.p
+          key="about-links"
+          variants={itemVariants}
+          className="text-center text-base leading-normal text-muted-foreground"
+        >
           <Link
             href={PRIDE_EXPLORE_PATH}
             className="font-display text-sm font-bold uppercase tracking-[0.14em] underline underline-offset-4 hover:text-foreground"
@@ -91,8 +103,8 @@ export function PrideAboutAppPageClient() {
           >
             Classic layout
           </Link>
-        </p>
-      </div>
+        </motion.p>,
+      ]}
     </PrideLearnPageContent>
   )
 }
