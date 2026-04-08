@@ -907,6 +907,7 @@ export function HomeV2ExploreContent() {
 	const pointerStart = useRef<{ x: number } | null>(null)
 	const stageRef = useRef<HTMLDivElement>(null)
 	const activeThumbRef = useRef<HTMLButtonElement>(null)
+	const exploreThumbnailsScrollRef = useRef<HTMLDivElement>(null)
 	const { theme, setTheme, themes: availableThemeIds } = useTheme()
 	const [exploreThemeMounted, setExploreThemeMounted] = useState(false)
 
@@ -1085,9 +1086,18 @@ export function HomeV2ExploreContent() {
 	}, [router, searchParams])
 
 	useLayoutEffect(() => {
-		activeThumbRef.current?.scrollIntoView({
-			inline: "center",
-			block: "nearest",
+		const container = exploreThumbnailsScrollRef.current
+		const thumb = activeThumbRef.current
+		if (!container || !thumb) return
+		// scrollIntoView walks ancestors and can scroll the document; only move the thumb strip.
+		if (container.clientWidth === 0) return
+		const cRect = container.getBoundingClientRect()
+		const tRect = thumb.getBoundingClientRect()
+		const delta =
+			tRect.left + tRect.width / 2 - (cRect.left + cRect.width / 2)
+		if (Math.abs(delta) < 1) return
+		container.scrollBy({
+			left: delta,
 			behavior: effectiveReduceMotion ? "auto" : "smooth",
 		})
 	}, [effectiveReduceMotion, index])
@@ -1218,7 +1228,7 @@ export function HomeV2ExploreContent() {
 			<div className="home-v2-stack flex flex-1 flex-col">
 				<motion.main
 					id="home-v2-main"
-					className="home-v2-browse flex flex-1 flex-col md:overflow-hidden"
+					className="home-v2-browse flex flex-1 flex-col"
 					variants={variants.wrap}
 					initial="hidden"
 					animate="show"
@@ -1365,7 +1375,11 @@ export function HomeV2ExploreContent() {
 							className="explore-flag-thumbs max-lg:hidden max-lg:order-1 shrink-0 px-4 py-3 lg:px-12"
 							aria-label="All flags"
 						>
-							<div data-slot="explore-flag-thumbnails" className="explore-flag-thumbnails">
+							<div
+								ref={exploreThumbnailsScrollRef}
+								data-slot="explore-flag-thumbnails"
+								className="explore-flag-thumbnails"
+							>
 								{PRIDE_FLAGS.map((f, i) => {
 									const thumbStripes = f.display.stripes ?? []
 									const selected = i === index
