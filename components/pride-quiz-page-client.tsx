@@ -5,7 +5,7 @@ import confetti from "canvas-confetti"
 import { useReducedMotion } from "framer-motion"
 import { Check, Trophy, X } from "lucide-react"
 import { AnimatedFlag } from "@/components/animated-flag"
-import { PrideLearnChrome } from "@/components/pride-learn-chrome"
+import { PrideLearnPageContent } from "@/components/pride-learn-chrome"
 import { useStudioShell } from "@/components/studio-shell-context"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ import { PRIDE_FLAGS } from "@/lib/flags"
 import { QUIZ_QUESTIONS } from "@/lib/quiz-questions"
 import { cn } from "@/lib/utils"
 
-function QuizPageInner() {
+export function PrideQuizPageClient() {
   const { cornerRadius, studioShellStyle } = useStudioShell()
   const shouldReduceMotion = useReducedMotion()
   const [quizScore, setQuizScore] = useState(0)
@@ -268,18 +268,14 @@ function QuizPageInner() {
     )
   })()
 
-  return quizBody
-}
-
-export function PrideQuizPageClient() {
   return (
-    <PrideLearnChrome
+    <PrideLearnPageContent
       kicker="Prism · quiz"
       title="Flag knowledge quiz"
       description="Test what you know about LGBTQIA+ flags—ten questions, no pressure."
       wideLayout
     >
-      <QuizPageInner />
-    </PrideLearnChrome>
+      {quizBody}
+    </PrideLearnPageContent>
   )
 }

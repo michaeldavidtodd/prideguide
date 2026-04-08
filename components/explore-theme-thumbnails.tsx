@@ -19,7 +19,7 @@ const light = {
 
 const dark = {
 	grad:
-		"linear-gradient(to bottom right, hsl(232 58% 6%), hsl(258 52% 14%), hsl(300 55% 18%))",
+		"linear-gradient(to bottom right, hsl(232 58% 6%), hsl(258 52% 14%), hsl(195.6 54.35% 18.04%))",
 	card: "hsl(235 52% 9%)",
 	border: "hsl(225 48% 20% / 0.7)",
 	primary: "hsl(187 100% 46%)",

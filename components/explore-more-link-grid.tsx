@@ -33,7 +33,7 @@ export function ExploreMoreLinkGrid({
 	const thumbClass = cn(
 		"relative flex aspect-[5/3] w-full items-center justify-center overflow-hidden",
 		"border border-border/45",
-		"bg-gradient-to-b from-muted/20 via-card/50 to-muted/35",
+		"bg-gradient-to-b from-muted/30 via-muted/40 to-muted/20",
 		"shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]",
 		"transition-[border-color,box-shadow,background-color] duration-200 ease-out motion-reduce:transition-none",
 		"group-hover:border-border/80",

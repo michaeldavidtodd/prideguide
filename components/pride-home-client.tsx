@@ -1211,13 +1211,14 @@ export function HomeV2ExploreContent() {
 				forceFlagWaveMotion && "home-v2-explore-force-motion"
 			)}
 		>
+			<ExploreSiteHeader />
 			<p className="sr-only" aria-live="polite" aria-atomic="true">
 				Pride Guide flag explorer.
 			</p>
 			<div className="home-v2-stack flex flex-1 flex-col">
 				<motion.main
 					id="home-v2-main"
-					className="home-v2-browse flex flex-1 flex-col md:overflow-hidden bg-background/30"
+					className="home-v2-browse flex flex-1 flex-col md:overflow-hidden"
 					variants={variants.wrap}
 					initial="hidden"
 					animate="show"
@@ -1226,7 +1227,6 @@ export function HomeV2ExploreContent() {
 						variants={variants.item}
 						className="mx-auto flex md:h-full w-full flex-col"
 					>
-						<ExploreSiteHeader />
 
 						{/* Explore Body */}
 						<div data-slot="explore-body" className="explore-body">

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { BookOpen } from "lucide-react"
-import { PrideLearnChrome } from "@/components/pride-learn-chrome"
+import { PrideLearnPageContent } from "@/components/pride-learn-chrome"
 import { useStudioShell } from "@/components/studio-shell-context"
 import { PrismMarkLogo } from "@/components/prism-mark-logo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,11 +11,16 @@ import { PRIDE_FLAGS } from "@/lib/flags"
 import { QUIZ_QUESTIONS } from "@/lib/quiz-questions"
 import { cn } from "@/lib/utils"
 
-function AboutPageBody() {
+export function PrideAboutAppPageClient() {
   const { cornerRadius, studioShellStyle } = useStudioShell()
 
   return (
-    <div className="space-y-8">
+    <PrideLearnPageContent
+      kicker="Prism · about"
+      title="About Pride Guide"
+      description="Education and celebration through accurate colors, history, and the stories flags carry."
+    >
+      <div className="space-y-8">
         <Card
           className={cn("border-foreground/15 bg-background/40 shadow-none", cornerRadius <= 0 && "rounded-none")}
           style={studioShellStyle}
@@ -87,18 +92,7 @@ function AboutPageBody() {
             Classic layout
           </Link>
         </p>
-    </div>
-  )
-}
-
-export function PrideAboutAppPageClient() {
-  return (
-    <PrideLearnChrome
-      kicker="Prism · about"
-      title="About Pride Guide"
-      description="Education and celebration through accurate colors, history, and the stories flags carry."
-    >
-      <AboutPageBody />
-    </PrideLearnChrome>
+      </div>
+    </PrideLearnPageContent>
   )
 }

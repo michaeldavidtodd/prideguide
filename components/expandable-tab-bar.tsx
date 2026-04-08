@@ -273,7 +273,8 @@ export function ExpandableTabBar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
-            className="fixed inset-0 z-[-1] bg-background/40"
+            className="fixed inset-0 z-[-1]"
+            style={{ background: "linear-gradient(to top, hsl(var(--background) / 0.5), hsl(var(--background) / 0) 70%)" }}
             onClick={handleClose}
             aria-hidden
           />
@@ -283,8 +284,7 @@ export function ExpandableTabBar({
         ref={containerRef}
         style={style}
         className={cn(
-          "border border-border/50 bg-card shadow-xl",
-          "backdrop-blur-md overflow-hidden",
+          "tab-bar border-border/50 border-2 bg-card shadow-xl backdrop-blur-md overflow-hidden",
         )}
         onMouseLeave={handleContainerLeave}
       >
@@ -323,7 +323,7 @@ export function ExpandableTabBar({
         <div
           role={hasLinkTabs ? "navigation" : "tablist"}
           aria-label={hasLinkTabs ? (navAriaLabel ?? "Site") : undefined}
-          className="flex shrink-0 items-center gap-1.5 px-3 py-2.5 sm:gap-2"
+          className="flex shrink-0 items-center justify-center gap-1.5 px-3 py-2.5 sm:gap-2"
         >
           {tabs.map((tab) => {
             if (!isPanelItem(tab)) {

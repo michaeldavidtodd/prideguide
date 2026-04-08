@@ -50,7 +50,7 @@
     --secondary-foreground: 232 58% 8%;
     --muted: 230 42% 13%;
     --muted-foreground: 215 38% 68%;
-    --accent: 312 96% 60%;
+    --accent: 202 96% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 88% 58%;
     --destructive-foreground: 0 0% 100%;
@@ -126,13 +126,30 @@ html {
   overflow-anchor: none;
 }
 
+.tab-bar {
+  position: relative;
+  z-index: 1;
+}
+#expandable-tab-panel::before {
+  content: "";
+  position: absolute;
+  bottom: -1.5rem;
+  left: -10%;
+  width: 120%;
+  height: 4rem;
+  background: hsl(var(--primary) / 0.25);
+  box-shadow: 0 0 2rem 0 hsl(var(--primary) / 0.5);
+  z-index: -2;
+  filter: blur(3rem);
+}
+
 /* Dark: cyan → violet → magenta (matches .dark tokens, not Chillwave) */
 .dark .bg-gradient-to-br {
   background: linear-gradient(
     to bottom right,
     hsl(232 58% 6%),
     hsl(258 52% 14%),
-    hsl(300 55% 18%)
+    hsl(207.6 54.35% 18.04%)
   );
 }
 
@@ -459,7 +476,7 @@ html {
     to bottom right,
     hsl(232 58% 7%),
     hsl(248 50% 12%),
-    hsl(285 45% 16%)
+    hsl(207.6 54.35% 18.04%)
   );
   box-shadow: 0 -20px 48px hsl(187 100% 50% / 0.08);
 }
@@ -1028,6 +1045,7 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 }
 
 .explore-header {
+  view-transition-name: site-header;
   @apply
     flex shrink-0 flex-row flex-wrap items-center gap-x-4 gap-y-3
     max-md:mt-3 pb-3
@@ -1133,16 +1151,11 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
   }
   .animated-flag {
     filter: none;
-
     .flag-column {
       animation: none !important;
     }
-
   }
-
 }
-
-
 
 .explore-flag-thumbnails {
   @apply
@@ -1338,5 +1351,57 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 @media (min-width: 640px) {
   .home-v2-explore-reduce-motion .explore-flag-thumbnails > .explore-flag-thumbnail {
     width: 3rem !important;
+  }
+}
+
+/* ── View transitions ──────────────────────────────────────── */
+
+/*
+ * The site-header (`.explore-header`) has its own view-transition-name so the
+ * browser treats it as a shared element that stays in place across navigations.
+ * We suppress the default root crossfade so only named regions animate.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Header stays perfectly still — no animation at all. */
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+/* Learn page body content fades between routes. */
+.learn-body {
+  view-transition-name: learn-body;
+}
+
+::view-transition-old(learn-body) {
+  animation: learn-fade-out 180ms ease-out;
+}
+::view-transition-new(learn-body) {
+  animation: learn-fade-in 220ms ease-out 60ms both;
+}
+
+@keyframes learn-fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes learn-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(learn-body),
+  ::view-transition-new(learn-body),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.001ms !important;
   }
 }
