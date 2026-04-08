@@ -3,7 +3,6 @@
 import Link from "next/link"
 import type { CSSProperties } from "react"
 import { Heart, House, Info, Trophy } from "lucide-react"
-import { PopoverClose } from "@/components/ui/popover"
 import { PRIDE_ABOUT_APP_PATH, PRIDE_ALLY_PATH, PRIDE_QUIZ_PATH } from "@/lib/pride-routes"
 import { cn } from "@/lib/utils"
 
@@ -69,17 +68,15 @@ export function ExploreMoreLinkGrid({
 	return (
 		<nav className="grid w-full grid-cols-2 gap-3 p-3" aria-label="More links">
 			{MORE_LINKS.map(({ href, label, Icon }) => (
-				<PopoverClose key={href} asChild>
-					<Link href={href} className={cellClass} style={shellStyle}>
-						<div className={thumbClass} style={thumbStyle}>
-							<div className={hairlineClass} style={{ background: PRIDE_HAIRLINE }} aria-hidden />
-							<span className={iconTileClass}>
-								<Icon className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />
-							</span>
-						</div>
-						<span className={labelClass}>{label}</span>
-					</Link>
-				</PopoverClose>
+				<Link key={href} href={href} className={cellClass} style={shellStyle}>
+					<div className={thumbClass} style={thumbStyle}>
+						<div className={hairlineClass} style={{ background: PRIDE_HAIRLINE }} aria-hidden />
+						<span className={iconTileClass}>
+							<Icon className="size-[18px] shrink-0" strokeWidth={1.75} aria-hidden />
+						</span>
+					</div>
+					<span className={labelClass}>{label}</span>
+				</Link>
 			))}
 		</nav>
 	)

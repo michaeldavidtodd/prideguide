@@ -213,7 +213,7 @@ export function ExploreThemeThumbnailGrid({
 
 	return (
 		<div
-			className="grid w-full grid-cols-2 gap-4 p-4"
+			className="grid w-full grid-cols-2 gap-3 p-3"
 			role="radiogroup"
 			aria-label="Site theme"
 		>
@@ -233,16 +233,16 @@ export function ExploreThemeThumbnailGrid({
 						onClick={() => setTheme(id)}
 						onKeyDown={(e) => onThemeKeyDown(e, index)}
 						className={cn(
-							"group relative flex flex-col gap-1.5 rounded-md p-1.5 text-left outline-none",
+							"group relative flex flex-col gap-2 rounded-md p-1.5 text-left outline-none",
 							"transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none",
 							"motion-safe:group-hover:-translate-y-0.5 motion-reduce:group-hover:translate-y-0",
 							"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 						)}
 						style={shellStyle}
 					>
-						<div
-							className={cn(
-								"relative w-full overflow-hidden border border-border/55 shadow-sm transition-[border-color,box-shadow,transform] duration-200 ease-out motion-reduce:transition-none",
+					<div
+						className={cn(
+							"relative aspect-[5/3] w-full overflow-hidden border border-border/55 shadow-sm transition-[border-color,box-shadow,transform] duration-200 ease-out motion-reduce:transition-none",
 								"motion-safe:group-hover:scale-[1.02] motion-reduce:group-hover:scale-100",
 								"group-hover:border-primary/30 group-hover:shadow-md group-hover:shadow-primary/10",
 								cornerSoft ? "rounded-md" : "rounded-none",
@@ -266,7 +266,7 @@ export function ExploreThemeThumbnailGrid({
 								</span>
 							) : null}
 						</div>
-						<span className="font-display text-[0.6rem] text-center font-bold uppercase tracking-[0.14em] text-foreground transition-colors duration-200 group-hover:text-primary">
+						<span className="font-display text-[0.6rem] text-center font-bold uppercase leading-tight tracking-[0.14em] text-foreground transition-colors duration-200 group-hover:text-primary">
 							{label}
 						</span>
 					</button>

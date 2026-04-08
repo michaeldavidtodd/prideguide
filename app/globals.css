@@ -1146,7 +1146,8 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
 
 .explore-flag-thumbnails {
   @apply
-  mx-auto flex w-full max-w-full justify-center gap-0 overflow-x-auto overscroll-x-contain h-20 [scrollbar-width:thin]
+    mx-auto flex w-full max-w-full justify-center gap-0 overflow-x-auto overscroll-x-contain h-20 [scrollbar-width:thin]
+    mb-24
   ;
   /* Wider hit targets overlap via negative margin → no cursor dead zones between flags */
   --explore-thumb-hit-pad: 0.5rem;

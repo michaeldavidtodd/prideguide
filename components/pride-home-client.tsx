@@ -23,7 +23,7 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -51,7 +51,6 @@ import {
 	Monitor,
 	Moon,
 	SlidersHorizontal,
-	Sparkles,
 	Sun,
 	Waves,
 	CircleArrowRight,
@@ -61,6 +60,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { SwipeLeft09Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
+import { ExpandableTabBar } from "@/components/expandable-tab-bar"
 import {
 	PRIDE_EXPLORE_PATH,
 } from "@/lib/pride-routes"
@@ -68,7 +68,6 @@ import {
 	collectWelcomeStripeCandidates,
 	pickWelcomeTextColorsAgainstBackground,
 } from "@/lib/welcome-text-contrast"
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 /** @deprecated Use PRIDE_EXPLORE_PATH from @/lib/pride-routes */
 export const HOME_V2_EXPLORE_PATH = PRIDE_EXPLORE_PATH
@@ -81,8 +80,6 @@ const EXPLORE_THEME_MENU = [
 	{ value: "chillwave", label: "Chillwave", Icon: Waves },
 	{ value: "system", label: "System", Icon: Monitor },
 ] as const
-
-type ExploreDockPopoverHoverId = "keyboard" | "studio" | "more" | "theme"
 
 function exploreThemeTriggerIcon(
 	theme: string | undefined,
@@ -948,6 +945,7 @@ export function HomeV2WelcomeContent() {
 					</motion.div>
 				</motion.section>
 			</div>
+
 		</div>
 	)
 }
@@ -976,110 +974,10 @@ export function HomeV2ExploreContent() {
 	const activeThumbRef = useRef<HTMLButtonElement>(null)
 	const { theme, setTheme, themes: availableThemeIds } = useTheme()
 	const [exploreThemeMounted, setExploreThemeMounted] = useState(false)
-	const [dockPopoverHover, setDockPopoverHover] = useState<ExploreDockPopoverHoverId | null>(null)
-	const [dockPopoverHoverCapable, setDockPopoverHoverCapable] = useState(false)
-	const dockPopoverHoverCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-	const exploreDockControlsRef = useRef<HTMLDivElement>(null)
-	const exploreDockPopoverContentRef = useRef<HTMLDivElement>(null)
-	const [exploreDockWidthPx, setExploreDockWidthPx] = useState<number | null>(null)
-
-	useLayoutEffect(() => {
-		const el = exploreDockControlsRef.current
-		if (!el) return
-		const measure = () => {
-			setExploreDockWidthPx(Math.max(1, Math.round(el.getBoundingClientRect().width)))
-		}
-		measure()
-		const ro = new ResizeObserver(measure)
-		ro.observe(el)
-		return () => ro.disconnect()
-	}, [])
 
 	useEffect(() => {
 		setExploreThemeMounted(true)
 	}, [])
-
-	useEffect(() => {
-		const mq = window.matchMedia("(hover: hover) and (pointer: fine)")
-		const apply = () => setDockPopoverHoverCapable(mq.matches)
-		apply()
-		mq.addEventListener("change", apply)
-		return () => mq.removeEventListener("change", apply)
-	}, [])
-
-	const clearDockPopoverHoverTimer = useCallback(() => {
-		if (dockPopoverHoverCloseTimerRef.current !== null) {
-			clearTimeout(dockPopoverHoverCloseTimerRef.current)
-			dockPopoverHoverCloseTimerRef.current = null
-		}
-	}, [])
-
-	const scheduleDockPopoverHoverClose = useCallback(() => {
-		if (!dockPopoverHoverCapable) return
-		clearDockPopoverHoverTimer()
-		dockPopoverHoverCloseTimerRef.current = setTimeout(() => {
-			dockPopoverHoverCloseTimerRef.current = null
-			setDockPopoverHover(null)
-		}, 220)
-	}, [clearDockPopoverHoverTimer, dockPopoverHoverCapable])
-
-	useEffect(() => () => clearDockPopoverHoverTimer(), [clearDockPopoverHoverTimer])
-
-	/** Hover close only when leaving the dock + popover region (not between buttons or into the panel). */
-	const dockPopoverBarMouseHandlers = useMemo(
-		() => ({
-			onMouseEnter: clearDockPopoverHoverTimer,
-			onMouseLeave: (e: ReactMouseEvent) => {
-				if (!dockPopoverHoverCapable) return
-				const rel = e.relatedTarget
-				if (rel instanceof Node) {
-					if (exploreDockControlsRef.current?.contains(rel)) return
-					if (exploreDockPopoverContentRef.current?.contains(rel)) return
-				}
-				scheduleDockPopoverHoverClose()
-			},
-		}),
-		[clearDockPopoverHoverTimer, dockPopoverHoverCapable, scheduleDockPopoverHoverClose]
-	)
-
-	const dockPopoverButtonMouseEnter = useCallback(
-		(id: ExploreDockPopoverHoverId) => () => {
-			clearDockPopoverHoverTimer()
-			if (dockPopoverHoverCapable) setDockPopoverHover(id)
-		},
-		[clearDockPopoverHoverTimer, dockPopoverHoverCapable]
-	)
-
-	const dockPopoverContentPointerHandlers = useMemo(
-		() => ({
-			onPointerEnter: clearDockPopoverHoverTimer,
-			onPointerLeave: (e: React.PointerEvent) => {
-				if (!dockPopoverHoverCapable) return
-				const rel = e.relatedTarget
-				if (rel instanceof Node) {
-					if (exploreDockControlsRef.current?.contains(rel)) return
-					if (exploreDockPopoverContentRef.current?.contains(rel)) return
-				}
-				scheduleDockPopoverHoverClose()
-			},
-		}),
-		[clearDockPopoverHoverTimer, dockPopoverHoverCapable, scheduleDockPopoverHoverClose]
-	)
-
-	const exploreDockPopoverInteractOutside = useCallback((event: Event) => {
-		const t = event.target
-		if (t instanceof Node && exploreDockControlsRef.current?.contains(t)) {
-			event.preventDefault()
-		}
-	}, [])
-
-	const toggleDockPopoverPanel = useCallback(
-		(id: ExploreDockPopoverHoverId) => {
-			clearDockPopoverHoverTimer()
-			setDockPopoverHover((p) => (p === id ? null : id))
-		},
-		[clearDockPopoverHoverTimer]
-	)
 
 	const effectiveReduceMotion =
 		motionPreference === "reduce"
@@ -1338,75 +1236,6 @@ export function HomeV2ExploreContent() {
 		return { borderRadius: `${cornerRadius}px` }
 	}, [cornerRadius])
 
-	const exploreNavOutlineBtn = cn(
-		buttonVariants({ variant: "outline", size: "sm" }),
-		"gap-1.5 font-display text-xs font-bold uppercase tracking-wide bg-transparent border-none transition-background-color",
-		cornerRadius <= 0 && "rounded-none"
-	)
-	const exploreDrawerContentClass =
-		"home-v2-explore-drawer-content flex max-h-[min(92dvh,56rem)] flex-col gap-0 rounded-none border-0 p-0 outline-none"
-	const exploreDrawerHeaderClass =
-		"home-v2-explore-drawer-header space-y-1 px-5 pb-4 pt-0 text-left sm:px-6"
-	const exploreDrawerTitleClass =
-		"font-display text-lg font-extrabold leading-tight tracking-tight text-foreground sm:text-xl"
-	const exploreDrawerDescriptionClass = "text-sm leading-snug text-muted-foreground"
-	const exploreDrawerBodyClass = "min-h-0 flex-1 overflow-y-auto px-5 pb-8 pt-4 sm:px-6"
-
-	const exploreDockPopoverChrome = cn(
-		"border-2 border-border/80 bg-popover p-0 text-popover-foreground shadow-[0_12px_40px_-16px_hsl(var(--foreground)/0.22)] backdrop-blur-md",
-	)
-	const exploreDockPopoverKeyboardInner =
-		"max-h-[min(70dvh,480px)] w-full min-w-0 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-5"
-	const exploreDockPopoverMenuInner =
-		"w-full min-w-0 overscroll-contain p-2"
-	const exploreDockPopoverStudioInner =
-		"max-h-[min(70dvh,520px)] w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain p-4 sm:p-5"
-	const exploreDockPopoverContentClass = cn(
-		exploreDockPopoverChrome,
-		"z-50 min-w-0 max-w-[min(100vw-2rem,56rem)] p-0 box-border origin-bottom",
-		"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-		"data-[state=closed]:zoom-out-[0.99] data-[state=open]:zoom-in-[0.99]",
-		"data-[state=open]:duration-200 data-[state=closed]:duration-150",
-		"data-[side=top]:slide-in-from-bottom-1 data-[side=bottom]:slide-in-from-top-1"
-	)
-	const exploreDockPopoverSurfaceStyle = useMemo((): CSSProperties => {
-		const base: CSSProperties = {
-			boxSizing: "border-box",
-			transitionProperty: "width",
-			transitionDuration: "320ms",
-			transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-		}
-		if (studioShellStyle) Object.assign(base, studioShellStyle)
-		if (exploreDockWidthPx != null) base.width = exploreDockWidthPx
-		return base
-	}, [studioShellStyle, exploreDockWidthPx])
-	const dockPopoverPanelMotionProps = useMemo(() => {
-		if (effectiveReduceMotion) {
-			return {
-				initial: false,
-				animate: { opacity: 1 },
-				exit: { opacity: 0 },
-				transition: { duration: 0 },
-			}
-		}
-		return {
-			initial: { opacity: 0, y: 12, scale: 0.98 },
-			animate: { opacity: 1, y: 0, scale: 1 },
-			exit: { opacity: 0, y: -8, scale: 0.99 },
-			transition: { type: "spring" as const, stiffness: 500, damping: 36, mass: 0.75 },
-		}
-	}, [effectiveReduceMotion])
-	const exploreDockControlsClass = cn(
-		"flex flex-wrap items-center justify-center gap-1.5 sm:gap-2",
-		"border border-border/50 bg-muted/25 py-3 px-4 bg-card shadow-xl",
-		"max-md:w-calc(100vw-2rem) max-md:fixed max-md:bottom-3 max-md:left-3 max-md:right-3 max-md:z-50"
-	)
-	const exploreDockSectionTitleClass =
-		"font-display text-lg font-extrabold leading-tight tracking-tight text-foreground sm:text-xl"
-	const exploreDockSectionEyebrowClass =
-		"font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary"
-	const exploreDockSectionDescClass = "text-sm leading-snug text-muted-foreground"
-
 	const flagStageSlideVariants = useMemo(
 		() => ({
 			initial: (dir: 1 | -1) =>
@@ -1658,414 +1487,209 @@ export function HomeV2ExploreContent() {
 				</motion.main>
 
 				<div
-					data-slot="explore-dock"
-					className="explore-dock"
+					data-slot="explore-expandable-dock"
+					className="fixed bottom-3 left-3 right-3 z-50 flex justify-center md:bottom-6 md:left-6 md:right-6 lg:bottom-8"
 				>
-					<div className="mx-auto flex w-full flex-wrap items-center justify-center gap-2 sm:gap-3">
-						<Popover
-							modal={false}
-							open={dockPopoverHover !== null}
-							onOpenChange={(open) => {
-								clearDockPopoverHoverTimer()
-								if (!open) setDockPopoverHover(null)
-							}}
-						>
-							<PopoverAnchor asChild>
-								<div
-									ref={exploreDockControlsRef}
-									data-slot="explore-dock-controls"
-									className={cn(exploreDockControlsClass, "relative")}
-									style={studioShellStyle}
-									{...dockPopoverBarMouseHandlers}
-								>
-									<PopoverTrigger asChild>
-										<button
-											type="button"
-											tabIndex={-1}
-											aria-hidden
-											className="pointer-events-none absolute left-1/2 top-1/2 h-px w-px -translate-x-1/2 -translate-y-1/2 overflow-hidden border-0 p-0 opacity-0"
+					<ExpandableTabBar
+						style={studioShellStyle}
+						tabs={[
+							{
+								id: "keyboard",
+								label: "Shortcuts",
+								icon: <Keyboard className="size-3.5" aria-hidden />,
+								content: (
+									<div className="min-w-[min(100vw-4rem,28rem)] space-y-3">
+										<header className="space-y-1">
+											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Navigation</p>
+											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Keyboard shortcuts</h2>
+											<p className="text-sm leading-snug text-muted-foreground">Navigate flags and more with your keyboard.</p>
+										</header>
+										<ExploreKeyboardLegend
+											onPrevious={prev}
+											onNext={next}
+											onRandom={shuffle}
+											className="py-12"
 										/>
-									</PopoverTrigger>
-									<button
-										type="button"
-										className={cn(exploreNavOutlineBtn, "max-xl:hidden")}
-										style={studioShellStyle}
-										aria-expanded={dockPopoverHover === "keyboard"}
-											onMouseEnter={dockPopoverButtonMouseEnter("keyboard")}
-											onClick={() => toggleDockPopoverPanel("keyboard")}
-									>
-										<Keyboard className="size-3.5" aria-hidden />
-										<span className="hidden sm:inline">Shortcuts</span>
-									</button>
-									<button
-										type="button"
-										className={exploreNavOutlineBtn}
-										style={studioShellStyle}
-										aria-expanded={dockPopoverHover === "studio"}
-											onMouseEnter={dockPopoverButtonMouseEnter("studio")}
-											onClick={() => toggleDockPopoverPanel("studio")}
-									>
-										<SlidersHorizontal className="size-3.5" aria-hidden />
-										<span className="hidden sm:inline">Settings</span>
-									</button>
-									<button
-										type="button"
-										className={exploreNavOutlineBtn}
-										style={studioShellStyle}
-										aria-expanded={dockPopoverHover === "more"}
-											onMouseEnter={dockPopoverButtonMouseEnter("more")}
-											onClick={() => toggleDockPopoverPanel("more")}
-									>
-										<span className="hidden sm:inline">More</span>
-										<span className="sm:hidden">···</span>
-									</button>
-									<button
-										type="button"
-										className={cn(exploreNavOutlineBtn, "h-9 gap-1.5")}
-										style={studioShellStyle}
-										aria-expanded={dockPopoverHover === "theme"}
-											onMouseEnter={dockPopoverButtonMouseEnter("theme")}
-											onClick={() => toggleDockPopoverPanel("theme")}
-									>
-										<ExploreThemeIcon className="size-3.5 shrink-0" aria-hidden />
-										<span className="hidden sm:inline">Theme</span>
-									</button>
-								</div>
-							</PopoverAnchor>
-							<PopoverContent
-								ref={exploreDockPopoverContentRef}
-								id="explore-dock-popover"
-								side="top"
-								align="center"
-								sideOffset={10}
-								collisionPadding={16}
-								className={cn(exploreDockPopoverContentClass, "overflow-hidden")}
-								style={exploreDockPopoverSurfaceStyle}
-								{...dockPopoverContentPointerHandlers}
-								onInteractOutside={exploreDockPopoverInteractOutside}
-								onFocusOutside={exploreDockPopoverInteractOutside}
-							>
-								<AnimatePresence mode="wait" initial={false}>
-									{dockPopoverHover === "keyboard" ? (
-										<motion.div
-											key="keyboard"
-											className="min-w-0"
-											{...dockPopoverPanelMotionProps}
+									</div>
+								),
+							},
+							{
+								id: "studio",
+								label: "Settings",
+								icon: <SlidersHorizontal className="size-3.5" aria-hidden />,
+								content: (
+									<div className="max-h-[min(70dvh,700px)] min-w-[min(100vw-4rem,28rem)] space-y-4 pb-4 overflow-y-auto overscroll-contain">
+										<header className="space-y-1 border-b border-border/60 pb-3">
+											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Studio</p>
+											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Motion & layout</h2>
+											<p className="text-sm leading-snug text-muted-foreground">Fine-tune motion, slice layout, and frames.</p>
+										</header>
+										<div
+											className={cn(
+												"flex flex-col justify-between gap-3 p-4 bg-foreground/5",
+												cornerRadius > 0 && "rounded-lg"
+											)}
+											style={studioShellStyle}
 										>
-											<div
-												className={exploreDockPopoverKeyboardInner}
-												role="region"
-												aria-label="Keyboard shortcuts"
+											<div className="min-w-0 space-y-0.5">
+												<Label
+													htmlFor="studio-persist-etb"
+													className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
+												>
+													Save studio settings
+												</Label>
+												<p className="text-xs leading-snug text-muted-foreground text-balance">
+													{studioPersist
+														? "Layout and motion sliders stay as you left them."
+														: "Random slice layout on each visit."}
+												</p>
+											</div>
+											<Switch
+												id="studio-persist-etb"
+												checked={studioPersist}
+												onCheckedChange={onStudioPersistChange}
+											/>
+										</div>
+										<div
+											className={cn(
+												"space-y-2 p-4 bg-foreground/5",
+												cornerRadius > 0 && "rounded-lg"
+											)}
+											style={studioShellStyle}
+										>
+											<div className="flex items-center justify-between gap-3">
+												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+													Slice resolution
+												</Label>
+												<span className="text-xs tabular-nums text-muted-foreground">
+													{columnCount} columns
+												</span>
+											</div>
+											<Slider
+												value={[columnCount]}
+												onValueChange={(v) => setColumnCount(v[0] ?? 18)}
+												min={10}
+												max={32}
+												step={1}
+												aria-label="Adjust column count"
+											/>
+										</div>
+										<div
+											className={cn(
+												"space-y-2 p-4 bg-foreground/5",
+												cornerRadius > 0 && "rounded-lg"
+											)}
+											style={studioShellStyle}
+										>
+											<div className="flex items-center justify-between gap-3">
+												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+													Gap between stripes
+												</Label>
+												<span className="text-xs tabular-nums text-muted-foreground">
+													{stripeGap}px
+												</span>
+											</div>
+											<Slider
+												value={[stripeGap]}
+												onValueChange={(v) => setStripeGap(v[0] ?? 0)}
+												min={0}
+												max={16}
+												step={1}
+												aria-label="Gap between stripes"
+											/>
+										</div>
+										<div
+											className={cn(
+												"space-y-2 p-4 bg-foreground/5",
+												cornerRadius > 0 && "rounded-lg"
+											)}
+											style={studioShellStyle}
+										>
+											<div className="flex items-center justify-between gap-3">
+												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+													Rounded edges
+												</Label>
+												<span className="text-xs tabular-nums text-muted-foreground">
+													{cornerRadius}px
+												</span>
+											</div>
+											<Slider
+												value={[cornerRadius]}
+												onValueChange={(v) => setCornerRadius(v[0] ?? 0)}
+												min={0}
+												max={28}
+												step={1}
+												aria-label="Border radius"
+											/>
+										</div>
+										<div
+											className={cn(
+												"space-y-2 p-4 bg-foreground/5",
+												cornerRadius > 0 && "rounded-lg"
+											)}
+											style={studioShellStyle}
+										>
+											<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+												Export
+											</Label>
+											<Button
+												type="button"
+												variant="outline"
+												className={cn(
+													"w-full gap-2 font-display text-xs font-bold uppercase tracking-wide",
+													cornerRadius <= 0 && "rounded-none"
+												)}
+												style={studioShellStyle}
+												disabled={gifExporting}
+												onClick={() => void handleDownloadAnimatedGif()}
 											>
-												<header className="space-y-1 border-b border-border/60 pb-4">
-													<p className={exploreDockSectionEyebrowClass}>Navigation</p>
-													<h2 className={exploreDockSectionTitleClass}>Keyboard shortcuts</h2>
-													<p className={exploreDockSectionDescClass}>Navigate flags and more with your keyboard.</p>
-												</header>
-												<ExploreKeyboardLegend
-													onPrevious={prev}
-													onNext={next}
-													onRandom={shuffle}
-													className="p-8"
-												/>
-											</div>
-										</motion.div>
-									) : null}
-									{dockPopoverHover === "studio" ? (
-										<motion.div
-											key="studio"
-											className="min-w-0"
-											{...dockPopoverPanelMotionProps}
-										>
-											<div
-												className={exploreDockPopoverStudioInner}
-												role="region"
-												aria-label="Motion and layout"
-											>
-												<div className="space-y-5">
-													<header className="space-y-1 border-b border-border/60 pb-4">
-														<p className={exploreDockSectionEyebrowClass}>Studio</p>
-														<h2 className={exploreDockSectionTitleClass}>Motion & layout</h2>
-														<p className={exploreDockSectionDescClass}>
-															Fine-tune motion, slice layout, and frames.
-														</p>
-													</header>
-
-													{/* Save studio settings */}
-													<div
-														data-slot="save-studio-settings"
-														className={cn(
-															"flex flex-col justify-between gap-3 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<div className="min-w-0 space-y-0.5">
-															<Label
-																htmlFor="studio-persist-drawer"
-																className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-															>
-																Save studio settings
-															</Label>
-															<p className="text-xs leading-snug text-muted-foreground text-balance">
-																{studioPersist
-																	? "Layout and motion sliders stay as you left them."
-																	: "Random slice layout, wave, gap, and corners on each visit."}
-															</p>
-														</div>
-														<Switch
-															id="studio-persist-drawer"
-															checked={studioPersist}
-															onCheckedChange={onStudioPersistChange}
-														/>
-													</div>
-
-													{/* Motion */}
-													<div
-														data-slot="motion"
-														className={cn(
-															"space-y-3 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<div>
-															<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-																Motion
-															</Label>
-															<p className="mt-1 text-xs leading-snug text-muted-foreground text-balance">
-																Default follows your device. Override like the site theme.
-															</p>
-														</div>
-														<RadioGroup
-															value={motionPreference}
-															onValueChange={(v) =>
-																onMotionPreferenceChange(v as ExploreMotionPreference)
-															}
-															className="grid gap-2.5 pt-1 sm:grid-cols-3"
-															aria-label="Reduce motion preference"
-														>
-															<div className="flex items-center gap-2">
-																<RadioGroupItem value="system" id="explore-motion-system" />
-																<Label
-																	htmlFor="explore-motion-system"
-																	className="cursor-pointer text-sm font-normal leading-none"
-																>
-																	System
-																</Label>
-															</div>
-															<div className="flex items-center gap-2">
-																<RadioGroupItem value="reduce" id="explore-motion-reduce" />
-																<Label
-																	htmlFor="explore-motion-reduce"
-																	className="cursor-pointer text-sm font-normal leading-none"
-																>
-																	Reduce
-																</Label>
-															</div>
-															<div className="flex items-center gap-2">
-																<RadioGroupItem value="full" id="explore-motion-full" />
-																<Label
-																	htmlFor="explore-motion-full"
-																	className="cursor-pointer text-sm font-normal leading-none"
-																>
-																	Full
-																</Label>
-															</div>
-														</RadioGroup>
-													</div>
-													{/* <div
-														data-slot="layout"
-														className={cn(
-															"flex flex-col justify-between gap-3 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<div className="flex gap-2">
-															<Sparkles className="size-4 text-primary" aria-hidden />
-															<div className="flex flex-col gap-0.5">
-																<Label
-																	htmlFor="wave-boost-drawer"
-																	className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-																>
-																	Amp the wave
-																</Label>
-																<p className="mt-1 mb-2 text-xs leading-snug text-muted-foreground text-balance">
-																	Higher values make the wave more pronounced.
-																</p>
-																<Switch
-																	id="wave-boost-drawer"
-																	checked={waveBoost}
-																	onCheckedChange={setWaveBoost}
-																/>
-															</div>
-														</div>
-													</div> */}
-
-													{/* Slice resolution */}
-													<div
-														data-slot="slice-resolution"
-														className={cn(
-															"space-y-2 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<div className="flex items-center justify-between gap-3">
-															<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-																Slice resolution
-															</Label>
-															<span className="text-xs tabular-nums text-muted-foreground">
-																{columnCount} columns
-															</span>
-														</div>
-														<Slider
-															value={[columnCount]}
-															onValueChange={(v) => setColumnCount(v[0] ?? 18)}
-															min={10}
-															max={32}
-															step={1}
-															aria-label="Adjust pixel column count for the flag animation"
-														/>
-													</div>
-
-													{/* Gap between stripes */}
-													<div
-														data-slot="gap-between-stripes"
-														className={cn(
-															"space-y-2 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<div className="flex items-center justify-between gap-3">
-															<Label
-																htmlFor="stripe-gap-drawer"
-																className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-															>
-																Gap between stripes
-															</Label>
-															<span className="text-xs tabular-nums text-muted-foreground">
-																{stripeGap}px
-															</span>
-														</div>
-														<Slider
-															id="stripe-gap-drawer"
-															value={[stripeGap]}
-															onValueChange={(v) => setStripeGap(v[0] ?? 0)}
-															min={0}
-															max={16}
-															step={1}
-															aria-label="Gap between flag stripe columns in pixels"
-														/>
-														<p className="text-xs leading-relaxed text-muted-foreground">
-															Higher values can separate slices; SVG overlays may show seams at
-															zero gap for continuity.
-														</p>
-													</div>
-
-													{/* Rounded edges */}
-													<div
-														data-slot="rounded-edges"
-														className={cn(
-															"space-y-2 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<div className="flex items-center justify-between gap-3">
-															<Label
-																htmlFor="frame-radius-drawer"
-																className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-															>
-																Rounded edges
-															</Label>
-															<span className="text-xs tabular-nums text-muted-foreground">
-																{cornerRadius}px
-															</span>
-														</div>
-														<Slider
-															id="frame-radius-drawer"
-															value={[cornerRadius]}
-															onValueChange={(v) => setCornerRadius(v[0] ?? 0)}
-															min={0}
-															max={28}
-															step={1}
-															aria-label="Border radius for flag frames, studio panel, and stripe ends"
-														/>
-													</div>
-
-													{/* Download GIF */}
-													<div
-														data-slot="download-gif"
-														className={cn(
-															"space-y-2 p-4 bg-foreground/5",
-															cornerRadius > 0 && "rounded-lg"
-														)}
-														style={studioShellStyle}
-													>
-														<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-															Export
-														</Label>
-														<p className="text-xs leading-snug text-muted-foreground text-balance">
-															Save the waving flag as an animated GIF using your current studio
-															layout and motion.
-														</p>
-														<Button
-															type="button"
-															variant="outline"
-															className={cn(
-																"w-full gap-2 font-display text-xs font-bold uppercase tracking-wide",
-																cornerRadius <= 0 && "rounded-none"
-															)}
-															style={studioShellStyle}
-															disabled={gifExporting}
-															onClick={() => void handleDownloadAnimatedGif()}
-														>
-															<Download className="size-4 shrink-0 opacity-80" aria-hidden />
-															{gifExporting ? "Encoding…" : "Download animated GIF"}
-														</Button>
-													</div>
-												</div>
-											</div>
-										</motion.div>
-									) : null}
-									{dockPopoverHover === "more" ? (
-										<motion.div
-											key="more"
-											className="min-w-0"
-											{...dockPopoverPanelMotionProps}
-										>
-											<div className={exploreDockPopoverMenuInner} role="region" aria-label="More">
-												<ExploreMoreLinkGrid
-													shellStyle={studioShellStyle}
-													cornerRadius={cornerRadius}
-												/>
-											</div>
-										</motion.div>
-									) : null}
-									{dockPopoverHover === "theme" ? (
-										<motion.div
-											key="theme"
-											className="min-w-0"
-											{...dockPopoverPanelMotionProps}
-										>
-											<div className={exploreDockPopoverMenuInner} role="region" aria-label="Theme">
-												<ExploreThemeThumbnailGrid
-													theme={theme}
-													setTheme={setTheme}
-													shellStyle={studioShellStyle}
-													cornerRadius={cornerRadius}
-												/>
-											</div>
-										</motion.div>
-									) : null}
-								</AnimatePresence>
-							</PopoverContent>
-						</Popover>
-					</div>
+												<Download className="size-4 shrink-0 opacity-80" aria-hidden />
+												{gifExporting ? "Encoding…" : "Download GIF"}
+											</Button>
+										</div>
+									</div>
+								),
+							},
+							{
+								id: "more",
+								label: "More",
+								icon: <Telescope className="size-3.5" aria-hidden />,
+								content: (
+									<div className="min-w-[min(100vw-4rem,28rem)]">
+										<header className="space-y-1 px-3 pt-1 pb-2">
+											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Explore</p>
+											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">More</h2>
+										</header>
+										<ExploreMoreLinkGrid
+											shellStyle={studioShellStyle}
+											cornerRadius={cornerRadius}
+										/>
+									</div>
+								),
+							},
+							{
+								id: "theme",
+								label: "Theme",
+								icon: <ExploreThemeIcon className="size-3.5" aria-hidden />,
+								content: (
+									<div className="min-w-[min(100vw-4rem,28rem)]">
+										<header className="space-y-1 px-3 pt-1 pb-2">
+											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Appearance</p>
+											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Theme</h2>
+										</header>
+										<ExploreThemeThumbnailGrid
+											theme={theme}
+											setTheme={setTheme}
+											shellStyle={studioShellStyle}
+											cornerRadius={cornerRadius}
+										/>
+									</div>
+								),
+							},
+						]}
+					/>
 				</div>
+
 			</div>
 		</div>
 	)
