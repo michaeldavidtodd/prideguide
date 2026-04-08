@@ -11,7 +11,6 @@ import {
 	type MouseEvent as ReactMouseEvent,
 	type ReactNode,
 } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTheme } from "next-themes"
@@ -31,7 +30,6 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { ExploreMoreLinkGrid } from "@/components/explore-more-link-grid"
-import { ExploreThemeThumbnailGrid } from "@/components/explore-theme-thumbnails"
 import {
 	downloadAnimatedFlagGif,
 	gifFilenameForFlag,
@@ -48,11 +46,7 @@ import {
 	ArrowLeft,
 	ArrowRight,
 	Download,
-	Monitor,
-	Moon,
 	SlidersHorizontal,
-	Sun,
-	Waves,
 	CircleArrowRight,
 	Telescope,
 	Keyboard,
@@ -60,10 +54,12 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { SwipeLeft09Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
-import { ExpandableTabBar } from "@/components/expandable-tab-bar"
-import {
-	PRIDE_EXPLORE_PATH,
-} from "@/lib/pride-routes"
+import { ExpandableTabBar, ExpandableTabBarDock } from "@/components/expandable-tab-bar"
+import { ExploreSiteHeader } from "@/components/explore-site-header"
+import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
+import { PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
+import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
+import { notifyStudioShellSync, writeSyncedCornerRadius } from "@/lib/studio-shell-sync"
 import {
 	collectWelcomeStripeCandidates,
 	pickWelcomeTextColorsAgainstBackground,
@@ -73,31 +69,6 @@ import {
 export const HOME_V2_EXPLORE_PATH = PRIDE_EXPLORE_PATH
 
 const FLAG_COUNT = PRIDE_FLAGS.length
-
-const EXPLORE_THEME_MENU = [
-	{ value: "light", label: "Light", Icon: Sun },
-	{ value: "dark", label: "Dark", Icon: Moon },
-	{ value: "chillwave", label: "Chillwave", Icon: Waves },
-	{ value: "system", label: "System", Icon: Monitor },
-] as const
-
-function exploreThemeTriggerIcon(
-	theme: string | undefined,
-	mounted: boolean,
-	availableThemes: string[] | undefined
-) {
-	if (!mounted) return Sun
-	const row = EXPLORE_THEME_MENU.find((t) => t.value === theme)
-	if (row) return row.Icon
-	if (theme === "system") {
-		const resolved =
-			availableThemes?.includes("light") && window.matchMedia("(prefers-color-scheme: light)").matches
-				? "light"
-				: "dark"
-		return EXPLORE_THEME_MENU.find((t) => t.value === resolved)?.Icon ?? Sun
-	}
-	return Sun
-}
 
 const LS_EXPLORE_MOTION = "prideguide-explore-motion-pref"
 const LS_EXPLORE_STUDIO_PERSIST = "prideguide-explore-studio-persist"
@@ -1038,6 +1009,12 @@ export function HomeV2ExploreContent() {
 		}
 	}, [columnCount, cornerRadius, explorePrefsHydrated, stripeGap, studioPersist, waveBoost])
 
+	useEffect(() => {
+		if (!explorePrefsHydrated) return
+		writeSyncedCornerRadius(cornerRadius)
+		notifyStudioShellSync()
+	}, [cornerRadius, explorePrefsHydrated])
+
 	const flag = PRIDE_FLAGS[index]
 	const stripes = flag.display.stripes ?? []
 	const flagPalette = useMemo(() => collectFlagPalette(flag.display), [flag])
@@ -1224,7 +1201,7 @@ export function HomeV2ExploreContent() {
 	const forceFlagWaveMotion =
 		!effectiveReduceMotion && systemPrefersReducedMotion === true
 
-	const ExploreThemeIcon = exploreThemeTriggerIcon(theme, exploreThemeMounted, availableThemeIds)
+	const ExploreThemeIcon = resolveThemeDockTriggerIcon(theme, exploreThemeMounted, availableThemeIds)
 
 	return (
 		<div
@@ -1249,30 +1226,7 @@ export function HomeV2ExploreContent() {
 						variants={variants.item}
 						className="mx-auto flex md:h-full w-full flex-col"
 					>
-						{/* Explore Header */}
-						<header
-							data-slot="explore-header"
-							className="explore-header"
-						>
-							<Link
-								data-slot="explore-header-brand"
-								href="/"
-								className="explore-header-brand group flex shrink-0 items-center gap-2.5 outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-								aria-label="Pride Guide home"
-							>
-								<Image
-									src="/favicon.png"
-									alt=""
-									width={36}
-									height={36}
-									className="size-9 shrink-0 rounded-sm object-cover"
-									priority
-								/>
-								<span className="font-display text-base font-extrabold leading-none tracking-tight text-foreground sm:text-lg">
-									Pride Guide
-								</span>
-							</Link>
-						</header>
+						<ExploreSiteHeader />
 
 						{/* Explore Body */}
 						<div data-slot="explore-body" className="explore-body">
@@ -1450,12 +1404,10 @@ export function HomeV2ExploreContent() {
 					</motion.div>
 				</motion.main>
 
-				<div
-					data-slot="explore-expandable-dock"
-					className="fixed bottom-3 left-3 right-3 z-50 flex justify-center md:bottom-6 md:left-6 md:right-6 lg:bottom-8"
-				>
+				<ExpandableTabBarDock data-slot="explore-expandable-dock">
 					<ExpandableTabBar
 						style={studioShellStyle}
+						chipsSoftCorners={cornerRadius > 0}
 						tabs={[
 							{
 								id: "keyboard",
@@ -1701,23 +1653,17 @@ export function HomeV2ExploreContent() {
 								label: "Theme",
 								icon: <ExploreThemeIcon className="size-3.5" aria-hidden />,
 								content: (
-									<div className="min-w-[min(100vw-4rem,28rem)]">
-										<header className="space-y-1 pt-1 pb-2">
-											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Appearance</p>
-											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Theme</h2>
-										</header>
-										<ExploreThemeThumbnailGrid
-											theme={theme}
-											setTheme={setTheme}
-											shellStyle={studioShellStyle}
-											cornerRadius={cornerRadius}
-										/>
-									</div>
+									<ExploreThemeMenuPanel
+										theme={theme}
+										setTheme={setTheme}
+										shellStyle={studioShellStyle}
+										cornerRadius={cornerRadius}
+									/>
 								),
 							},
 						]}
 					/>
-				</div>
+				</ExpandableTabBarDock>
 
 			</div>
 		</div>

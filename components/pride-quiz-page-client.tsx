@@ -6,6 +6,7 @@ import { useReducedMotion } from "framer-motion"
 import { Check, Trophy, X } from "lucide-react"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { PrideLearnChrome } from "@/components/pride-learn-chrome"
+import { useStudioShell } from "@/components/studio-shell-context"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +15,8 @@ import { PRIDE_FLAGS } from "@/lib/flags"
 import { QUIZ_QUESTIONS } from "@/lib/quiz-questions"
 import { cn } from "@/lib/utils"
 
-export function PrideQuizPageClient() {
+function QuizPageInner() {
+  const { cornerRadius, studioShellStyle } = useStudioShell()
   const shouldReduceMotion = useReducedMotion()
   const [quizScore, setQuizScore] = useState(0)
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0)
@@ -109,10 +111,19 @@ export function PrideQuizPageClient() {
     triggerCelebration()
   }
 
+  const cardShell = cn(cornerRadius <= 0 && "rounded-none")
+  const softRadius = cornerRadius <= 0 && "rounded-none"
+
   const quizBody = (() => {
     if (showQuizResult) {
       return (
-        <Card className="mx-auto w-full max-w-xl rounded-none border-foreground/15 bg-background/40 text-center shadow-none lg:max-w-3xl">
+        <Card
+          className={cn(
+            "mx-auto w-full max-w-xl border-foreground/15 bg-background/40 text-center shadow-none lg:max-w-3xl",
+            cardShell,
+          )}
+          style={studioShellStyle}
+        >
           <CardHeader className="space-y-1">
             <CardTitle className="flex items-center justify-center gap-2 font-display text-2xl font-bold leading-tight tracking-tight sm:text-[1.75rem]">
               <Trophy className="size-6 shrink-0 text-yellow-500" aria-hidden />
@@ -133,11 +144,20 @@ export function PrideQuizPageClient() {
                     : "Good start! Try exploring more flags! 📚"}
             </p>
             {quizScore === QUIZ_QUESTIONS.length && (
-              <Button onClick={retriggerCelebration} variant="secondary" className="w-full rounded-none font-display font-bold uppercase tracking-wide">
+              <Button
+                onClick={retriggerCelebration}
+                variant="secondary"
+                className={cn("w-full font-display font-bold uppercase tracking-wide", softRadius)}
+                style={studioShellStyle}
+              >
                 Celebrate again
               </Button>
             )}
-            <Button onClick={resetQuiz} className="w-full rounded-none font-display font-bold uppercase tracking-wide">
+            <Button
+              onClick={resetQuiz}
+              className={cn("w-full font-display font-bold uppercase tracking-wide", softRadius)}
+              style={studioShellStyle}
+            >
               Take the quiz again
             </Button>
           </CardContent>
@@ -150,16 +170,28 @@ export function PrideQuizPageClient() {
     const quizProgressPercent = Math.round((currentQuizQuestion / QUIZ_QUESTIONS.length) * 100)
 
     return (
-      <Card className="mx-auto w-full max-w-xl overflow-hidden rounded-none border-foreground/15 bg-background/40 shadow-none lg:max-w-none lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-stretch lg:divide-x lg:divide-foreground/10">
+      <Card
+        className={cn(
+          "mx-auto w-full max-w-xl overflow-hidden border-foreground/15 bg-background/40 shadow-none lg:max-w-none lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-stretch lg:divide-x lg:divide-foreground/10",
+          cardShell,
+        )}
+        style={studioShellStyle}
+      >
         <CardHeader className="space-y-4 lg:pb-8 lg:pr-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Badge variant="outline" className="rounded-none font-display text-[0.65rem] font-bold uppercase tracking-[0.14em]">
+            <Badge
+              variant="outline"
+              className={cn("font-display text-[0.65rem] font-bold uppercase tracking-[0.14em]", softRadius)}
+            >
               Question {currentQuizQuestion + 1}/{QUIZ_QUESTIONS.length}
             </Badge>
             <div className="flex min-w-[8rem] flex-1 items-center justify-end gap-2 lg:min-w-0 lg:max-w-none">
               <Progress
                 value={quizProgressPercent}
-                className="quiz-progress-track h-2 w-24 shrink rounded-none sm:w-32 lg:min-w-0 lg:flex-1 lg:max-w-md"
+                className={cn(
+                  "quiz-progress-track h-2 w-24 shrink sm:w-32 lg:min-w-0 lg:flex-1 lg:max-w-md",
+                  softRadius,
+                )}
               />
               <span className="text-sm font-medium tabular-nums text-muted-foreground">{quizProgressPercent}%</span>
             </div>
@@ -171,7 +203,8 @@ export function PrideQuizPageClient() {
             <AnimatedFlag
               backgroundColors={relatedFlag.display.stripes || []}
               svgForeground={relatedFlag.display.svgForeground}
-              className="mt-3 w-full max-w-lg self-start rounded-none lg:mt-5 lg:max-w-xl"
+              className={cn("mt-3 w-full max-w-lg self-start lg:mt-5 lg:max-w-xl", softRadius)}
+              style={studioShellStyle}
             />
           ) : null}
         </CardHeader>
@@ -196,13 +229,15 @@ export function PrideQuizPageClient() {
                     variant="outline"
                     size="lg"
                     className={cn(
-                      "quiz-answer-btn h-auto min-h-12 w-full max-md:justify-start rounded-none px-4 py-3.5 font-display text-base font-semibold leading-snug whitespace-normal text-pretty lg:h-full",
+                      "quiz-answer-btn h-auto min-h-12 w-full max-md:justify-start px-4 py-3.5 font-display text-base font-semibold leading-snug whitespace-normal text-pretty lg:h-full",
+                      softRadius,
                       !quizAnswered && "quiz-answer-btn--interactive",
                       isCorrect && "quiz-answer-btn--correct",
                       isWrongSelection && "quiz-answer-btn--incorrect",
                       isDimmed && "quiz-answer-btn--dimmed",
                       quizAnswered && "pointer-events-none shadow-none",
                     )}
+                    style={studioShellStyle}
                     onClick={() => handleAnswer(index)}
                     aria-label={`${option}${statusSuffix}`}
                     aria-disabled={quizAnswered}
@@ -233,6 +268,10 @@ export function PrideQuizPageClient() {
     )
   })()
 
+  return quizBody
+}
+
+export function PrideQuizPageClient() {
   return (
     <PrideLearnChrome
       kicker="Prism · quiz"
@@ -240,7 +279,7 @@ export function PrideQuizPageClient() {
       description="Test what you know about LGBTQIA+ flags—ten questions, no pressure."
       wideLayout
     >
-      {quizBody}
+      <QuizPageInner />
     </PrideLearnChrome>
   )
 }

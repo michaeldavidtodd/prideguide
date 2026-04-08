@@ -2,16 +2,8 @@
 
 import Link from "next/link"
 import type { CSSProperties } from "react"
-import { Heart, House, Info, Trophy } from "lucide-react"
-import { PRIDE_ABOUT_APP_PATH, PRIDE_ALLY_PATH, PRIDE_QUIZ_PATH } from "@/lib/pride-routes"
+import { getPrismExploreMoreGridItems } from "@/lib/prism-nav"
 import { cn } from "@/lib/utils"
-
-const MORE_LINKS = [
-	{ href: "/", label: "Home", Icon: House },
-	{ href: PRIDE_QUIZ_PATH, label: "Quiz", Icon: Trophy },
-	{ href: PRIDE_ALLY_PATH, label: "Ally guide", Icon: Heart },
-	{ href: PRIDE_ABOUT_APP_PATH, label: "About app", Icon: Info },
-] as const
 
 /** Progress pride — hairline only, low contrast so it reads as craft detail, not sticker. */
 const PRIDE_HAIRLINE =
@@ -65,9 +57,11 @@ export function ExploreMoreLinkGrid({
 	const hairlineClass =
 		"pointer-events-none absolute inset-x-4 bottom-0 h-px opacity-[0.22] motion-reduce:opacity-[0.14]"
 
+	const items = getPrismExploreMoreGridItems()
+
 	return (
 		<nav className="grid w-full grid-cols-2 gap-6 py-3" aria-label="More links">
-			{MORE_LINKS.map(({ href, label, Icon }) => (
+			{items.map(({ href, label, Icon }) => (
 				<Link key={href} href={href} className={cellClass} style={shellStyle}>
 					<div className={thumbClass} style={thumbStyle}>
 						<div className={hairlineClass} style={{ background: PRIDE_HAIRLINE }} aria-hidden />

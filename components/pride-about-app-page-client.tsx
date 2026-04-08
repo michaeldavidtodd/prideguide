@@ -3,21 +3,23 @@
 import Link from "next/link"
 import { BookOpen } from "lucide-react"
 import { PrideLearnChrome } from "@/components/pride-learn-chrome"
+import { useStudioShell } from "@/components/studio-shell-context"
 import { PrismMarkLogo } from "@/components/prism-mark-logo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PRIDE_CLASSIC_PATH, PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
 import { PRIDE_FLAGS } from "@/lib/flags"
 import { QUIZ_QUESTIONS } from "@/lib/quiz-questions"
+import { cn } from "@/lib/utils"
 
-export function PrideAboutAppPageClient() {
+function AboutPageBody() {
+  const { cornerRadius, studioShellStyle } = useStudioShell()
+
   return (
-    <PrideLearnChrome
-      kicker="Prism · about"
-      title="About Pride Guide"
-      description="Education and celebration through accurate colors, history, and the stories flags carry."
-    >
-      <div className="space-y-8">
-        <Card className="rounded-none border-foreground/15 bg-background/40 shadow-none">
+    <div className="space-y-8">
+        <Card
+          className={cn("border-foreground/15 bg-background/40 shadow-none", cornerRadius <= 0 && "rounded-none")}
+          style={studioShellStyle}
+        >
           <CardHeader className="space-y-0 pb-2">
             <CardTitle className="flex items-center gap-2.5 font-display text-xl font-bold leading-tight tracking-tight sm:text-2xl">
               <BookOpen className="size-5 shrink-0 opacity-80" aria-hidden />
@@ -46,7 +48,13 @@ export function PrideAboutAppPageClient() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-none border-foreground/15 bg-background/40 shadow-none lg:flex lg:flex-row lg:justify-center lg:gap-8">
+        <Card
+          className={cn(
+            "border-foreground/15 bg-background/40 shadow-none lg:flex lg:flex-row lg:justify-center lg:gap-8",
+            cornerRadius <= 0 && "rounded-none",
+          )}
+          style={studioShellStyle}
+        >
           <CardHeader>
             <CardTitle className="flex flex-col items-center gap-3 font-display text-xl sm:flex-row sm:justify-center">
               <span className="sr-only">PRISM</span>
@@ -79,7 +87,18 @@ export function PrideAboutAppPageClient() {
             Classic layout
           </Link>
         </p>
-      </div>
+    </div>
+  )
+}
+
+export function PrideAboutAppPageClient() {
+  return (
+    <PrideLearnChrome
+      kicker="Prism · about"
+      title="About Pride Guide"
+      description="Education and celebration through accurate colors, history, and the stories flags carry."
+    >
+      <AboutPageBody />
     </PrideLearnChrome>
   )
 }

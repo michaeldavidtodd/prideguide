@@ -5,27 +5,45 @@ import {
   useEffect,
   useRef,
   useState,
+  type ComponentPropsWithoutRef,
   type CSSProperties,
+  type MouseEvent,
   type ReactNode,
 } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
-/** A single tab definition for the expandable tab bar. */
-interface TabItem {
-  /** Stable key used for state tracking and AnimatePresence keying. */
+/** Navigates in-app; no expandable panel. */
+export type ExpandableTabBarLinkItem = {
   id: string
-  /** Visible label (hidden on small screens, shown on sm+). */
   label: string
-  /** Icon element rendered beside the label. */
   icon: ReactNode
-  /** Panel content revealed when this tab is active. */
+  href: string
+}
+
+/** Opens an upward panel (hover on fine pointer, tap toggle on coarse). */
+export type ExpandableTabBarPanelItem = {
+  id: string
+  label: string
+  icon: ReactNode
   content: ReactNode
+}
+
+export type ExpandableTabBarItem = ExpandableTabBarLinkItem | ExpandableTabBarPanelItem
+
+function isPanelItem(tab: ExpandableTabBarItem): tab is ExpandableTabBarPanelItem {
+  return "content" in tab
 }
 
 interface ExpandableTabBarProps {
   /** Ordered list of tabs to render. */
-  tabs: TabItem[]
+  tabs: ExpandableTabBarItem[]
+  /** Accessible name when the bar mixes links and panel triggers (omit `role="tablist"`). */
+  navAriaLabel?: string
+  /** `role="region"` label when using link tabs (panel is not a `tabpanel`). Default: Options. */
+  panelAriaLabel?: string
   /** Extra classes applied to the outermost wrapper (positioning, z-index, etc.). */
   className?: string
   /**
@@ -33,6 +51,8 @@ interface ExpandableTabBarProps {
    * Typically used to propagate dynamic border-radius from a parent "shell style."
    */
   style?: CSSProperties
+  /** Slight chip radius so hover backgrounds align with Explore studio rounding. */
+  chipsSoftCorners?: boolean
 }
 
 /**
@@ -56,16 +76,26 @@ interface ExpandableTabBarProps {
  * - All animations are suppressed when the user prefers reduced motion.
  *
  * Accessibility:
- * - ARIA `tablist` / `tab` / `tabpanel` roles with `aria-selected`,
- *   `aria-controls`, and `aria-labelledby` relationships.
- * - `aria-label` on each tab button ensures screen reader names on mobile
- *   where visual labels are hidden.
+ * - Pure panel tabs: `tablist` / `tab` / `tabpanel` with `aria-selected`,
+ *   `aria-controls`, and `aria-labelledby`.
+ * - Mixed with `href` link tabs: `navigation` + `region` for the panel; link tabs
+ *   use `aria-current="page"` when active; panel trigger uses `aria-expanded`.
+ * - `aria-label` on each control for names on mobile where labels are icon-only.
  * - Body scroll is locked while a panel is open.
  */
-export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarProps) {
+export function ExpandableTabBar({
+  tabs,
+  className,
+  style,
+  navAriaLabel,
+  panelAriaLabel = "Options",
+  chipsSoftCorners = false,
+}: ExpandableTabBarProps) {
+  const pathname = usePathname()
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const [hasPointerFine, setHasPointerFine] = useState(false)
   const prefersReducedMotion = useReducedMotion()
+  const hasLinkTabs = tabs.some((t) => !isPanelItem(t))
   const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const measureRef = useRef<HTMLDivElement>(null)
@@ -138,7 +168,7 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
   )
 
   const handleContainerLeave = useCallback(
-    (e: React.MouseEvent) => {
+    (e: MouseEvent) => {
       if (!hasPointerFine) return
       const related = e.relatedTarget
       if (related instanceof Node && containerRef.current?.contains(related)) return
@@ -147,7 +177,26 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
     [hasPointerFine, scheduleClose],
   )
 
-  const activeContent = tabs.find((t) => t.id === activeTab)?.content
+  const activePanel = tabs.find(
+    (t): t is ExpandableTabBarPanelItem => t.id === activeTab && isPanelItem(t),
+  )
+  const activeContent = activePanel?.content
+
+  const chipClassName = cn(
+    "relative flex items-center gap-1.5 px-4 py-2",
+    "font-display text-xs font-bold uppercase tracking-wide",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+    "transition-[color,background-color,opacity] duration-200 ease-out",
+    chipsSoftCorners && "rounded-md",
+  )
+
+  const chipIdleClass = "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.07] dark:hover:bg-foreground/[0.11]"
+  const chipActiveClass = "text-background hover:opacity-95"
+
+  const handleLinkPointer = useCallback(() => {
+    clearHoverTimer()
+    setActiveTab(null)
+  }, [clearHoverTimer])
 
   const handleClose = useCallback(() => {
     clearHoverTimer()
@@ -242,9 +291,11 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
         <div
           ref={panelRef}
           id="expandable-tab-panel"
-          role="tabpanel"
+          role={hasLinkTabs ? "region" : "tabpanel"}
           tabIndex={activeTab !== null ? -1 : undefined}
-          aria-labelledby={activeTab ? `tab-${activeTab}` : undefined}
+          aria-label={hasLinkTabs ? panelAriaLabel : undefined}
+          aria-labelledby={!hasLinkTabs && activeTab ? `tab-${activeTab}` : undefined}
+          aria-hidden={activeTab === null}
           style={{
             height: contentHeight,
             transition: prefersReducedMotion ? "none" : "height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)",
@@ -269,28 +320,60 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
           </div>
         </div>
 
-        <div role="tablist" className="flex shrink-0 items-center gap-1.5 px-3 py-2.5 sm:gap-2">
+        <div
+          role={hasLinkTabs ? "navigation" : "tablist"}
+          aria-label={hasLinkTabs ? (navAriaLabel ?? "Site") : undefined}
+          className="flex shrink-0 items-center gap-1.5 px-3 py-2.5 sm:gap-2"
+        >
           {tabs.map((tab) => {
+            if (!isPanelItem(tab)) {
+              const routeActive = pathname === tab.href
+              const showPill = routeActive && activeTab === null
+              return (
+                <Link
+                  key={tab.id}
+                  href={tab.href}
+                  id={`tab-${tab.id}`}
+                  aria-label={tab.label}
+                  aria-current={routeActive ? "page" : undefined}
+                  onClick={handleLinkPointer}
+                  onMouseEnter={handleLinkPointer}
+                  className={cn(chipClassName, showPill ? chipActiveClass : chipIdleClass)}
+                >
+                  <AnimatePresence>
+                    {showPill && (
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
+                        className="absolute inset-0 bg-foreground"
+                        style={style}
+                      />
+                    )}
+                  </AnimatePresence>
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    {tab.icon}
+                    <span className="hidden sm:inline" aria-hidden="true">{tab.label}</span>
+                  </span>
+                </Link>
+              )
+            }
+
             const isActive = tab.id === activeTab
             return (
               <button
                 key={tab.id}
                 id={`tab-${tab.id}`}
                 type="button"
-                role="tab"
-                aria-selected={isActive}
+                role={hasLinkTabs ? "button" : "tab"}
+                aria-selected={hasLinkTabs ? undefined : isActive}
+                aria-expanded={hasLinkTabs ? isActive : undefined}
                 aria-controls="expandable-tab-panel"
                 aria-label={tab.label}
                 onClick={() => handleTabClick(tab.id)}
                 onMouseEnter={() => handleTabHover(tab.id)}
-                className={cn(
-                  "relative flex items-center gap-1.5 px-4 py-2",
-                  "font-display text-xs font-bold uppercase tracking-wide transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  isActive
-                    ? "text-background"
-                    : "text-foreground/70 hover:text-foreground",
-                )}
+                className={cn(chipClassName, isActive ? chipActiveClass : chipIdleClass)}
               >
                 <AnimatePresence>
                   {isActive && (
@@ -314,5 +397,22 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
         </div>
       </div>
     </div>
+  )
+}
+
+const expandableTabBarDockClass =
+  "fixed bottom-3 left-3 right-3 z-50 flex justify-center md:bottom-6 md:left-6 md:right-6 lg:bottom-8"
+
+/** Fixed bottom wrapper shared by Explore and Prism learn docks. */
+export function ExpandableTabBarDock({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"div">) {
+  return (
+    <div
+      data-slot="expandable-tab-bar-dock"
+      className={cn(expandableTabBarDockClass, className)}
+      {...props}
+    />
   )
 }

@@ -4,7 +4,8 @@ import { useState, useEffect, type CSSProperties } from "react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Sun, Moon, Monitor, Check, Waves } from "lucide-react"
+import { Check, Sun } from "lucide-react"
+import { SITE_THEME_OPTIONS, resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
 import { cn } from "@/lib/utils"
 
 export type ThemeToggleProps = {
@@ -28,28 +29,7 @@ export function ThemeToggle({ className, style }: ThemeToggleProps = {}) {
     )
   }
 
-  const themes = [
-    { name: "Light", value: "light", icon: Sun },
-    { name: "Dark", value: "dark", icon: Moon },
-    { name: "Chillwave", value: "chillwave", icon: Waves },
-    { name: "System", value: "system", icon: Monitor },
-  ]
-
-  const getCurrentIcon = () => {
-    const currentThemeOption = themes.find((t) => t.value === theme)
-    if (currentThemeOption) return currentThemeOption.icon
-    if (theme === "system") {
-      const systemResolvedTheme =
-        availableThemes?.includes("light") && window.matchMedia("(prefers-color-scheme: light)").matches
-          ? "light"
-          : "dark"
-      const systemThemeOption = themes.find((t) => t.value === systemResolvedTheme)
-      if (systemThemeOption) return systemThemeOption.icon
-    }
-    return Sun
-  }
-
-  const CurrentIcon = getCurrentIcon()
+  const CurrentIcon = resolveThemeDockTriggerIcon(theme, mounted, availableThemes)
 
   return (
     <Popover>
@@ -61,8 +41,8 @@ export function ThemeToggle({ className, style }: ThemeToggleProps = {}) {
       </PopoverTrigger>
       <PopoverContent align="end" side="bottom" sideOffset={8} className="w-48 p-3">
         <div className="space-y-1">
-          {themes.map((themeOption) => {
-            const Icon = themeOption.icon
+          {SITE_THEME_OPTIONS.map((themeOption) => {
+            const Icon = themeOption.Icon
             const isActive = theme === themeOption.value
             return (
               <button
@@ -78,7 +58,7 @@ export function ThemeToggle({ className, style }: ThemeToggleProps = {}) {
               >
                 <span className="flex items-center gap-3">
                   <Icon className="h-4 w-4" />
-                  <span className="font-medium">{themeOption.name}</span>
+                  <span className="font-medium">{themeOption.label}</span>
                 </span>
                 {isActive ? <Check className="h-4 w-4" aria-hidden /> : null}
               </button>
