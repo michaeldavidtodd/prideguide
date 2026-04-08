@@ -33,7 +33,7 @@ export function ExploreMoreLinkGrid({
 			: shellStyle
 
 	const cellClass = cn(
-		"group flex flex-col gap-2 rounded-md p-1.5 text-left outline-none",
+		"group flex flex-col gap-2 rounded-md text-left outline-none",
 		"transition-colors duration-200 ease-out",
 		"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 	)
@@ -66,7 +66,7 @@ export function ExploreMoreLinkGrid({
 		"pointer-events-none absolute inset-x-4 bottom-0 h-px opacity-[0.22] motion-reduce:opacity-[0.14]"
 
 	return (
-		<nav className="grid w-full grid-cols-2 gap-3 p-3" aria-label="More links">
+		<nav className="grid w-full grid-cols-2 gap-6 py-3" aria-label="More links">
 			{MORE_LINKS.map(({ href, label, Icon }) => (
 				<Link key={href} href={href} className={cellClass} style={shellStyle}>
 					<div className={thumbClass} style={thumbStyle}>

@@ -40,20 +40,27 @@ interface ExpandableTabBarProps {
  *
  * Interaction model:
  * - **Touch / coarse pointer**: tap a tab to open its panel. Tapping the same
- *   tab again keeps it open (no toggle-close).
+ *   tab again closes it (toggle).
  * - **Mouse / fine pointer**: hovering a tab opens its panel instantly; moving
  *   the cursor away schedules a 260 ms close (cancelled if the cursor re-enters).
+ * - **Keyboard**: Escape closes the panel. Tab/Shift-Tab cycle within the
+ *   component while a panel is open (focus trap). Focus moves into the panel
+ *   on open and returns to the triggering tab on close.
  *
  * Animation:
- * - The outer container uses Framer Motion `layout` with a spring transition so
- *   height changes between panels are fluid, not abrupt.
- * - Panel crossfades use `AnimatePresence mode="popLayout"` for overlapping
- *   exit/enter without collapsing to zero height.
- * - The tab button row uses `layout="position"` so it stays pinned at its
- *   natural size while the container resizes.
- * - The active-tab pill fades in/out rather than sliding (avoids jarring motion
- *   when the container height is also animating).
+ * - Content area height is animated via CSS transition on a measured pixel value
+ *   (not Framer Motion `layout` / scale transforms) so borders and shadows
+ *   resize cleanly without distortion.
+ * - The active-tab pill fades in/out via Framer Motion `AnimatePresence`.
+ * - A translucent backdrop fades in when the menu is open.
  * - All animations are suppressed when the user prefers reduced motion.
+ *
+ * Accessibility:
+ * - ARIA `tablist` / `tab` / `tabpanel` roles with `aria-selected`,
+ *   `aria-controls`, and `aria-labelledby` relationships.
+ * - `aria-label` on each tab button ensures screen reader names on mobile
+ *   where visual labels are hidden.
+ * - Body scroll is locked while a panel is open.
  */
 export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarProps) {
   const [activeTab, setActiveTab] = useState<string | null>(null)
@@ -61,6 +68,27 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
   const prefersReducedMotion = useReducedMotion()
   const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const measureRef = useRef<HTMLDivElement>(null)
+  const [contentHeight, setContentHeight] = useState(0)
+
+  useEffect(() => {
+    if (activeTab === null) {
+      setContentHeight(0)
+      return
+    }
+    requestAnimationFrame(() => {
+      if (measureRef.current) {
+        setContentHeight(measureRef.current.scrollHeight)
+      }
+    })
+  }, [activeTab])
+
+  useEffect(() => {
+    if (activeTab !== null) {
+      document.body.style.overflow = "hidden"
+      return () => { document.body.style.overflow = "" }
+    }
+  }, [activeTab])
 
   useEffect(() => {
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)")
@@ -91,9 +119,13 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
   const handleTabClick = useCallback(
     (id: string) => {
       clearHoverTimer()
-      setActiveTab(id)
+      if (!hasPointerFine && activeTab === id) {
+        setActiveTab(null)
+      } else {
+        setActiveTab(id)
+      }
     },
-    [clearHoverTimer],
+    [clearHoverTimer, hasPointerFine, activeTab],
   )
 
   const handleTabHover = useCallback(
@@ -117,48 +149,138 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
 
   const activeContent = tabs.find((t) => t.id === activeTab)?.content
 
-  const springTransition = prefersReducedMotion
-    ? { duration: 0 }
-    : { type: "spring" as const, damping: 26, stiffness: 280 }
+  const handleClose = useCallback(() => {
+    clearHoverTimer()
+    setActiveTab(null)
+  }, [clearHoverTimer])
+
+  const triggerRef = useRef<HTMLElement | null>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (activeTab === null) {
+      if (triggerRef.current) {
+        triggerRef.current.focus()
+        triggerRef.current = null
+      }
+      return
+    }
+
+    triggerRef.current = document.activeElement as HTMLElement
+
+    requestAnimationFrame(() => {
+      const panel = panelRef.current
+      if (panel) {
+        const first = panel.querySelector<HTMLElement>(
+          'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (first) first.focus()
+        else panel.focus()
+      }
+    })
+  }, [activeTab])
+
+  useEffect(() => {
+    if (activeTab === null) return
+    const container = containerRef.current
+    if (!container) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault()
+        handleClose()
+        return
+      }
+
+      if (e.key !== "Tab") return
+
+      const focusable = container.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [activeTab, handleClose])
 
   return (
     <div className={cn("inline-flex flex-col items-center", className)}>
-      <motion.div
+      <AnimatePresence>
+        {activeTab !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
+            className="fixed inset-0 z-[-1] bg-background/40"
+            onClick={handleClose}
+            aria-hidden
+          />
+        )}
+      </AnimatePresence>
+      <div
         ref={containerRef}
-        layout
-        transition={springTransition}
         style={style}
         className={cn(
-          "relative overflow-hidden",
           "border border-border/50 bg-card shadow-xl",
-          "backdrop-blur-md",
+          "backdrop-blur-md overflow-hidden",
         )}
         onMouseLeave={handleContainerLeave}
       >
-        <AnimatePresence initial={false} mode="popLayout">
-          {activeTab !== null && activeContent && (
-            <motion.div
-              key={activeTab}
-              layout="position"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
-            >
-              <div className="px-5 pt-3">{activeContent}</div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div
+          ref={panelRef}
+          id="expandable-tab-panel"
+          role="tabpanel"
+          tabIndex={activeTab !== null ? -1 : undefined}
+          aria-labelledby={activeTab ? `tab-${activeTab}` : undefined}
+          style={{
+            height: contentHeight,
+            transition: prefersReducedMotion ? "none" : "height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)",
+          }}
+          className="overflow-hidden"
+        >
+          <div ref={measureRef}>
+            <AnimatePresence initial={false} mode="popLayout">
+              {activeTab !== null && activeContent && (
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
+                  className="px-5 pt-3"
+                >
+                  {activeContent}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
-        {activeTab !== null && <div className="mx-4 h-px bg-border/60" />}
-
-        <motion.div layout="position" className="flex shrink-0 items-center gap-1.5 px-3 py-2.5 sm:gap-2">
+        <div role="tablist" className="flex shrink-0 items-center gap-1.5 px-3 py-2.5 sm:gap-2">
           {tabs.map((tab) => {
             const isActive = tab.id === activeTab
             return (
               <button
                 key={tab.id}
+                id={`tab-${tab.id}`}
                 type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls="expandable-tab-panel"
+                aria-label={tab.label}
                 onClick={() => handleTabClick(tab.id)}
                 onMouseEnter={() => handleTabHover(tab.id)}
                 className={cn(
@@ -184,13 +306,13 @@ export function ExpandableTabBar({ tabs, className, style }: ExpandableTabBarPro
                 </AnimatePresence>
                 <span className="relative z-10 flex items-center gap-1.5">
                   {tab.icon}
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="hidden sm:inline" aria-hidden="true">{tab.label}</span>
                 </span>
               </button>
             )
           })}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   )
 }

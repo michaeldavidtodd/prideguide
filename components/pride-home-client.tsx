@@ -905,42 +905,6 @@ export function HomeV2WelcomeContent() {
 								</Link>
 							</motion.aside>
 
-							{/* <nav className="max-w-2xl space-y-4 border-t border-foreground/10 pt-8" aria-label="More ways to learn">
-								<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-									Also on Prism
-								</p>
-								<ul className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-10 sm:gap-y-2">
-									<li>
-										<Link
-											href={PRIDE_QUIZ_PATH}
-											className="group inline-flex border-b border-transparent pb-0.5 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-primary hover:text-primary"
-										>
-											Quiz
-										</Link>
-									</li>
-									<li>
-										<Link
-											href={PRIDE_ALLY_PATH}
-											className="group inline-flex border-b border-transparent pb-0.5 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-primary hover:text-primary"
-										>
-											Ally guide
-										</Link>
-									</li>
-									<li>
-										<Link
-											href={PRIDE_ABOUT_APP_PATH}
-											className="group inline-flex border-b border-transparent pb-0.5 font-display text-xs font-extrabold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-primary hover:text-primary"
-										>
-											About the app
-										</Link>
-									</li>
-								</ul>
-								<p className="text-xs text-muted-foreground">
-									<Link href={PRIDE_CLASSIC_PATH} className="underline underline-offset-4 hover:text-foreground">
-										Original single-page layout
-									</Link>
-								</p>
-							</nav> */}
 						</div>
 					</motion.div>
 				</motion.section>
@@ -1518,38 +1482,69 @@ export function HomeV2ExploreContent() {
 								label: "Settings",
 								icon: <SlidersHorizontal className="size-3.5" aria-hidden />,
 								content: (
-									<div className="max-h-[min(70dvh,700px)] min-w-[min(100vw-4rem,28rem)] space-y-4 pb-4 overflow-y-auto overscroll-contain">
-										<header className="space-y-1 border-b border-border/60 pb-3">
+									<div className="min-w-[min(100vw-4rem,28rem)] space-y-4 pb-4">
+										<header className="space-y-1 pb-3">
 											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Studio</p>
 											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Motion & layout</h2>
 											<p className="text-sm leading-snug text-muted-foreground">Fine-tune motion, slice layout, and frames.</p>
 										</header>
+
+										{/* Motion preferences */}
 										<div
+											data-slot="motion"
 											className={cn(
-												"flex flex-col justify-between gap-3 p-4 bg-foreground/5",
+												"space-y-3 p-4 bg-foreground/5",
 												cornerRadius > 0 && "rounded-lg"
 											)}
 											style={studioShellStyle}
 										>
-											<div className="min-w-0 space-y-0.5">
-												<Label
-													htmlFor="studio-persist-etb"
-													className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-												>
-													Save studio settings
+											<div>
+												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+													Motion
 												</Label>
-												<p className="text-xs leading-snug text-muted-foreground text-balance">
-													{studioPersist
-														? "Layout and motion sliders stay as you left them."
-														: "Random slice layout on each visit."}
+												<p className="mt-1 text-xs leading-snug text-muted-foreground text-balance">
+													Default follows your device. Override like the site theme.
 												</p>
 											</div>
-											<Switch
-												id="studio-persist-etb"
-												checked={studioPersist}
-												onCheckedChange={onStudioPersistChange}
-											/>
+											<RadioGroup
+												value={motionPreference}
+												onValueChange={(v) =>
+													onMotionPreferenceChange(v as ExploreMotionPreference)
+												}
+												className="grid gap-2.5 pt-1 sm:grid-cols-3"
+												aria-label="Reduce motion preference"
+											>
+												<div className="flex items-center gap-2">
+													<RadioGroupItem value="system" id="explore-motion-system" />
+													<Label
+														htmlFor="explore-motion-system"
+														className="cursor-pointer text-sm font-normal leading-none"
+													>
+														System
+													</Label>
+												</div>
+												<div className="flex items-center gap-2">
+													<RadioGroupItem value="reduce" id="explore-motion-reduce" />
+													<Label
+														htmlFor="explore-motion-reduce"
+														className="cursor-pointer text-sm font-normal leading-none"
+													>
+														Reduce
+													</Label>
+												</div>
+												<div className="flex items-center gap-2">
+													<RadioGroupItem value="full" id="explore-motion-full" />
+													<Label
+														htmlFor="explore-motion-full"
+														className="cursor-pointer text-sm font-normal leading-none"
+													>
+														Full
+													</Label>
+												</div>
+											</RadioGroup>
 										</div>
+										
+										{/* Slice resolution */}
 										<div
 											className={cn(
 												"space-y-2 p-4 bg-foreground/5",
@@ -1574,6 +1569,8 @@ export function HomeV2ExploreContent() {
 												aria-label="Adjust column count"
 											/>
 										</div>
+
+										{/* Gap between stripes */}
 										<div
 											className={cn(
 												"space-y-2 p-4 bg-foreground/5",
@@ -1598,6 +1595,8 @@ export function HomeV2ExploreContent() {
 												aria-label="Gap between stripes"
 											/>
 										</div>
+
+										{/* Rounded edges */}
 										<div
 											className={cn(
 												"space-y-2 p-4 bg-foreground/5",
@@ -1622,6 +1621,36 @@ export function HomeV2ExploreContent() {
 												aria-label="Border radius"
 											/>
 										</div>
+
+										{/* Save studio settings */}
+										<div
+											className={cn(
+												"flex flex-row justify-between gap-3 p-4 bg-foreground/5",
+												cornerRadius > 0 && "rounded-lg"
+											)}
+											style={studioShellStyle}
+										>
+											<div className="min-w-0 space-y-0.5">
+												<Label
+													htmlFor="studio-persist-etb"
+													className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
+												>
+													Save studio settings
+												</Label>
+												<p className="text-xs leading-snug text-muted-foreground text-balance">
+													{studioPersist
+														? "Layout and motion sliders stay as you left them."
+														: "Random slice layout on each visit."}
+												</p>
+											</div>
+											<Switch
+												id="studio-persist-etb"
+												checked={studioPersist}
+												onCheckedChange={onStudioPersistChange}
+											/>
+										</div>
+
+										{/* Export GIF */}
 										<div
 											className={cn(
 												"space-y-2 p-4 bg-foreground/5",
@@ -1656,7 +1685,7 @@ export function HomeV2ExploreContent() {
 								icon: <Telescope className="size-3.5" aria-hidden />,
 								content: (
 									<div className="min-w-[min(100vw-4rem,28rem)]">
-										<header className="space-y-1 px-3 pt-1 pb-2">
+										<header className="space-y-1 pt-1 pb-2">
 											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Explore</p>
 											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">More</h2>
 										</header>
@@ -1673,7 +1702,7 @@ export function HomeV2ExploreContent() {
 								icon: <ExploreThemeIcon className="size-3.5" aria-hidden />,
 								content: (
 									<div className="min-w-[min(100vw-4rem,28rem)]">
-										<header className="space-y-1 px-3 pt-1 pb-2">
+										<header className="space-y-1 pt-1 pb-2">
 											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Appearance</p>
 											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Theme</h2>
 										</header>
