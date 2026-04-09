@@ -1257,16 +1257,16 @@ export function HomeV2ExploreContent() {
 								}}
 								style={{ perspective: effectiveReduceMotion ? undefined : "1100px" }}
 							>
-							<AnimatePresence mode="popLayout" initial={false} custom={flagNavDir}>
-								<motion.div
-									key={flag.id}
-									role="presentation"
-									custom={flagNavDir}
-									variants={flagStageSlideVariants}
-									initial="initial"
-									animate="animate"
-									exit="exit"
-									className="explore-flag-motion-container"
+								<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
+									<motion.div
+										key={flag.id}
+										role="presentation"
+										custom={flagNavDir}
+										variants={flagStageSlideVariants}
+										initial="initial"
+										animate="animate"
+										exit="exit"
+										className="explore-flag-motion-container"
 									>
 										<AnimatedFlag
 											backgroundColors={stripes}
@@ -1333,16 +1333,15 @@ export function HomeV2ExploreContent() {
 								className="explore-content"
 								aria-label="About this flag and colors"
 							>
-							<AnimatePresence mode="popLayout" initial={false} custom={flagNavDir}>
-								<motion.div
-									key={flag.id}
-									custom={flagNavDir}
-									variants={flagStageSlideVariants}
-									initial="initial"
-									animate="animate"
-									exit="exit"
-									layout="position"
-									className="explore-content-inner"
+								<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
+									<motion.div
+										key={flag.id}
+										custom={flagNavDir}
+										variants={flagStageSlideVariants}
+										initial="initial"
+										animate="animate"
+										exit="exit"
+										className="explore-content-inner"
 									>
 										<div className="relative flex flex-row items-center justify-between min-w-0 max-lg:flex-1 max-md:flex-col lg:-ml-[1.1rem]">
 											<span
