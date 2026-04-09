@@ -408,77 +408,11 @@ export function ExpandableTabBarDock({
   className,
   ...props
 }: ComponentPropsWithoutRef<"div">) {
-  const debugRef = useRef<HTMLDivElement>(null)
-  const logRef = useRef<HTMLPreElement>(null)
-
-  useEffect(() => {
-    const el = debugRef.current
-    const log = logRef.current
-    if (!el || !log) return
-
-    const lines: string[] = []
-    const push = (msg: string) => {
-      lines.push(msg)
-      if (lines.length > 12) lines.shift()
-      log.textContent = lines.join("\n")
-    }
-
-    const snap = () => {
-      const r = el.getBoundingClientRect()
-      const vv = window.visualViewport
-      push(
-        `dock bottom:${r.bottom.toFixed(0)} top:${r.top.toFixed(0)} ` +
-        `scrollY:${window.scrollY.toFixed(0)} innerH:${window.innerHeight} ` +
-        `docH:${document.documentElement.scrollHeight} ` +
-        (vv ? `vvH:${vv.height.toFixed(0)} vvOff:${vv.offsetTop.toFixed(0)}` : "no-vv")
-      )
-    }
-
-    const onScroll = () => { push(">> scroll"); snap() }
-    const onResize = () => { push(">> resize"); snap() }
-
-    const mo = new MutationObserver(() => { push(">> DOM mutation"); snap() })
-    mo.observe(el, { attributes: true, childList: true, subtree: false })
-
-    window.addEventListener("scroll", onScroll, { passive: true })
-    window.addEventListener("resize", onResize, { passive: true })
-    window.visualViewport?.addEventListener("resize", onResize, { passive: true })
-
-    snap()
-    return () => {
-      mo.disconnect()
-      window.removeEventListener("scroll", onScroll)
-      window.removeEventListener("resize", onResize)
-      window.visualViewport?.removeEventListener("resize", onResize)
-    }
-  }, [])
-
   return (
-    <>
-      <div
-        ref={debugRef}
-        data-slot="expandable-tab-bar-dock"
-        className={cn(expandableTabBarDockClass, className)}
-        {...props}
-      />
-      <pre
-        ref={logRef}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          background: "rgba(0,0,0,0.85)",
-          color: "#0f0",
-          fontSize: "9px",
-          lineHeight: "1.3",
-          padding: "4px 6px",
-          pointerEvents: "none",
-          whiteSpace: "pre-wrap",
-          fontFamily: "monospace",
-        }}
-      />
-    </>
+    <div
+      data-slot="expandable-tab-bar-dock"
+      className={cn(expandableTabBarDockClass, className)}
+      {...props}
+    />
   )
 }
