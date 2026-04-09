@@ -1,7 +1,6 @@
 "use client"
 
 import {
-	startTransition,
 	useCallback,
 	useEffect,
 	useLayoutEffect,
@@ -1054,11 +1053,9 @@ export function HomeV2ExploreContent() {
 	const syncUrl = useCallback(
 		(i: number) => {
 			const id = PRIDE_FLAGS[i].id
-			startTransition(() => {
-				router.replace(`${PRIDE_EXPLORE_PATH}?f=${id}`, { scroll: false })
-			})
+			window.history.replaceState(null, "", `${PRIDE_EXPLORE_PATH}?f=${id}`)
 		},
-		[router]
+		[]
 	)
 
 	const goToIndex = useCallback(
