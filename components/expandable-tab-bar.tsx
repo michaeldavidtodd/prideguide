@@ -10,7 +10,6 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react"
-import { createPortal } from "react-dom"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
@@ -401,58 +400,19 @@ export function ExpandableTabBar({
   )
 }
 
-/**
- * Fixed dock that portals to `<body>` so no ancestor transform / overflow
- * can interfere with positioning. Uses the Visual Viewport API with direct
- * DOM writes (no React re-renders) to stay above mobile browser chrome
- * and the virtual keyboard.
- */
+const expandableTabBarDockClass =
+  "fixed bottom-3 left-3 right-3 z-50 flex justify-center md:bottom-6 md:left-6 md:right-6 lg:bottom-8"
+
+/** Fixed bottom wrapper shared by Explore and Prism learn docks. */
 export function ExpandableTabBarDock({
   className,
   ...props
 }: ComponentPropsWithoutRef<"div">) {
-  const dockRef = useRef<HTMLDivElement>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
-
-  useEffect(() => {
-    const vv = window.visualViewport
-    const el = dockRef.current
-    if (!vv || !el) return
-
-    let raf = 0
-    const update = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        const bottom = vv.offsetTop + vv.height
-        const gap = window.innerHeight - bottom
-        el.style.transform = gap > 0 ? `translateY(${-gap}px)` : ""
-      })
-    }
-
-    vv.addEventListener("resize", update)
-    vv.addEventListener("scroll", update)
-    update()
-    return () => {
-      cancelAnimationFrame(raf)
-      vv.removeEventListener("resize", update)
-      vv.removeEventListener("scroll", update)
-    }
-  }, [mounted])
-
-  const dock = (
+  return (
     <div
-      ref={dockRef}
       data-slot="expandable-tab-bar-dock"
-      className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 lg:px-8",
-        className,
-      )}
+      className={cn(expandableTabBarDockClass, className)}
       {...props}
     />
   )
-
-  if (!mounted) return dock
-  return createPortal(dock, document.body)
 }

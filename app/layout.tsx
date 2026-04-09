@@ -24,11 +24,7 @@ export const metadata = {
     shortcut: "/favicon.png",
     apple: "/favicon.png",
   },
-  generator: 'v0.dev',
-}
-
-export const viewport = {
-  viewportFit: "cover" as const,
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
