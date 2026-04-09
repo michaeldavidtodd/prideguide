@@ -362,7 +362,7 @@ function HomeV2AboutBlock({
 					<p className="mt-1 text-balance text-sm font-medium leading-relaxed text-foreground sm:text-base">{flag.significance}</p>
 				</div>
 			</blockquote>
-			<Accordion data-slot="about-flag-accordion" type="single" collapsible defaultValue="overview" className="border border-foreground/10 bg-background/40" style={studioShellStyle}>
+			<Accordion data-slot="about-flag-accordion" type="single" collapsible  className="border border-foreground/10 bg-background/40" style={studioShellStyle}>
 				<AccordionItem value="overview" className="border-foreground/10 px-1">
 					<AccordionTrigger className="home-v2-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
 						At a glance
@@ -1215,7 +1215,7 @@ export function HomeV2ExploreContent() {
 	return (
 		<div
 			className={cn(
-				"flex md:h-dvh flex-1 flex-col max-md:pb-20",
+				"explore-page-root flex min-w-0 w-full flex-col max-md:pb-20 xl:min-h-0 xl:flex-1",
 				effectiveReduceMotion && "home-v2-explore-reduce-motion",
 				forceFlagWaveMotion && "home-v2-explore-force-motion"
 			)}
@@ -1223,17 +1223,17 @@ export function HomeV2ExploreContent() {
 			<p className="sr-only" aria-live="polite" aria-atomic="true">
 				Pride Guide flag explorer.
 			</p>
-			<div className="home-v2-stack flex flex-1 flex-col">
+			<div className="home-v2-stack flex min-w-0 w-full flex-col xl:min-h-0 xl:flex-1">
 				<motion.main
 					id="home-v2-main"
-					className="home-v2-browse flex flex-1 flex-col"
+					className="home-v2-browse flex min-w-0 w-full flex-col xl:min-h-0 xl:flex-1"
 					variants={variants.wrap}
 					initial="hidden"
 					animate="show"
 				>
 					<motion.div
 						variants={variants.item}
-						className="mx-auto flex md:h-full w-full flex-col"
+						className="mx-auto flex min-h-0 min-w-0 w-full max-w-full flex-col xl:h-full xl:flex-1"
 					>
 
 						{/* Explore Body */}
@@ -1283,6 +1283,50 @@ export function HomeV2ExploreContent() {
 								</AnimatePresence>
 
 							</div>
+
+							<nav
+								data-slot="explore-flag-thumbs"
+								className="explore-flag-thumbs max-lg:hidden shrink-0 py-3 min-w-0 w-full"
+								aria-label="All flags"
+							>
+								<div
+									ref={exploreThumbnailsScrollRef}
+									data-slot="explore-flag-thumbnails"
+									className="explore-flag-thumbnails"
+								>
+									{PRIDE_FLAGS.map((f, i) => {
+										const thumbStripes = f.display.stripes ?? []
+										const selected = i === index
+										return (
+											<button
+												key={f.id}
+												ref={selected ? activeThumbRef : undefined}
+												type="button"
+												onClick={() => goToIndex(i)}
+												aria-label={`Show ${f.name}`}
+												aria-current={selected ? "true" : undefined}
+												className="explore-flag-thumbnail relative outline-none px-1"
+											>
+												<AnimatedFlag
+													backgroundColors={thumbStripes}
+													svgForeground={f.display.svgForeground}
+													fit="contain"
+													numOfColumns={10}
+													billow={0}
+													columnGapPx={0}
+													className={cn(
+														"animated-flag--radius-controlled max-h-[92%] max-w-full !overflow-hidden focus-visible:ring-2 focus-visible:ring-ring ring-offset-4 ring-offset-background hover:opacity-100 transition-all duration-200 ease-out",
+														selected
+															? "ring-2 ring-foreground"
+															: "opacity-75"
+													)}
+													style={studioShellStyle}
+												/>
+											</button>
+										)
+									})}
+								</div>
+							</nav>
 
 							<aside
 								data-slot="explore-content"
@@ -1367,51 +1411,6 @@ export function HomeV2ExploreContent() {
 								</AnimatePresence>
 							</aside>
 						</div>
-
-						<nav
-							data-slot="explore-flag-thumbs"
-							className="explore-flag-thumbs max-lg:hidden max-lg:order-1 shrink-0 px-4 py-3 lg:px-12"
-							aria-label="All flags"
-						>
-							<div
-								ref={exploreThumbnailsScrollRef}
-								data-slot="explore-flag-thumbnails"
-								className="explore-flag-thumbnails"
-							>
-								{PRIDE_FLAGS.map((f, i) => {
-									const thumbStripes = f.display.stripes ?? []
-									const selected = i === index
-									return (
-										<button
-											key={f.id}
-											ref={selected ? activeThumbRef : undefined}
-											type="button"
-											onClick={() => goToIndex(i)}
-											aria-label={`Show ${f.name}`}
-											aria-current={selected ? "true" : undefined}
-											className="explore-flag-thumbnail relative outline-none px-1"
-										>
-											<AnimatedFlag
-												backgroundColors={thumbStripes}
-												svgForeground={f.display.svgForeground}
-												fit="contain"
-												numOfColumns={10}
-												billow={0}
-												columnGapPx={0}
-												className={cn(
-													"animated-flag--radius-controlled max-h-[92%] max-w-full !overflow-hidden focus-visible:ring-2 focus-visible:ring-ring ring-offset-4 ring-offset-background hover:opacity-100 transition-all duration-200 ease-out",
-													selected
-														? "ring-2 ring-foreground"
-														: "opacity-75"
-													)}
-												style={studioShellStyle}
-											/>
-										</button>
-									)
-								})}
-							</div>
-						</nav>
-
 
 					</motion.div>
 				</motion.main>
