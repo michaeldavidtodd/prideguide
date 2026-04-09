@@ -907,7 +907,6 @@ export function HomeV2ExploreContent() {
 	const stageRef = useRef<HTMLDivElement>(null)
 	const activeThumbRef = useRef<HTMLButtonElement>(null)
 	const exploreThumbnailsScrollRef = useRef<HTMLDivElement>(null)
-	const contentAsideRef = useRef<HTMLElement>(null)
 	const { theme, setTheme, themes: availableThemeIds } = useTheme()
 	const [exploreThemeMounted, setExploreThemeMounted] = useState(false)
 
@@ -1063,12 +1062,6 @@ export function HomeV2ExploreContent() {
 		(i: number, intent?: "forward" | "backward") => {
 			const next = clampIndex(i)
 			if (next === index) return
-
-			const aside = contentAsideRef.current
-			if (aside) {
-				aside.style.minHeight = `${aside.offsetHeight}px`
-			}
-
 			const dir =
 				intent === "forward" ? 1 : intent === "backward" ? -1 : indexDeltaDir(index, next)
 			setFlagNavDir(dir)
@@ -1251,17 +1244,24 @@ export function HomeV2ExploreContent() {
 								className="explore-flag flag-container"
 								onMouseMove={handleStageMove}
 								onMouseLeave={resetTilt}
-								onPointerDown={(e) => {
-									pointerStart.current = { x: e.clientX }
-								}}
-								onPointerUp={(e) => {
-									if (!pointerStart.current) return
-									const dx = e.clientX - pointerStart.current.x
-									pointerStart.current = null
-									if (Math.abs(dx) < 52) return
-									if (dx > 0) prev()
-									else next()
-								}}
+							onPointerDown={(e) => {
+								pointerStart.current = { x: e.clientX }
+							}}
+							onPointerMove={(e) => {
+								if (!pointerStart.current) return
+								if (Math.abs(e.clientX - pointerStart.current.x) > 10) {
+									e.preventDefault()
+								}
+							}}
+							onPointerUp={(e) => {
+								if (!pointerStart.current) return
+								const dx = e.clientX - pointerStart.current.x
+								pointerStart.current = null
+								if (Math.abs(dx) < 52) return
+								e.preventDefault()
+								if (dx > 0) prev()
+								else next()
+							}}
 								style={{ perspective: effectiveReduceMotion ? undefined : "1100px" }}
 							>
 								<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
@@ -1336,7 +1336,6 @@ export function HomeV2ExploreContent() {
 							</nav>
 
 							<aside
-								ref={contentAsideRef}
 								data-slot="explore-content"
 								className="explore-content"
 								aria-label="About this flag and colors"
@@ -1349,11 +1348,6 @@ export function HomeV2ExploreContent() {
 										initial="initial"
 										animate="animate"
 										exit="exit"
-										onAnimationComplete={() => {
-											if (contentAsideRef.current) {
-												contentAsideRef.current.style.minHeight = ""
-											}
-										}}
 										className="explore-content-inner"
 									>
 										<div className="relative flex flex-row items-center justify-between min-w-0 max-lg:flex-1 max-md:flex-col lg:-ml-[1.1rem]">
