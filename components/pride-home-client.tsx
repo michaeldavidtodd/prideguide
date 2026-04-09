@@ -885,7 +885,6 @@ export function HomeV2WelcomeContent() {
 }
 
 export function HomeV2ExploreContent() {
-	const searchParams = useSearchParams()
 	const { toast } = useToast()
 	const systemPrefersReducedMotion = useReducedMotion()
 	const [motionPreference, setMotionPreference] = useState<ExploreMotionPreference>("system")
@@ -1072,16 +1071,15 @@ export function HomeV2ExploreContent() {
 	)
 
 	useEffect(() => {
-		const id = searchParams.get("f")
-		if (!id) return
-		const found = PRIDE_FLAGS.findIndex((f) => f.id === id)
-		if (found >= 0) setIndex(found)
-	}, [searchParams])
-
-	useEffect(() => {
-		if (searchParams.get("f")) return
-		window.history.replaceState(null, "", `${PRIDE_EXPLORE_PATH}?f=${PRIDE_FLAGS[0].id}`)
-	}, [searchParams])
+		const params = new URLSearchParams(window.location.search)
+		const id = params.get("f")
+		if (id) {
+			const found = PRIDE_FLAGS.findIndex((f) => f.id === id)
+			if (found >= 0) setIndex(found)
+		} else {
+			window.history.replaceState(null, "", `${PRIDE_EXPLORE_PATH}?f=${PRIDE_FLAGS[0].id}`)
+		}
+	}, [])
 
 	useLayoutEffect(() => {
 		const container = exploreThumbnailsScrollRef.current
