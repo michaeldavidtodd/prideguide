@@ -400,18 +400,49 @@ export function ExpandableTabBar({
   )
 }
 
-const expandableTabBarDockClass =
-  "sticky bottom-0 z-50 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 md:px-6 lg:px-8 pointer-events-none [&>*]:pointer-events-auto mt-auto shrink-0"
+function useVisualViewportBottom() {
+  const [offset, setOffset] = useState(0)
 
-/** Sticky bottom wrapper shared by Explore and Prism learn docks. */
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+
+    const update = () => {
+      const bottom = window.innerHeight - vv.height - vv.offsetTop
+      setOffset(Math.max(0, bottom))
+    }
+
+    vv.addEventListener("resize", update)
+    vv.addEventListener("scroll", update)
+    update()
+    return () => {
+      vv.removeEventListener("resize", update)
+      vv.removeEventListener("scroll", update)
+    }
+  }, [])
+
+  return offset
+}
+
+const expandableTabBarDockClass =
+  "fixed left-3 right-3 z-50 flex justify-center md:left-6 md:right-6 lg:left-8 lg:right-8"
+
+/** Fixed bottom wrapper that tracks the visual viewport to avoid browser chrome overlap. */
 export function ExpandableTabBarDock({
   className,
+  style,
   ...props
 }: ComponentPropsWithoutRef<"div">) {
+  const vvBottom = useVisualViewportBottom()
+
   return (
     <div
       data-slot="expandable-tab-bar-dock"
       className={cn(expandableTabBarDockClass, className)}
+      style={{
+        bottom: `max(${0.75 + vvBottom / 16}rem, calc(env(safe-area-inset-bottom) + ${vvBottom}px))`,
+        ...style,
+      }}
       {...props}
     />
   )

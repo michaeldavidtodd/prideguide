@@ -1215,7 +1215,7 @@ export function HomeV2ExploreContent() {
 	return (
 		<div
 			className={cn(
-				"explore-page-root flex min-w-0 w-full flex-col xl:min-h-0 xl:flex-1",
+				"explore-page-root flex min-w-0 w-full flex-col max-md:pb-20 xl:min-h-0 xl:flex-1",
 				effectiveReduceMotion && "home-v2-explore-reduce-motion",
 				forceFlagWaveMotion && "home-v2-explore-force-motion"
 			)}
