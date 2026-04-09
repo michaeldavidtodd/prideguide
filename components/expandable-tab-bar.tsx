@@ -410,9 +410,9 @@ export function ExpandableTabBarDock({
 }: ComponentPropsWithoutRef<"div">) {
   return (
     <div
-      data-slot="expandable-tab-bar-dock"
-      className={cn(expandableTabBarDockClass, className)}
       {...props}
+      className={cn(expandableTabBarDockClass, className)}
+      data-slot="expandable-tab-bar-dock"
     />
   )
 }

@@ -1412,7 +1412,7 @@ export function HomeV2ExploreContent() {
 					</motion.div>
 				</motion.main>
 
-				<ExpandableTabBarDock data-slot="explore-expandable-dock">
+				<ExpandableTabBarDock data-dock="explore">
 					<ExpandableTabBar
 						style={studioShellStyle}
 						chipsSoftCorners={cornerRadius > 0}
