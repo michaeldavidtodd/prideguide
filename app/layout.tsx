@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   function log(m){lines.push(m);if(lines.length>20)lines.shift();d.textContent=lines.join('\\n')}
   function snap(tag){
     var el=document.querySelector('[data-slot="expandable-tab-bar-dock"]');
-    if(!el){log(tag+' DOCK NOT IN DOM');return}
+    if(!el){log(tag+' DOCK NOT IN DOM | fallback:'+(document.body.textContent.indexOf('Loading focus')>=0)+' | path:'+location.pathname+location.search);return}
     var r=el.getBoundingClientRect();
     log(tag+' top:'+r.top.toFixed(0)+' bot:'+r.bottom.toFixed(0)+' scrollY:'+window.scrollY.toFixed(0)+' innerH:'+window.innerHeight+' docH:'+document.documentElement.scrollHeight);
   }

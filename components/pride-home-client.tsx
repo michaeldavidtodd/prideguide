@@ -885,7 +885,6 @@ export function HomeV2WelcomeContent() {
 }
 
 export function HomeV2ExploreContent() {
-	const router = useRouter()
 	const searchParams = useSearchParams()
 	const { toast } = useToast()
 	const systemPrefersReducedMotion = useReducedMotion()
@@ -1081,8 +1080,8 @@ export function HomeV2ExploreContent() {
 
 	useEffect(() => {
 		if (searchParams.get("f")) return
-		router.replace(`${PRIDE_EXPLORE_PATH}?f=${PRIDE_FLAGS[0].id}`, { scroll: false })
-	}, [router, searchParams])
+		window.history.replaceState(null, "", `${PRIDE_EXPLORE_PATH}?f=${PRIDE_FLAGS[0].id}`)
+	}, [searchParams])
 
 	useLayoutEffect(() => {
 		const container = exploreThumbnailsScrollRef.current
