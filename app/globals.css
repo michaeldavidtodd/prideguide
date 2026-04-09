@@ -1127,6 +1127,12 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
     overflow: visible;
     align-items: center;
     justify-content: center;
+    /*
+     * AnimatePresence mode="wait" unmounts the old panel before the new one mounts.
+     * Without a floor, the column hits zero height for a moment, document height drops,
+     * and mobile browsers re-clamp scroll — the fixed tab bar looks like it jumps away.
+     */
+    min-height: min(45dvh, 22rem);
   }
   @media (max-height: 1024px) {
     justify-content: flex-start;
