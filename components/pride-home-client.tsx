@@ -1244,24 +1244,17 @@ export function HomeV2ExploreContent() {
 								className="explore-flag flag-container"
 								onMouseMove={handleStageMove}
 								onMouseLeave={resetTilt}
-							onPointerDown={(e) => {
-								pointerStart.current = { x: e.clientX }
-							}}
-							onPointerMove={(e) => {
-								if (!pointerStart.current) return
-								if (Math.abs(e.clientX - pointerStart.current.x) > 10) {
-									e.preventDefault()
-								}
-							}}
-							onPointerUp={(e) => {
-								if (!pointerStart.current) return
-								const dx = e.clientX - pointerStart.current.x
-								pointerStart.current = null
-								if (Math.abs(dx) < 52) return
-								e.preventDefault()
-								if (dx > 0) prev()
-								else next()
-							}}
+								onPointerDown={(e) => {
+									pointerStart.current = { x: e.clientX }
+								}}
+								onPointerUp={(e) => {
+									if (!pointerStart.current) return
+									const dx = e.clientX - pointerStart.current.x
+									pointerStart.current = null
+									if (Math.abs(dx) < 52) return
+									if (dx > 0) prev()
+									else next()
+								}}
 								style={{ perspective: effectiveReduceMotion ? undefined : "1100px" }}
 							>
 								<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
