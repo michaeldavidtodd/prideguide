@@ -40,15 +40,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,.9);color:#0f0;font:9px/1.3 monospace;padding:4px 6px;pointer-events:none;white-space:pre-wrap;max-height:30vh;overflow:auto';
   document.addEventListener('DOMContentLoaded',function(){document.body.appendChild(d)});
   var lines=[];
-  function log(m){lines.push(m);if(lines.length>20)lines.shift();d.textContent=lines.join('\\n')}
-  function snap(tag){
+  var prev='';
+  function log(m){if(m===prev)return;prev=m;lines.push(m);if(lines.length>30)lines.shift();d.textContent=lines.join('\\n')}
+  function snap(){
     var el=document.querySelector('[data-slot="expandable-tab-bar-dock"]');
-    if(!el){log(tag+' DOCK NOT IN DOM | fallback:'+(document.body.textContent.indexOf('Loading focus')>=0)+' | path:'+location.pathname+location.search);return}
+    if(!el){log('NO DOCK');return}
     var r=el.getBoundingClientRect();
-    log(tag+' top:'+r.top.toFixed(0)+' bot:'+r.bottom.toFixed(0)+' scrollY:'+window.scrollY.toFixed(0)+' innerH:'+window.innerHeight+' docH:'+document.documentElement.scrollHeight);
+    var vis=r.bottom>0&&r.top<window.innerHeight;
+    log((vis?'VIS':'HIDDEN')+' top:'+r.top.toFixed(0)+' bot:'+r.bottom.toFixed(0)+' h:'+r.height.toFixed(0)+' scrollY:'+Math.round(window.scrollY)+' innerH:'+window.innerHeight+' docH:'+document.documentElement.scrollHeight);
   }
-  setInterval(function(){snap('tick')},500);
-  window.addEventListener('scroll',function(){snap('scroll')},{passive:true});
+  setInterval(snap,300);
 })();
 `}} />
       </head>
