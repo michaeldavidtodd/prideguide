@@ -1058,6 +1058,16 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
     height: auto !important;
     max-height: none !important;
   }
+
+  /*
+   * Flag transitions use translateX(±36px). With overflow visible, that can
+   * extend horizontal scroll overflow asymmetrically (left vs right). Mobile
+   * WebKit sometimes adjusts scroll/viewport when that happens — feels like
+   * the fixed dock “jumps” on forward (exit -36 / spill left) but not back.
+   */
+  .explore-page-root {
+    overflow-x: clip;
+  }
 }
 
 .explore-header {
@@ -1127,12 +1137,6 @@ button.quiz-answer-btn.quiz-answer-btn--dimmed {
     overflow: visible;
     align-items: center;
     justify-content: center;
-    /*
-     * AnimatePresence mode="wait" unmounts the old panel before the new one mounts.
-     * Without a floor, the column hits zero height for a moment, document height drops,
-     * and mobile browsers re-clamp scroll — the fixed tab bar looks like it jumps away.
-     */
-    min-height: min(45dvh, 22rem);
   }
   @media (max-height: 1024px) {
     justify-content: flex-start;
