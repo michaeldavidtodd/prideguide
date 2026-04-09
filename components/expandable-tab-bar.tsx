@@ -10,6 +10,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
@@ -400,50 +401,58 @@ export function ExpandableTabBar({
   )
 }
 
-function useVisualViewportBottom() {
-  const [offset, setOffset] = useState(0)
+/**
+ * Fixed dock that portals to `<body>` so no ancestor transform / overflow
+ * can interfere with positioning. Uses the Visual Viewport API with direct
+ * DOM writes (no React re-renders) to stay above mobile browser chrome
+ * and the virtual keyboard.
+ */
+export function ExpandableTabBarDock({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"div">) {
+  const dockRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     const vv = window.visualViewport
-    if (!vv) return
+    const el = dockRef.current
+    if (!vv || !el) return
 
+    let raf = 0
     const update = () => {
-      const bottom = window.innerHeight - vv.height - vv.offsetTop
-      setOffset(Math.max(0, bottom))
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const bottom = vv.offsetTop + vv.height
+        const gap = window.innerHeight - bottom
+        el.style.transform = gap > 0 ? `translateY(${-gap}px)` : ""
+      })
     }
 
     vv.addEventListener("resize", update)
     vv.addEventListener("scroll", update)
     update()
     return () => {
+      cancelAnimationFrame(raf)
       vv.removeEventListener("resize", update)
       vv.removeEventListener("scroll", update)
     }
-  }, [])
+  }, [mounted])
 
-  return offset
-}
-
-const expandableTabBarDockClass =
-  "fixed left-3 right-3 z-50 flex justify-center md:left-6 md:right-6 lg:left-8 lg:right-8"
-
-/** Fixed bottom wrapper that tracks the visual viewport to avoid browser chrome overlap. */
-export function ExpandableTabBarDock({
-  className,
-  style,
-  ...props
-}: ComponentPropsWithoutRef<"div">) {
-  const vvBottom = useVisualViewportBottom()
-
-  return (
+  const dock = (
     <div
+      ref={dockRef}
       data-slot="expandable-tab-bar-dock"
-      className={cn(expandableTabBarDockClass, className)}
-      style={{
-        bottom: `max(${0.75 + vvBottom / 16}rem, calc(env(safe-area-inset-bottom) + ${vvBottom}px))`,
-        ...style,
-      }}
+      className={cn(
+        "fixed bottom-0 left-0 right-0 z-50 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 lg:px-8",
+        className,
+      )}
       {...props}
     />
   )
+
+  if (!mounted) return dock
+  return createPortal(dock, document.body)
 }
