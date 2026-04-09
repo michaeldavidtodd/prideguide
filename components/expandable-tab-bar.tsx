@@ -401,9 +401,9 @@ export function ExpandableTabBar({
 }
 
 const expandableTabBarDockClass =
-  "fixed bottom-3 left-3 right-3 z-50 flex justify-center md:bottom-6 md:left-6 md:right-6 lg:bottom-8"
+  "sticky bottom-0 z-50 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 md:px-6 lg:px-8 pointer-events-none [&>*]:pointer-events-auto mt-auto shrink-0"
 
-/** Fixed bottom wrapper shared by Explore and Prism learn docks. */
+/** Sticky bottom wrapper shared by Explore and Prism learn docks. */
 export function ExpandableTabBarDock({
   className,
   ...props
