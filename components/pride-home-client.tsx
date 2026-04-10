@@ -29,7 +29,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { AnimatedFlag } from "@/components/animated-flag"
-import { ExploreMoreLinkGrid } from "@/components/explore-more-link-grid"
+import {
+	ExploreStudioSettingsPanel,
+	type ExploreStudioMotionPreference,
+} from "@/components/explore-studio-settings-panel"
 import {
 	downloadAnimatedFlagGif,
 	gifFilenameForFlag,
@@ -46,19 +49,17 @@ import {
 	ArrowLeft,
 	ArrowRight,
 	Download,
-	SlidersHorizontal,
 	CircleArrowRight,
 	Telescope,
-	Keyboard,
 } from "lucide-react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { SwipeLeft09Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
-import { ExpandableTabBar, ExpandableTabBarDock } from "@/components/expandable-tab-bar"
 import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
+import { PrismExpandableDock } from "@/components/prism-expandable-dock"
 import { PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
 import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
-import { notifyStudioShellSync, writeSyncedCornerRadius } from "@/lib/studio-shell-sync"
+import { useStudioShell } from "@/components/studio-shell-context"
 import {
 	collectWelcomeStripeCandidates,
 	pickWelcomeTextColorsAgainstBackground,
@@ -69,11 +70,7 @@ export const HOME_V2_EXPLORE_PATH = PRIDE_EXPLORE_PATH
 
 const FLAG_COUNT = PRIDE_FLAGS.length
 
-const LS_EXPLORE_MOTION = "prideguide-explore-motion-pref"
-const LS_EXPLORE_STUDIO_PERSIST = "prideguide-explore-studio-persist"
 const LS_EXPLORE_STUDIO = "prideguide-explore-studio-v1"
-
-type ExploreMotionPreference = "system" | "reduce" | "full"
 
 type ExploreStudioSnapshot = {
 	columnCount: number
@@ -887,8 +884,15 @@ export function HomeV2WelcomeContent() {
 export function HomeV2ExploreContent() {
 	const { toast } = useToast()
 	const systemPrefersReducedMotion = useReducedMotion()
-	const [motionPreference, setMotionPreference] = useState<ExploreMotionPreference>("system")
-	const [studioPersist, setStudioPersist] = useState(false)
+	const {
+		cornerRadius,
+		motionPreference,
+		studioPersist,
+		studioShellStyle,
+		setCornerRadius,
+		setMotionPreference,
+		setStudioPersist,
+	} = useStudioShell()
 	const [explorePrefsHydrated, setExplorePrefsHydrated] = useState(false)
 	const exploreStudioHydratedRef = useRef(false)
 
@@ -899,7 +903,6 @@ export function HomeV2ExploreContent() {
 	const [tilt, setTilt] = useState({ x: 0, y: 0 })
 	const [flagNavDir, setFlagNavDir] = useState<1 | -1>(1)
 	const [stripeGap, setStripeGap] = useState(0)
-	const [cornerRadius, setCornerRadius] = useState(0)
 	const [gifExporting, setGifExporting] = useState(false)
 	const pointerStart = useRef<{ x: number } | null>(null)
 	const stageRef = useRef<HTMLDivElement>(null)
@@ -919,58 +922,49 @@ export function HomeV2ExploreContent() {
 				? false
 				: systemPrefersReducedMotion === true
 
-	const applyStudioSnapshot = useCallback((s: ExploreStudioSnapshot) => {
-		setColumnCount(s.columnCount)
-		setWaveBoost(s.waveBoost)
-		setStripeGap(s.stripeGap)
-		setCornerRadius(s.cornerRadius)
-	}, [])
+	const applyStudioSnapshot = useCallback(
+		(s: ExploreStudioSnapshot) => {
+			setColumnCount(s.columnCount)
+			setWaveBoost(s.waveBoost)
+			setStripeGap(s.stripeGap)
+			setCornerRadius(s.cornerRadius)
+		},
+		[setCornerRadius]
+	)
 
-	const onMotionPreferenceChange = useCallback((value: ExploreMotionPreference) => {
-		setMotionPreference(value)
-		try {
-			localStorage.setItem(LS_EXPLORE_MOTION, value)
-		} catch {
-			/* ignore quota / private mode */
-		}
-	}, [])
+	const onMotionPreferenceChange = useCallback(
+		(value: ExploreStudioMotionPreference) => {
+			setMotionPreference(value)
+		},
+		[setMotionPreference]
+	)
 
 	const onStudioPersistChange = useCallback(
 		(persist: boolean) => {
 			setStudioPersist(persist)
+			if (!persist) return
 			try {
-				localStorage.setItem(LS_EXPLORE_STUDIO_PERSIST, persist ? "1" : "0")
-				if (persist) {
-					localStorage.setItem(
-						LS_EXPLORE_STUDIO,
-						JSON.stringify({
-							columnCount,
-							waveBoost,
-							stripeGap,
-							cornerRadius,
-						} satisfies ExploreStudioSnapshot)
-					)
-				}
+				localStorage.setItem(
+					LS_EXPLORE_STUDIO,
+					JSON.stringify({
+						columnCount,
+						waveBoost,
+						stripeGap,
+						cornerRadius,
+					} satisfies ExploreStudioSnapshot)
+				)
 			} catch {
 				/* ignore */
 			}
 		},
-		[columnCount, cornerRadius, stripeGap, waveBoost]
+		[columnCount, cornerRadius, setStudioPersist, stripeGap, waveBoost]
 	)
 
 	useEffect(() => {
 		if (exploreStudioHydratedRef.current) return
 		exploreStudioHydratedRef.current = true
 		try {
-			const motionRaw = localStorage.getItem(LS_EXPLORE_MOTION)
-			if (motionRaw === "system" || motionRaw === "reduce" || motionRaw === "full") {
-				setMotionPreference(motionRaw)
-			}
-
-			const persist = localStorage.getItem(LS_EXPLORE_STUDIO_PERSIST) === "1"
-			setStudioPersist(persist)
-
-			if (persist) {
+			if (studioPersist) {
 				const raw = localStorage.getItem(LS_EXPLORE_STUDIO)
 				const parsed = raw ? (JSON.parse(raw) as unknown) : null
 				const snap = parseExploreStudioSnapshot(parsed)
@@ -988,7 +982,7 @@ export function HomeV2ExploreContent() {
 			applyStudioSnapshot(randomExploreStudioSnapshot())
 		}
 		setExplorePrefsHydrated(true)
-	}, [applyStudioSnapshot])
+	}, [applyStudioSnapshot, studioPersist])
 
 	useEffect(() => {
 		if (!explorePrefsHydrated || !studioPersist) return
@@ -1006,12 +1000,6 @@ export function HomeV2ExploreContent() {
 			/* ignore */
 		}
 	}, [columnCount, cornerRadius, explorePrefsHydrated, stripeGap, studioPersist, waveBoost])
-
-	useEffect(() => {
-		if (!explorePrefsHydrated) return
-		writeSyncedCornerRadius(cornerRadius)
-		notifyStudioShellSync()
-	}, [cornerRadius, explorePrefsHydrated])
 
 	const flag = PRIDE_FLAGS[index]
 	const stripes = flag.display.stripes ?? []
@@ -1177,11 +1165,6 @@ export function HomeV2ExploreContent() {
 	// 	if (cornerRadius <= 0) return undefined
 	// 	return { clipPath: "none", borderRadius: `${cornerRadius}px` }
 	// }, [cornerRadius])
-
-	const studioShellStyle = useMemo((): CSSProperties | undefined => {
-		if (cornerRadius <= 0) return undefined
-		return { borderRadius: `${cornerRadius}px` }
-	}, [cornerRadius])
 
 	const flagStageSlideVariants = useMemo(
 		() => ({
@@ -1412,266 +1395,59 @@ export function HomeV2ExploreContent() {
 					</motion.div>
 				</motion.main>
 
-				<ExpandableTabBarDock data-dock="explore">
-					<ExpandableTabBar
-						style={studioShellStyle}
-						chipsSoftCorners={cornerRadius > 0}
-						tabs={[
-							{
-								id: "keyboard",
-								label: "Shortcuts",
-								icon: <Keyboard className="size-3.5" aria-hidden />,
-								content: (
-									<div className="min-w-[min(100vw-4rem,28rem)] space-y-3">
-										<header className="space-y-1">
-											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Navigation</p>
-											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Keyboard shortcuts</h2>
-											<p className="text-sm leading-snug text-muted-foreground">Navigate flags and more with your keyboard.</p>
-										</header>
-										<ExploreKeyboardLegend
-											onPrevious={prev}
-											onNext={next}
-											onRandom={shuffle}
-											className="py-12"
-										/>
-									</div>
-								),
-							},
-							{
-								id: "studio",
-								label: "Settings",
-								icon: <SlidersHorizontal className="size-3.5" aria-hidden />,
-								content: (
-									<div className="min-w-[min(100vw-4rem,28rem)] space-y-4 pb-4">
-										<header className="space-y-1 pb-3">
-											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Studio</p>
-											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">Motion & layout</h2>
-											<p className="text-sm leading-snug text-muted-foreground">Fine-tune motion, slice layout, and frames.</p>
-										</header>
-
-										{/* Motion preferences */}
-										<div
-											data-slot="motion"
-											className={cn(
-												"space-y-3 p-4 bg-foreground/5",
-												cornerRadius > 0 && "rounded-lg"
-											)}
-											style={studioShellStyle}
-										>
-											<div>
-												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-													Motion
-												</Label>
-												<p className="mt-1 text-xs leading-snug text-muted-foreground text-balance">
-													Default follows your device. Override like the site theme.
-												</p>
-											</div>
-											<RadioGroup
-												value={motionPreference}
-												onValueChange={(v) =>
-													onMotionPreferenceChange(v as ExploreMotionPreference)
-												}
-												className="grid gap-2.5 pt-1 sm:grid-cols-3"
-												aria-label="Reduce motion preference"
-											>
-												<div className="flex items-center gap-2">
-													<RadioGroupItem value="system" id="explore-motion-system" />
-													<Label
-														htmlFor="explore-motion-system"
-														className="cursor-pointer text-sm font-normal leading-none"
-													>
-														System
-													</Label>
-												</div>
-												<div className="flex items-center gap-2">
-													<RadioGroupItem value="reduce" id="explore-motion-reduce" />
-													<Label
-														htmlFor="explore-motion-reduce"
-														className="cursor-pointer text-sm font-normal leading-none"
-													>
-														Reduce
-													</Label>
-												</div>
-												<div className="flex items-center gap-2">
-													<RadioGroupItem value="full" id="explore-motion-full" />
-													<Label
-														htmlFor="explore-motion-full"
-														className="cursor-pointer text-sm font-normal leading-none"
-													>
-														Full
-													</Label>
-												</div>
-											</RadioGroup>
-										</div>
-										
-										{/* Slice resolution */}
-										<div
-											className={cn(
-												"space-y-2 p-4 bg-foreground/5",
-												cornerRadius > 0 && "rounded-lg"
-											)}
-											style={studioShellStyle}
-										>
-											<div className="flex items-center justify-between gap-3">
-												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-													Slice resolution
-												</Label>
-												<span className="text-xs tabular-nums text-muted-foreground">
-													{columnCount} columns
-												</span>
-											</div>
-											<Slider
-												value={[columnCount]}
-												onValueChange={(v) => setColumnCount(v[0] ?? 18)}
-												min={10}
-												max={32}
-												step={1}
-												aria-label="Adjust column count"
-											/>
-										</div>
-
-										{/* Gap between stripes */}
-										<div
-											className={cn(
-												"space-y-2 p-4 bg-foreground/5",
-												cornerRadius > 0 && "rounded-lg"
-											)}
-											style={studioShellStyle}
-										>
-											<div className="flex items-center justify-between gap-3">
-												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-													Gap between stripes
-												</Label>
-												<span className="text-xs tabular-nums text-muted-foreground">
-													{stripeGap}px
-												</span>
-											</div>
-											<Slider
-												value={[stripeGap]}
-												onValueChange={(v) => setStripeGap(v[0] ?? 0)}
-												min={0}
-												max={16}
-												step={1}
-												aria-label="Gap between stripes"
-											/>
-										</div>
-
-										{/* Rounded edges */}
-										<div
-											className={cn(
-												"space-y-2 p-4 bg-foreground/5",
-												cornerRadius > 0 && "rounded-lg"
-											)}
-											style={studioShellStyle}
-										>
-											<div className="flex items-center justify-between gap-3">
-												<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-													Rounded edges
-												</Label>
-												<span className="text-xs tabular-nums text-muted-foreground">
-													{cornerRadius}px
-												</span>
-											</div>
-											<Slider
-												value={[cornerRadius]}
-												onValueChange={(v) => setCornerRadius(v[0] ?? 0)}
-												min={0}
-												max={28}
-												step={1}
-												aria-label="Border radius"
-											/>
-										</div>
-
-										{/* Save studio settings */}
-										<div
-											className={cn(
-												"flex flex-row justify-between gap-3 p-4 bg-foreground/5",
-												cornerRadius > 0 && "rounded-lg"
-											)}
-											style={studioShellStyle}
-										>
-											<div className="min-w-0 space-y-0.5">
-												<Label
-													htmlFor="studio-persist-etb"
-													className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground"
-												>
-													Save studio settings
-												</Label>
-												<p className="text-xs leading-snug text-muted-foreground text-balance">
-													{studioPersist
-														? "Layout and motion sliders stay as you left them."
-														: "Random slice layout on each visit."}
-												</p>
-											</div>
-											<Switch
-												id="studio-persist-etb"
-												checked={studioPersist}
-												onCheckedChange={onStudioPersistChange}
-											/>
-										</div>
-
-										{/* Export GIF */}
-										<div
-											className={cn(
-												"space-y-2 p-4 bg-foreground/5",
-												cornerRadius > 0 && "rounded-lg"
-											)}
-											style={studioShellStyle}
-										>
-											<Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-												Export
-											</Label>
-											<Button
-												type="button"
-												variant="outline"
-												className={cn(
-													"w-full gap-2 font-display text-xs font-bold uppercase tracking-wide",
-													cornerRadius <= 0 && "rounded-none"
-												)}
-												style={studioShellStyle}
-												disabled={gifExporting}
-												onClick={() => void handleDownloadAnimatedGif()}
-											>
-												<Download className="size-4 shrink-0 opacity-80" aria-hidden />
-												{gifExporting ? "Encoding…" : "Download GIF"}
-											</Button>
-										</div>
-									</div>
-								),
-							},
-							{
-								id: "more",
-								label: "More",
-								icon: <Telescope className="size-3.5" aria-hidden />,
-								content: (
-									<div className="min-w-[min(100vw-4rem,28rem)]">
-										<header className="space-y-1 pt-1 pb-2">
-											<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">Explore</p>
-											<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">More</h2>
-										</header>
-										<ExploreMoreLinkGrid
-											shellStyle={studioShellStyle}
-											cornerRadius={cornerRadius}
-										/>
-									</div>
-								),
-							},
-							{
-								id: "theme",
-								label: "Theme",
-								icon: <ExploreThemeIcon className="size-3.5" aria-hidden />,
-								content: (
-									<ExploreThemeMenuPanel
-										theme={theme}
-										setTheme={setTheme}
-										shellStyle={studioShellStyle}
-										cornerRadius={cornerRadius}
-									/>
-								),
-							},
-						]}
-					/>
-				</ExpandableTabBarDock>
+				<PrismExpandableDock
+					data-dock="explore"
+					style={studioShellStyle}
+					chipsSoftCorners={cornerRadius > 0}
+					appearanceTriggerIcon={<ExploreThemeIcon className="size-3.5" aria-hidden />}
+					shortcutsPanel={
+						<div className="min-w-[min(100vw-4rem,28rem)] space-y-3">
+							<header className="space-y-1">
+								<p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">
+									Navigation
+								</p>
+								<h2 className="font-display text-lg font-extrabold leading-tight tracking-tight text-foreground">
+									Keyboard shortcuts
+								</h2>
+								<p className="text-sm leading-snug text-muted-foreground">
+									Navigate flags and more with your keyboard.
+								</p>
+							</header>
+							<ExploreKeyboardLegend
+								onPrevious={prev}
+								onNext={next}
+								onRandom={shuffle}
+								className="py-12"
+							/>
+						</div>
+					}
+					appearancePanel={
+						<ExploreThemeMenuPanel
+							theme={theme}
+							setTheme={setTheme}
+							shellStyle={studioShellStyle}
+							cornerRadius={cornerRadius}
+							secondaryColumn={
+								<ExploreStudioSettingsPanel
+									variant="explore"
+									studioShellStyle={studioShellStyle}
+									cornerRadius={cornerRadius}
+									motionPreference={motionPreference}
+									onMotionPreferenceChange={onMotionPreferenceChange}
+									columnCount={columnCount}
+									setColumnCount={setColumnCount}
+									stripeGap={stripeGap}
+									setStripeGap={setStripeGap}
+									setCornerRadius={setCornerRadius}
+									studioPersist={studioPersist}
+									onStudioPersistChange={onStudioPersistChange}
+									gifExporting={gifExporting}
+									onDownloadGif={() => void handleDownloadAnimatedGif()}
+								/>
+							}
+						/>
+					}
+				/>
 
 			</div>
 		</div>

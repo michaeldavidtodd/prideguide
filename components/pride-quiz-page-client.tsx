@@ -2,11 +2,10 @@
 
 import { useCallback, useState } from "react"
 import confetti from "canvas-confetti"
-import { useReducedMotion } from "framer-motion"
 import { Check, Trophy, X } from "lucide-react"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { PrideLearnPageContent } from "@/components/pride-learn-chrome"
-import { useStudioShell } from "@/components/studio-shell-context"
+import { usePrismMotionReduced, useStudioShell } from "@/components/studio-shell-context"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,7 +16,7 @@ import { cn } from "@/lib/utils"
 
 export function PrideQuizPageClient() {
   const { cornerRadius, studioShellStyle } = useStudioShell()
-  const shouldReduceMotion = useReducedMotion()
+  const shouldReduceMotion = usePrismMotionReduced()
   const [quizScore, setQuizScore] = useState(0)
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0)
   const [showQuizResult, setShowQuizResult] = useState(false)

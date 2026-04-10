@@ -1,9 +1,9 @@
 "use client"
 
-import { motion, useReducedMotion } from "framer-motion"
+import { motion } from "framer-motion"
 import { Heart } from "lucide-react"
 import { PrideLearnPageContent } from "@/components/pride-learn-chrome"
-import { useStudioShell } from "@/components/studio-shell-context"
+import { usePrismMotionReduced, useStudioShell } from "@/components/studio-shell-context"
 import { Card } from "@/components/ui/card"
 import { ALLY_TIPS } from "@/lib/ally-tips"
 import { PRIDE_FLAGS } from "@/lib/flags"
@@ -16,7 +16,7 @@ function allyAccentStripe(index: number): string {
 }
 
 export function PrideAllyPageClient() {
-  const shouldReduceMotion = useReducedMotion()
+  const shouldReduceMotion = usePrismMotionReduced()
   const { cornerRadius, studioShellStyle } = useStudioShell()
 
   return (

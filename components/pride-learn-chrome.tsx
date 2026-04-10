@@ -2,12 +2,12 @@
 
 import type { ReactNode } from "react"
 import { useEffect, useMemo, useState } from "react"
-import { motion, useReducedMotion } from "framer-motion"
+import { motion } from "framer-motion"
 import { useTheme } from "next-themes"
-import { ExpandableTabBar, ExpandableTabBarDock } from "@/components/expandable-tab-bar"
+import { ExploreStudioSettingsPanel } from "@/components/explore-studio-settings-panel"
 import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
-import { useStudioShell } from "@/components/studio-shell-context"
-import { getPrismLearnDockLinkTabs } from "@/lib/prism-nav"
+import { PrismExpandableDock } from "@/components/prism-expandable-dock"
+import { usePrismMotionReduced, useStudioShell } from "@/components/studio-shell-context"
 import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
 
 /**
@@ -23,7 +23,15 @@ export function PrideLearnShell({ children }: { children: ReactNode }) {
 function PrideLearnShellInner({ children }: { children: ReactNode }) {
   const { theme, setTheme, themes: availableThemes } = useTheme()
   const [themeIconMounted, setThemeIconMounted] = useState(false)
-  const { cornerRadius, studioShellStyle } = useStudioShell()
+  const {
+    cornerRadius,
+    studioShellStyle,
+    motionPreference,
+    studioPersist,
+    setCornerRadius,
+    setMotionPreference,
+    setStudioPersist,
+  } = useStudioShell()
 
   useEffect(() => {
     setThemeIconMounted(true)
@@ -39,30 +47,31 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
         {children}
       </div>
 
-      <ExpandableTabBarDock>
-        <ExpandableTabBar
-          style={studioShellStyle}
-          chipsSoftCorners={cornerRadius > 0}
-          navAriaLabel="Prism pages and theme"
-          panelAriaLabel="Theme"
-          tabs={[
-            ...getPrismLearnDockLinkTabs(),
-            {
-              id: "theme",
-              label: "Theme",
-              icon: <ThemeDockIcon className="size-3.5" aria-hidden />,
-              content: (
-                <ExploreThemeMenuPanel
-                  theme={theme}
-                  setTheme={setTheme}
-                  shellStyle={studioShellStyle}
-                  cornerRadius={cornerRadius}
-                />
-              ),
-            },
-          ]}
-        />
-      </ExpandableTabBarDock>
+      <PrismExpandableDock
+        style={studioShellStyle}
+        chipsSoftCorners={cornerRadius > 0}
+        appearanceTriggerIcon={<ThemeDockIcon className="size-3.5" aria-hidden />}
+        appearancePanel={
+          <ExploreThemeMenuPanel
+            theme={theme}
+            setTheme={setTheme}
+            shellStyle={studioShellStyle}
+            cornerRadius={cornerRadius}
+            secondaryColumn={
+              <ExploreStudioSettingsPanel
+                variant="prism"
+                studioShellStyle={studioShellStyle}
+                cornerRadius={cornerRadius}
+                motionPreference={motionPreference}
+                onMotionPreferenceChange={setMotionPreference}
+                setCornerRadius={setCornerRadius}
+                studioPersist={studioPersist}
+                onStudioPersistChange={setStudioPersist}
+              />
+            }
+          />
+        }
+      />
     </>
   )
 }
@@ -71,10 +80,10 @@ const learnIntroEase = [0.25, 1, 0.5, 1] as const
 
 /** Staggered intro variants for Prism learn pages (opacity + translateY; honors reduced motion). */
 export function useLearnPageIntroVariants() {
-  const prefersReducedMotion = useReducedMotion()
+  const reduceMotion = usePrismMotionReduced()
 
   return useMemo(() => {
-    const reduce = prefersReducedMotion === true
+    const reduce = reduceMotion === true
     const duration = reduce ? 0.01 : 0.44
     const stagger = reduce ? 0 : 0.11
     const delayChildren = reduce ? 0 : 0.05
@@ -96,7 +105,7 @@ export function useLearnPageIntroVariants() {
         },
       },
     }
-  }, [prefersReducedMotion])
+  }, [reduceMotion])
 }
 
 /**

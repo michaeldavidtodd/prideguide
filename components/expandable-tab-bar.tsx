@@ -114,6 +114,12 @@ export function ExpandableTabBar({
   }, [activeTab])
 
   useEffect(() => {
+    if (activeTab === null) return
+    const stillOpen = tabs.some((t) => isPanelItem(t) && t.id === activeTab)
+    if (!stillOpen) setActiveTab(null)
+  }, [activeTab, tabs])
+
+  useEffect(() => {
     if (activeTab !== null) {
       document.body.style.overflow = "hidden"
       return () => { document.body.style.overflow = "" }
