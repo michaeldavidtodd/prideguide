@@ -4,9 +4,7 @@
  */
 .explore-page-root {
   flex: 1;
-  padding-top: 4rem;
   padding-bottom: 6rem;
-  overflow: hidden;
 }
 @media (max-width: 1279px) {
   /* .explore-page-root,
@@ -67,7 +65,7 @@
     lg:flex
     /* xl:h-full xl:min-h-0 xl:flex-1 xl:flex-col xl:items-stretch */
     border-foreground/10
-    max-md:order-3
+    max-lg:order-3
   ;
   [data-slot="site-header-title"] {
     @apply relative z-10 flex w-full flex-col gap-2 pt-1 px-4 xl:pr-16;

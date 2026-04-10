@@ -1396,7 +1396,7 @@ export function HomeV2ExploreContent() {
 							</aside>
 
 							<div
-								className="max-md:order-2 max-md:pb-8 lg:hidden flex flex-row items-center justify-center gap-4 p-4 h-fit"
+								className="max-lg:order-2 max-lg:pb-8 lg:hidden flex flex-row items-center justify-center gap-4 p-4 h-fit"
 								aria-hidden
 								style={studioShellStyle}
 							>
