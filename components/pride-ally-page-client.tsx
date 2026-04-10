@@ -56,7 +56,7 @@ export function PrideAllyPageClient() {
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <Heart
-                      className="size-[1.125rem] shrink-0 stroke-[2.25] text-primary opacity-90 transition-transform duration-200 ease-out group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                      className="size-4.5 shrink-0 stroke-[2.25] text-primary opacity-90 transition-transform duration-200 ease-out group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       aria-hidden
                     />
                   </div>

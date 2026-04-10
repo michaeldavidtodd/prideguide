@@ -10,7 +10,7 @@ Tell	Where it shows up
 Inter everywhere
 layout.tsx + skill: Inter called out as overused default
 Gradient text “for impact”
-“Pride Guide” title uses bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text — explicit DON’T
+“Pride Guide” title uses bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text — explicit DON’T
 Purple / pink / sparkle combo
 Sparkles + purple–pink gradient = classic “AI SaaS” palette signal
 Identical card grid

@@ -185,7 +185,7 @@ export function PrideQuizPageClient() {
             >
               Question {currentQuizQuestion + 1}/{QUIZ_QUESTIONS.length}
             </Badge>
-            <div className="flex min-w-[8rem] flex-1 items-center justify-end gap-2 lg:min-w-0 lg:max-w-none">
+            <div className="flex min-w-32 flex-1 items-center justify-end gap-2 lg:min-w-0 lg:max-w-none">
               <Progress
                 value={quizProgressPercent}
                 className={cn(

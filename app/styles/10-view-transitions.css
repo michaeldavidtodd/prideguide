@@ -1,0 +1,51 @@
+/* ── View transitions ──────────────────────────────────────── */
+
+/*
+ * The site-header (`.site-header`) has its own view-transition-name so the
+ * browser treats it as a shared element that stays in place across navigations.
+ * We suppress the default root crossfade so only named regions animate.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Header stays perfectly still — no animation at all. */
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+/* Learn page body content fades between routes. */
+.learn-body {
+  view-transition-name: learn-body;
+}
+
+::view-transition-old(learn-body) {
+  animation: learn-fade-out 180ms ease-out;
+}
+::view-transition-new(learn-body) {
+  animation: learn-fade-in 220ms ease-out 60ms both;
+}
+
+@keyframes learn-fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes learn-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(learn-body),
+  ::view-transition-new(learn-body),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.001ms !important;
+  }
+}

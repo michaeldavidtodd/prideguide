@@ -1,0 +1,94 @@
+@layer base {
+  /*
+   * Light: max-chroma parade (pink / coral / gold).
+   * Dark: *electric cool* — cyan + violet + magenta on blue-black (not Chillwave’s warm purple).
+   * Chillwave: *warm vapor* — deeper royal purple, hotter pink, coral, sun gold.
+   */
+  :root {
+    --background: 292 62% 93%;
+    --foreground: 265 62% 10%;
+    --card: 288 50% 98%;
+    --card-foreground: 265 62% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 265 62% 10%;
+    --primary: 328 100% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 16 100% 90%;
+    --secondary-foreground: 12 100% 18%;
+    --muted: 278 52% 86%;
+    --muted-foreground: 278 48% 28%;
+    --accent: 44 100% 82%;
+    --accent-foreground: 32 100% 18%;
+    --destructive: 0 90% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 292 58% 58%;
+    --input: 288 48% 80%;
+    --ring: 328 100% 46%;
+    --radius: 0.5rem;
+
+    --quiz-feedback-correct: 158 82% 30%;
+    --quiz-feedback-correct-icon: 162 90% 28%;
+    --quiz-feedback-incorrect: 10 100% 42%;
+    --quiz-feedback-incorrect-icon: 16 100% 36%;
+  }
+
+  /* Nocturnal electric — visually distinct from Chillwave’s warm purple lounge */
+  .dark {
+    --background: 232 58% 6%;
+    --foreground: 195 45% 96%;
+    --card: 235 52% 9%;
+    --card-foreground: 195 45% 96%;
+    --popover: 235 55% 7%;
+    --popover-foreground: 195 45% 96%;
+    --primary: 187 100% 46%;
+    --primary-foreground: 232 58% 8%;
+    --secondary: 268 92% 72%;
+    --secondary-foreground: 232 58% 8%;
+    --muted: 230 42% 13%;
+    --muted-foreground: 215 38% 68%;
+    --accent: 202 96% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 88% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 48% 20%;
+    --input: 230 40% 16%;
+    --ring: 187 100% 50%;
+
+    --quiz-feedback-correct: 158 75% 46%;
+    --quiz-feedback-correct-icon: 163 82% 58%;
+    --quiz-feedback-incorrect: 18 98% 56%;
+    --quiz-feedback-incorrect-icon: 22 100% 64%;
+  }
+
+  .chillwave {
+    --background: 268 72% 8%;
+    --foreground: 305 100% 91%;
+    --card: 278 58% 13%;
+    --card-foreground: 305 100% 91%;
+    --popover: 275 55% 10%;
+    --popover-foreground: 305 100% 91%;
+    --primary: 328 100% 68%;
+    --primary-foreground: 268 72% 8%;
+    --secondary: 18 100% 56%;
+    --secondary-foreground: 268 72% 8%;
+    --muted: 280 52% 18%;
+    --muted-foreground: 300 88% 74%;
+    --accent: 46 100% 58%;
+    --accent-foreground: 268 72% 8%;
+    --destructive: 0 88% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 286 58% 32%;
+    --input: 280 48% 15%;
+    --ring: 328 100% 70%;
+    --radius: 0.5rem;
+
+    /* Chillwave specific effects */
+    --chillwave-card-glow: 0 0 22px hsl(var(--primary) / 0.62), 0 0 44px hsl(var(--primary) / 0.38);
+
+    /* Quiz feedback: separate hues from primary (pink) vs destructive (red) so correct/wrong read clearly */
+    --quiz-feedback-correct: 158 72% 48%;
+    --quiz-feedback-correct-icon: 163 80% 62%;
+    --quiz-feedback-incorrect: 18 96% 58%;
+    --quiz-feedback-incorrect-icon: 22 100% 68%;
+  }
+}

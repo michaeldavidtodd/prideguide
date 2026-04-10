@@ -41,7 +41,6 @@
     "@radix-ui/react-toggle": "latest",
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
-    "autoprefixer": "^10.4.27",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -51,7 +50,7 @@
     "gifenc": "^1.0.3",
     "input-otp": "latest",
     "lucide-react": "^0.454.0",
-    "next": "^16.2.1",
+    "next": "^16.2.3",
     "next-themes": "latest",
     "react": "^19.2.4",
     "react-day-picker": "latest",
@@ -67,12 +66,13 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22.19.15",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.8",
-    "tailwindcss": "^3.4.19",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3"
   }
 }

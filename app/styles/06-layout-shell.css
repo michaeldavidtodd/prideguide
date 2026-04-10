@@ -1,0 +1,9 @@
+/* --- Home layout shell: editorial canvas + pixel-stage framing (theme tokens) --- */
+
+[data-slot="layout"] {
+  @apply flex flex-col flex-1 text-foreground lg:overflow-y-scroll;
+}
+
+[data-slot="layout-body"] {
+  @apply flex w-full flex-col flex-1 lg:overflow-hidden;
+}

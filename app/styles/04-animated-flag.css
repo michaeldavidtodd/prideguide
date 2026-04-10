@@ -1,0 +1,72 @@
+/* Josh Comeau's flag animation technique */
+@keyframes oscillate {
+  from {
+    transform: translateY(var(--billow));
+  }
+  to {
+    transform: translateY(calc(var(--billow) * -1));
+  }
+}
+
+.animated-flag {
+  display: flex;
+  overflow: visible;
+  /* Ensure proper aspect ratio is maintained */
+  width: 100%;
+  height: auto;
+  /* filter: drop-shadow(0 1rem 7rem hsl(var(--secondary) / 0.4)); */
+}
+
+/*
+ * Uniform contain: same aspect at every viewport. Pairs
+ *   width = min(slotW, slotH * ar), height = min(slotH, slotW / ar)
+ * so the flag always matches --flag-ar (width ÷ height). Parent needs
+ * `container-type: size` + definite width and height (see `.flag-bounds`).
+ */
+.animated-flag--contain {
+  box-sizing: border-box;
+  /* width: min(100cqw, calc(100cqh * var(--flag-ar, 1.5))) !important;
+  height: min(100cqh, calc(100cqw / var(--flag-ar, 1.5))) !important; */
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 3/2.2;
+  flex: 0 0 auto !important;
+}
+
+.flag-bounds {
+  container-type: size;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  min-width: 0;
+}
+
+.flag-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: oscillate 650ms alternate infinite ease-in-out both;
+  /* Ensure columns fill the full height */
+  height: 100%;
+  /* Clip SVG/foreground to rounded corners (background alone is clipped by radius; children are not) */
+  overflow: hidden;
+}
+
+.animated-flag .flag-column:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.animated-flag .flag-column:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Inline stripeCornerRadiusPx overrides default end caps */
+.animated-flag--radius-controlled.animated-flag .flag-column:first-child,
+.animated-flag--radius-controlled.animated-flag .flag-column:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}

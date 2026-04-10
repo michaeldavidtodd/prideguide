@@ -1,0 +1,98 @@
+@keyframes quizAnswerSelectedPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.quiz-answer-selected-pop {
+  animation: quizAnswerSelectedPop 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Quiz answer options: clear idle / correct / incorrect / faded states (all themes).
+   `button.` prefix beats shadcn outline hover utilities. */
+button.quiz-answer-btn {
+  border-width: 2px;
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: inset 0 0 0 0 transparent;
+  transition:
+    background-color 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+button.quiz-answer-btn.quiz-answer-btn--interactive:hover {
+  border-color: hsl(var(--primary) / 0.55);
+  background-color: color-mix(in hsl, hsl(var(--primary)) 11%, hsl(var(--card)));
+  color: hsl(var(--card-foreground));
+}
+
+button.quiz-answer-btn.quiz-answer-btn--interactive:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+button.quiz-answer-btn.quiz-answer-btn--interactive:focus-visible:hover {
+  border-color: hsl(var(--primary) / 0.65);
+}
+
+button.quiz-answer-btn.quiz-answer-btn--correct {
+  border-color: hsl(var(--quiz-feedback-correct));
+  background-color: color-mix(in hsl, hsl(var(--quiz-feedback-correct)) 28%, hsl(var(--card)));
+  color: hsl(var(--foreground));
+  box-shadow: inset 5px 0 0 hsl(var(--quiz-feedback-correct));
+}
+
+button.quiz-answer-btn.quiz-answer-btn--correct svg {
+  color: hsl(var(--quiz-feedback-correct-icon));
+}
+
+button.quiz-answer-btn.quiz-answer-btn--incorrect {
+  border-color: hsl(var(--quiz-feedback-incorrect));
+  background-color: color-mix(in hsl, hsl(var(--quiz-feedback-incorrect)) 24%, hsl(var(--card)));
+  color: hsl(var(--foreground));
+  box-shadow: inset 5px 0 0 hsl(var(--quiz-feedback-incorrect));
+}
+
+button.quiz-answer-btn.quiz-answer-btn--incorrect svg {
+  color: hsl(var(--quiz-feedback-incorrect-icon));
+}
+
+button.quiz-answer-btn.quiz-answer-btn--dimmed {
+  border-color: hsl(var(--border) / 0.42);
+  background-color: color-mix(in hsl, hsl(var(--muted)) 55%, hsl(var(--card)));
+  color: hsl(var(--muted-foreground));
+  opacity: 0.88;
+}
+
+/* Explore Focus: honor in-app motion choice (see pride-home-client.tsx) */
+.home-explore-reduce-motion .animated-flag .flag-column {
+  animation: none !important;
+}
+
+.home-explore-force-motion .animated-flag .flag-column {
+  animation: oscillate 650ms alternate infinite ease-in-out both !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flag-column {
+    animation: none !important;
+  }
+
+  .quiz-answer-selected-pop {
+    animation: none;
+  }
+
+  button.quiz-answer-btn {
+    transition-duration: 120ms;
+  }
+}

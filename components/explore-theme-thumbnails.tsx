@@ -44,7 +44,7 @@ function MiniChrome({
 }) {
 	return (
 		<div
-			className="relative aspect-[5/3] w-full overflow-hidden shadow-inner"
+			className="relative aspect-5/3 w-full overflow-hidden shadow-inner"
 			style={{ background: bg }}
 		>
 			{children}
@@ -122,7 +122,7 @@ function ChillwavePreview() {
 
 function SystemPreview() {
 	return (
-		<div className="relative aspect-[5/3] w-full overflow-hidden shadow-inner">
+		<div className="relative aspect-5/3 w-full overflow-hidden shadow-inner">
 			<div className="absolute inset-0 grid grid-cols-2">
 				<div className="h-full" style={{ background: light.bg }} />
 				<div className="h-full" style={{ background: dark.grad }} />
@@ -242,7 +242,7 @@ export function ExploreThemeThumbnailGrid({
 					>
 					<div
 						className={cn(
-							"relative aspect-[5/3] w-full overflow-hidden border border-border/55 shadow-sm transition-[border-color,box-shadow,transform] duration-200 ease-out motion-reduce:transition-none",
+							"relative aspect-5/3 w-full overflow-hidden border border-border/55 shadow-sm transition-[border-color,box-shadow,transform] duration-200 ease-out motion-reduce:transition-none",
 								"motion-safe:group-hover:scale-[1.02] motion-reduce:group-hover:scale-100",
 								"group-hover:border-primary/30 group-hover:shadow-md group-hover:shadow-primary/10",
 								cornerSoft ? "rounded-md" : "rounded-none",

@@ -6,7 +6,7 @@
 import type { FlagDefinition } from "@/lib/flags"
 import { GIFEncoder, quantize, applyPalette } from "gifenc"
 
-/** Matches `.flag-column` in app/globals.css */
+/** Matches `.flag-column` in app/styles/04-animated-flag.css */
 export const FLAG_OSCILLATE_HALF_MS = 650
 export const FLAG_OSCILLATE_PERIOD_MS = FLAG_OSCILLATE_HALF_MS * 2
 

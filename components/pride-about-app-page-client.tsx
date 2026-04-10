@@ -7,7 +7,7 @@ import { PrideLearnPageContent, useLearnPageIntroVariants } from "@/components/p
 import { useStudioShell } from "@/components/studio-shell-context"
 import { PrismMarkLogo } from "@/components/prism-mark-logo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PRIDE_CLASSIC_PATH, PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
+import { PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
 import { PRIDE_FLAGS } from "@/lib/flags"
 import { QUIZ_QUESTIONS } from "@/lib/quiz-questions"
 import { cn } from "@/lib/utils"
@@ -93,15 +93,6 @@ export function PrideAboutAppPageClient() {
             className="font-display text-sm font-bold uppercase tracking-[0.14em] underline underline-offset-4 hover:text-foreground"
           >
             Explore flags
-          </Link>
-          <span className="mx-2.5 tabular-nums opacity-40" aria-hidden>
-            ·
-          </span>
-          <Link
-            href={PRIDE_CLASSIC_PATH}
-            className="text-sm underline decoration-foreground/30 underline-offset-4 hover:text-foreground"
-          >
-            Classic layout
           </Link>
         </motion.p>,
       ]}

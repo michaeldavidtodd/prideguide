@@ -3,14 +3,14 @@
 import Image from "next/image"
 import Link from "next/link"
 
-/** Top site chrome used on Explore and Prism learn pages (`explore-header` in globals.css). */
+/** Top site chrome used on Explore and Prism learn pages (`site-header` in globals.css). */
 export function ExploreSiteHeader() {
   return (
-    <header data-slot="explore-header" className="explore-header">
+    <header data-slot="site-header" className="site-header">
       <Link
-        data-slot="explore-header-brand"
+        data-slot="site-header-brand"
         href="/"
-        className="explore-header-brand group flex shrink-0 items-center gap-2.5 outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="site-header-brand group flex shrink-0 items-center gap-2.5 outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label="Pride Guide home"
       >
         <Image

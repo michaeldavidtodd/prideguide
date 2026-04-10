@@ -1,0 +1,74 @@
+/* --- Aurora: cycling soft flag-color blobs behind all content --- */
+@keyframes auroraDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(8%, -6%) scale(1.1); }
+  66%      { transform: translate(-5%, 4%) scale(0.95); }
+}
+@keyframes auroraDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%      { transform: translate(-10%, 8%) scale(1.15); }
+  70%      { transform: translate(6%, -3%) scale(0.9); }
+}
+@keyframes auroraDrift3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(5%, 10%) scale(1.05); }
+  55%      { transform: translate(-8%, -5%) scale(1.12); }
+}
+
+.home-aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.home-aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(clamp(80px, 14vw, 160px));
+  opacity: 0.5;
+  transition: background 1.8s ease;
+  will-change: transform;
+}
+
+.dark .home-aurora-blob {
+  opacity: 0.48;
+}
+
+.chillwave .home-aurora-blob {
+  opacity: 0.36;
+}
+
+.home-aurora-blob--1 {
+  width: 55%;
+  height: 60%;
+  top: -15%;
+  right: -10%;
+  animation: auroraDrift1 18s ease-in-out infinite;
+  background: var(--welcome-stripe-1);
+}
+
+.home-aurora-blob--2 {
+  width: 45%;
+  height: 50%;
+  bottom: -10%;
+  left: -8%;
+  animation: auroraDrift2 22s ease-in-out infinite;
+  background: var(--welcome-stripe-2);
+}
+
+.home-aurora-blob--3 {
+  width: 40%;
+  height: 45%;
+  top: 30%;
+  left: 35%;
+  animation: auroraDrift3 26s ease-in-out infinite;
+  background: var(--welcome-stripe-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-aurora-blob {
+    animation: none;
+  }
+}

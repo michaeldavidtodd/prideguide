@@ -19,7 +19,7 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        "pointer-events-none block size-[1.75rem] rounded-full bg-background shadow-lg ring-0 transition-transform translate-x-0 data-[state=checked]:translate-x-8"
+        "pointer-events-none block size-7 rounded-full bg-background shadow-lg ring-0 transition-transform translate-x-0 data-[state=checked]:translate-x-8"
       )}
     />
     <span className="select-none text-[12px] font-bold uppercase leading-none tracking-tight flex-1 data-[state=checked]:text-background data-[state=unchecked]:text-background absolute transition-position left-8 data-[state=checked]:left-2" data-state={props.checked ? "checked" : "unchecked"}>

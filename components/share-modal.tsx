@@ -148,10 +148,10 @@ export function ShareModal({ flag, isOpen, onClose }: ShareModalProps) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 z-[120]" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/50 z-120" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-[121] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-121 flex items-center justify-center p-4">
         <Card className="w-full max-w-md mx-auto">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-lg">

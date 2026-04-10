@@ -157,7 +157,7 @@ export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransition
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
-                    <p className="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">Share this flag</p>
+                    <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Share this flag</p>
                     <div className="flex flex-wrap justify-end gap-2">
                       {canonicalFlag ? (
                         <Button size="sm" variant="outline" disabled={gifExporting} onClick={handleDownloadGif}>

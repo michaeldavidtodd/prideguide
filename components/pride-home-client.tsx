@@ -237,14 +237,14 @@ function FlagAurora({ blobs }: { blobs: readonly [string, string, string] }) {
 	}, [])
 
 	return (
-		<div className="home-v2-aurora" aria-hidden>
+		<div className="home-aurora" aria-hidden>
 			{blobOrder.map((id) => {
 				const slot = id - 1
 				const stripeIdx = stripePerm[slot]!
 				return (
 					<div
 						key={id}
-						className={`home-v2-aurora-blob home-v2-aurora-blob--${id}`}
+						className={`home-aurora-blob home-aurora-blob--${id}`}
 						style={{
 							background: blobs[stripeIdx],
 							animationDelay: phaseDelays[id],
@@ -364,7 +364,7 @@ function HomeV2AboutBlock({
 			</blockquote>
 			<Accordion data-slot="about-flag-accordion" type="single" collapsible  className="border border-foreground/10 bg-background/40" style={studioShellStyle}>
 				<AccordionItem value="overview" className="border-foreground/10 px-1">
-					<AccordionTrigger className="home-v2-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
+					<AccordionTrigger className="home-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
 						At a glance
 					</AccordionTrigger>
 					<AccordionContent className="px-3 pb-3 text-xs leading-relaxed text-muted-foreground sm:pb-4 sm:text-sm">
@@ -372,7 +372,7 @@ function HomeV2AboutBlock({
 					</AccordionContent>
 				</AccordionItem>
 				<AccordionItem value="history" className="border-foreground/10 px-1">
-					<AccordionTrigger className="home-v2-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
+					<AccordionTrigger className="home-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
 						History & context
 					</AccordionTrigger>
 					<AccordionContent className="px-3 pb-3 text-xs leading-relaxed text-muted-foreground sm:pb-4 sm:text-sm">
@@ -380,7 +380,7 @@ function HomeV2AboutBlock({
 					</AccordionContent>
 				</AccordionItem>
 				<AccordionItem value="significance" className="border-none px-1">
-					<AccordionTrigger className="home-v2-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
+					<AccordionTrigger className="home-accordion-trigger px-3 py-3 font-display text-sm font-bold hover:no-underline sm:py-4 sm:text-base">
 						Full significance
 					</AccordionTrigger>
 					<AccordionContent className="px-3 pb-3 text-xs leading-relaxed text-muted-foreground sm:pb-4 sm:text-sm">
@@ -443,7 +443,7 @@ function ExploreKeyboardLegend({
 					<dd className="flex flex-col items-center gap-2 text-foreground">
 						<button
 							type="button"
-							className={cn(exploreKbd, exploreKbdBtn, "min-w-[4.75rem] px-[1.38rem] !text-sm")}
+							className={cn(exploreKbd, exploreKbdBtn, "min-w-19 px-[1.38rem] text-sm!")}
 							aria-label="Random flag. Keyboard: Space."
 							onClick={onRandom}
 						>
@@ -511,21 +511,21 @@ function HomeV2StripePaletteStrip({
 							role="listitem"
 							title={title}
 							className={cn(
-								"home-v2-stripe-swatch group relative min-w-0 flex-1 border-0 bg-transparent p-0 transition-[flex,transform] duration-200 ease-out focus-visible:outline-none",
+								"home-stripe-swatch group relative min-w-0 flex-1 border-0 bg-transparent p-0 transition-[flex,transform] duration-200 ease-out focus-visible:outline-none",
 								minH,
-								active ? "z-[1] flex-[1.35]" : "hover:flex-[1.12] hover:brightness-105"
+								active ? "z-1 flex-[1.35]" : "hover:flex-[1.12] hover:brightness-105"
 							)}
 							onClick={() => onStripeToggle(swatchIndex)}
 							aria-pressed={active}
 							aria-label={a11yLabel}
 						>
 							<span
-								className="home-v2-stripe-cut pointer-events-none absolute inset-0 z-0 block"
+								className="home-stripe-cut pointer-events-none absolute inset-0 z-0 block"
 								style={{ backgroundColor: hex }}
 								aria-hidden={true}
 							/>
 							<span
-								className="home-v2-stripe-rim pointer-events-none absolute inset-0 z-[1] block"
+								className="home-stripe-rim pointer-events-none absolute inset-0 z-1 block"
 								aria-hidden={true}
 							/>
 							<span className="sr-only">
@@ -575,7 +575,7 @@ function HomeV2BootOverlay({ phase, prideStripes }: { phase: BootPhase; prideStr
 
 	return (
 		<motion.div
-			className="fixed inset-0 z-[250] flex flex-col items-center justify-center py-[min(22vh,10rem)] sm:pb-[min(26vh,12rem)]"
+			className="fixed inset-0 z-250 flex flex-col items-center justify-center py-[min(22vh,10rem)] sm:pb-[min(26vh,12rem)]"
 			initial={{ opacity: 1 }}
 			animate={{ opacity: phase === "fade" ? 0 : 1 }}
 			transition={{ duration: BOOT_FADE_MS / 1000, ease: [0.22, 1, 0.36, 1] }}
@@ -725,7 +725,7 @@ export function HomeV2WelcomeContent() {
 	return (
 		<div
 			ref={homeRootRef}
-			className="home-v2-root flex lg:h-dvh flex-col text-foreground"
+			className="root flex lg:h-dvh flex-col text-foreground"
 			aria-busy={bootPhase !== "off"}
 			style={
 				{
@@ -748,16 +748,16 @@ export function HomeV2WelcomeContent() {
 			{reduceMotion !== true && bootPhase !== "off" && (
 				<HomeV2BootOverlay phase={bootPhase} prideStripes={welcomeFlag.display.stripes ?? []} />
 			)}
-			<div className="home-v2-stack flex min-h-0 flex-1 flex-col">
+			<div className="home-stack flex min-h-0 flex-1 flex-col">
 				<Link
 					href={PRIDE_EXPLORE_PATH}
-					className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[260] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+					className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-260 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
 				>
 					Skip to flags
 				</Link>
 
 				<motion.section
-					className="home-v2-hero home-v2-welcome flex flex-1 flex-col"
+					className="home-hero home-welcome flex flex-1 flex-col"
 					aria-label="Welcome"
 					initial="hidden"
 					animate={bootContentRevealed ? "show" : "hidden"}
@@ -775,14 +775,14 @@ export function HomeV2WelcomeContent() {
 							<div className="min-w-0 flex-1 space-y-8 lg:max-w-[min(100%,40rem)] lg:pr-2">
 								<div className="space-y-5">
 									<div
-										className="home-v2-kicker-rule"
+										className="home-kicker-rule"
 										style={{ background: kickerBandBackground }}
 										aria-hidden
 									/>
 									<p
 										className={cn(
 											"w-fit text-[0.7rem] font-bold uppercase tracking-[0.32em]",
-											reduceMotion ? "text-primary" : "home-v2-welcome-accent-text"
+											reduceMotion ? "text-primary" : "home-welcome-accent-text"
 										)}
 									>
 										Prism · queer education
@@ -791,7 +791,7 @@ export function HomeV2WelcomeContent() {
 										<span
 											className={cn(
 												"block",
-												reduceMotion ? "text-primary" : "home-v2-welcome-accent-text"
+												reduceMotion ? "text-primary" : "home-welcome-accent-text"
 											)}
 										>
 											Pride
@@ -799,7 +799,7 @@ export function HomeV2WelcomeContent() {
 										<span
 											className={cn(
 												"block",
-												reduceMotion ? "text-muted-foreground" : "home-v2-welcome-guide-accent"
+												reduceMotion ? "text-muted-foreground" : "home-welcome-guide-accent"
 											)}
 										>
 											Guide
@@ -808,11 +808,11 @@ export function HomeV2WelcomeContent() {
 								</div>
 
 								<div className="space-y-5">
-									<p className="home-v2-welcome-lead max-w-[44ch] text-balance font-display text-[clamp(1.25rem,3.4vw,1.85rem)] font-bold leading-snug tracking-tight">
+									<p className="home-welcome-lead max-w-[44ch] text-balance font-display text-[clamp(1.25rem,3.4vw,1.85rem)] font-bold leading-snug tracking-tight">
 										Welcome in. You're about to go deep on the symbols that hold our stories—color, history, and meaning,
 										turned up loud.
 									</p>
-									<p className="home-v2-welcome-lead max-w-[54ch] text-balance text-base leading-relaxed sm:text-lg">
+									<p className="home-welcome-lead max-w-[54ch] text-balance text-base leading-relaxed sm:text-lg">
 										Learn on your own terms. No one owes you their identity as a lesson plan—and you still deserve to walk
 										away informed, fired up, and ready to show up for the community.
 									</p>
@@ -821,7 +821,7 @@ export function HomeV2WelcomeContent() {
 								<div>
 									<Link
 										href={PRIDE_EXPLORE_PATH}
-										className="home-v2-welcome-cta group inline-flex items-center gap-3 border-none px-12 py-4 font-display text-xs md:text-sm font-extrabold border-2 rounded-full uppercase tracking-[0.2em] max-md:w-full max-md:justify-center"
+										className="home-welcome-cta group inline-flex items-center gap-3 border-none px-12 py-4 font-display text-xs md:text-sm font-extrabold border-2 rounded-full uppercase tracking-[0.2em] max-md:w-full max-md:justify-center"
 									>
 										<span className="hidden md:inline">Start exploring</span>
 										<span className="inline md:hidden">Explore</span>
@@ -840,7 +840,7 @@ export function HomeV2WelcomeContent() {
 								className="mx-auto flex w-full shrink-0 flex-col space-y-3 lg:mx-0 lg:w-[min(100%,380px)] xl:w-[min(100%,380px)]"
 								aria-label="Background aurora palette"
 							>
-								<div className="home-v2-flag-bounds aspect-[3/2.5] w-full rounded-xl border border-foreground/10 bg-background/25 p-8 shadow-sm backdrop-blur-[2px]">
+								<div className="flag-bounds aspect-3/2.5 w-full rounded-xl border border-foreground/10 bg-background/25 p-8 shadow-sm backdrop-blur-[2px]">
 									<AnimatePresence mode="wait" initial={false}>
 										<motion.div
 											key={welcomeFlag.id}
@@ -858,7 +858,7 @@ export function HomeV2WelcomeContent() {
 												fit="contain"
 												numOfColumns={22}
 												billow={reduceMotion ? 0 : 0.75}
-												className="!drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]"
+												className="drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]!"
 											/>
 										</motion.div>
 									</AnimatePresence>
@@ -1212,29 +1212,29 @@ export function HomeV2ExploreContent() {
 	return (
 		<div
 			className={cn(
-				"explore-page-root flex min-w-0 w-full flex-col max-md:pb-20 xl:min-h-0 xl:flex-1",
-				effectiveReduceMotion && "home-v2-explore-reduce-motion",
-				forceFlagWaveMotion && "home-v2-explore-force-motion"
+				"explore-page-root flex min-w-0 w-full flex-col",
+				effectiveReduceMotion && "home-explore-reduce-motion",
+				forceFlagWaveMotion && "home-explore-force-motion"
 			)}
 		>
 			<p className="sr-only" aria-live="polite" aria-atomic="true">
 				Pride Guide flag explorer.
 			</p>
-			<div className="home-v2-stack flex min-w-0 w-full flex-col xl:min-h-0 xl:flex-1">
+			<div className="home-stack flex min-w-0 w-full flex-col lg:min-h-0 lg:flex-1">
 				<motion.main
-					id="home-v2-main"
-					className="home-v2-browse flex min-w-0 w-full flex-col xl:min-h-0 xl:flex-1"
+					id="home-main"
+					className="home-browse flex min-w-0 w-full flex-col lg:min-h-0 lg:flex-1"
 					variants={variants.wrap}
 					initial="hidden"
 					animate="show"
 				>
 					<motion.div
 						variants={variants.item}
-						className="mx-auto flex min-h-0 min-w-0 w-full max-w-full flex-col xl:h-full xl:flex-1"
+						className="mx-auto flex min-w-0 w-full max-w-full flex-col lg:min-h-0 lg:h-full lg:flex-1"
 					>
 
 						{/* Explore Body */}
-						<div data-slot="explore-body" className="explore-body">
+						<div data-slot="explore-body">
 							<div
 								data-slot="explore-flag"
 								ref={stageRef}
@@ -1312,7 +1312,7 @@ export function HomeV2ExploreContent() {
 													billow={0}
 													columnGapPx={0}
 													className={cn(
-														"animated-flag--radius-controlled max-h-[92%] max-w-full !overflow-hidden focus-visible:ring-2 focus-visible:ring-ring ring-offset-4 ring-offset-background hover:opacity-100 transition-all duration-200 ease-out",
+														"animated-flag--radius-controlled max-h-[92%] max-w-full overflow-hidden! focus-visible:ring-2 focus-visible:ring-ring ring-offset-4 ring-offset-background hover:opacity-100 transition-all duration-200 ease-out",
 														selected
 															? "ring-2 ring-foreground"
 															: "opacity-75"
@@ -1327,7 +1327,6 @@ export function HomeV2ExploreContent() {
 
 							<aside
 								data-slot="explore-content"
-								className="explore-content"
 								aria-label="About this flag and colors"
 							>
 								<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
@@ -1338,39 +1337,27 @@ export function HomeV2ExploreContent() {
 										initial="initial"
 										animate="animate"
 										exit="exit"
-										className="explore-content-inner"
+										data-slot="explore-content-inner"
 									>
 										<div className="relative flex flex-row items-center justify-between min-w-0 max-lg:flex-1 max-md:flex-col lg:-ml-[1.1rem]">
 											<span
-												className="max-md:hidden pointer-events-none absolute left-2 z-0 select-none font-display text-[clamp(2.5rem,12vw,5rem)] font-black leading-none tracking-tighter text-foreground/[0.1] dark:text-foreground/[0.06]"
+												data-slot="explore-flag-index"
 												aria-hidden
 											>
 												{String(index + 1).padStart(2, "0")}
 											</span>
-											<div data-slot="explore-header-title" className="max-md:order-2 relative z-10 flex w-full flex-col gap-2 pt-1 max-md:px-4 md:pl-[clamp(2.75rem,11vw,4.5rem)] xl:pr-16">
-												<h2 className="line-clamp-2 font-display text-2xl lg:text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-[1] tracking-tight text-balance">
+											<div data-slot="site-header-title">
+												<h2 className="line-clamp-2 font-display text-2xl lg:text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-none tracking-tight text-balance">
 													{flag.name}
 												</h2>
-												<div className="flex min-h-[1.75rem] shrink-0 items-center mt-1 ml-1">
+												<div className="flex min-h-7 shrink-0 items-center mt-1 ml-1">
 													<Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
 														{flag.category}
 													</Badge>
 												</div>
 											</div>
-											<div
-												className="max-md:order-1 md:bg-primary/10 md:border-2 md:border-border/20 md:p-4 text-foreground text-sm leading-none text-center flex flex-row md:flex-col gap-2 items-center max-md:mb-4 mr-6 lg:hidden"
-												aria-hidden
-												style={studioShellStyle}
-											>
-												<HugeiconsIcon
-													icon={SwipeLeft09Icon}
-													strokeWidth={1.5}
-													className="size-6"
-												/>
-												Swipe the flag
-											</div>
 										</div>
-										<div data-slot="explore-content-body" className="explore-content-body" style={studioShellStyle}>
+										<div data-slot="explore-content-body" style={studioShellStyle}>
 											<HomeV2AboutBlock
 												flag={flag}
 												stripeAccent={stripeAccent}
@@ -1407,6 +1394,19 @@ export function HomeV2ExploreContent() {
 									</motion.div>
 								</AnimatePresence>
 							</aside>
+
+							<div
+								className="max-md:order-2 max-md:pb-8 lg:hidden flex flex-row items-center justify-center gap-4 p-4 h-fit"
+								aria-hidden
+								style={studioShellStyle}
+							>
+								<HugeiconsIcon
+									icon={SwipeLeft09Icon}
+									strokeWidth={1.5}
+									className="size-6"
+								/>
+								Swipe the flag
+							</div>
 						</div>
 
 					</motion.div>

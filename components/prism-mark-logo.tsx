@@ -2,7 +2,7 @@
 
 import { useId } from "react"
 
-/** PRISM wordmark + prism shape from the classic About tab (SVG paths unchanged). */
+/** PRISM wordmark + prism shape from the About tab (SVG paths unchanged). */
 export function PrismMarkLogo({ className }: { className?: string }) {
   const maskId = useId().replace(/:/g, "")
 

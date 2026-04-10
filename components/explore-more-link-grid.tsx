@@ -31,9 +31,9 @@ export function ExploreMoreLinkGrid({
 	)
 
 	const thumbClass = cn(
-		"relative flex aspect-[5/3] w-full items-center justify-center overflow-hidden",
+		"relative flex aspect-5/3 w-full items-center justify-center overflow-hidden",
 		"border border-border/45",
-		"bg-gradient-to-b from-muted/30 via-muted/40 to-muted/20",
+		"bg-linear-to-b from-muted/30 via-muted/40 to-muted/20",
 		"shadow-[inset_0_1px_0_0_hsl(var(--foreground)/0.05)]",
 		"transition-[border-color,box-shadow,background-color] duration-200 ease-out motion-reduce:transition-none",
 		"group-hover:border-border/80",
@@ -42,7 +42,7 @@ export function ExploreMoreLinkGrid({
 	)
 
 	const iconTileClass = cn(
-		"relative z-[1] flex size-10 items-center justify-center",
+		"relative z-1 flex size-10 items-center justify-center",
 		"border border-border/50 bg-background/90 text-foreground/75 shadow-sm",
 		"transition-[color,border-color,box-shadow] duration-200 ease-out",
 		"group-hover:border-primary/25 group-hover:text-primary group-hover:shadow-[0_1px_2px_hsl(var(--foreground)/0.04)]",

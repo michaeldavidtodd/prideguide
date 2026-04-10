@@ -1,0 +1,29 @@
+/* Tab bar */
+.tab-bar {
+  position: relative;
+  z-index: 1;
+}
+#expandable-tab-panel::before {
+  content: "";
+  position: absolute;
+  bottom: -1.5rem;
+  left: -10%;
+  width: 120%;
+  height: 4rem;
+  background: hsl(var(--primary) / 0.25);
+  box-shadow: 0 0 2rem 0 hsl(var(--primary) / 0.5);
+  z-index: -2;
+  filter: blur(3rem);
+}
+
+[data-slot="dock-container"] {
+  @apply
+    /* Layout */
+    flex justify-center
+    /* Tablet and below: fixed to bottom of screen */
+    z-50 fixed bottom-3 left-3 right-3
+  ;
+  button {
+    cursor: pointer;
+  }
+}

@@ -190,7 +190,7 @@ export function ExpandableTabBar({
     chipsSoftCorners && "rounded-md",
   )
 
-  const chipIdleClass = "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.07] dark:hover:bg-foreground/[0.11]"
+  const chipIdleClass = "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.07] dark:hover:bg-foreground/11"
   const chipActiveClass = "text-background hover:opacity-95"
 
   const handleLinkPointer = useCallback(() => {
@@ -265,7 +265,7 @@ export function ExpandableTabBar({
   }, [activeTab, handleClose])
 
   return (
-    <div className={cn("inline-flex flex-col items-center", className)}>
+    <>
       <AnimatePresence>
         {activeTab !== null && (
           <motion.div
@@ -396,12 +396,9 @@ export function ExpandableTabBar({
           })}
         </div>
       </div>
-    </div>
+    </>
   )
 }
-
-const expandableTabBarDockClass =
-  "fixed bottom-3 left-3 right-3 z-50 flex justify-center md:bottom-6 md:left-6 md:right-6 lg:bottom-8"
 
 /** Fixed bottom wrapper shared by Explore and Prism learn docks. */
 export function ExpandableTabBarDock({
@@ -411,8 +408,8 @@ export function ExpandableTabBarDock({
   return (
     <div
       {...props}
-      className={cn(expandableTabBarDockClass, className)}
-      data-slot="expandable-tab-bar-dock"
+      className={className}
+      data-slot="dock-container"
     />
   )
 }
