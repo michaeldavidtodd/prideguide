@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ComponentPropsWithoutRef,
@@ -68,9 +69,10 @@ interface ExpandableTabBarProps {
  *   on open and returns to the triggering tab on close.
  *
  * Animation:
- * - Content area height is animated via CSS transition on a measured pixel value
- *   (not Framer Motion `layout` / scale transforms) so borders and shadows
- *   resize cleanly without distortion.
+ * - Content area height and width are animated via CSS transition on measured
+ *   pixel values (ResizeObserver updates when tab content or breakpoints change).
+ *   Panel body does not use AnimatePresence between tabs so only one panel is
+ *   laid out at a time (popLayout/wait would keep wide exit content and block shrink).
  * - The active-tab pill fades in/out via Framer Motion `AnimatePresence`.
  * - A translucent backdrop fades in when the menu is open.
  * - All animations are suppressed when the user prefers reduced motion.
@@ -100,18 +102,61 @@ export function ExpandableTabBar({
   const containerRef = useRef<HTMLDivElement>(null)
   const measureRef = useRef<HTMLDivElement>(null)
   const [contentHeight, setContentHeight] = useState(0)
+  const [contentWidth, setContentWidth] = useState<number | undefined>(undefined)
 
-  useEffect(() => {
+  const panelTransition = prefersReducedMotion
+    ? "none"
+    : "height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)"
+
+  useLayoutEffect(() => {
     if (activeTab === null) {
       setContentHeight(0)
+      setContentWidth(undefined)
       return
     }
-    requestAnimationFrame(() => {
-      if (measureRef.current) {
-        setContentHeight(measureRef.current.scrollHeight)
-      }
-    })
-  }, [activeTab])
+
+    const el = measureRef.current
+    if (!el) return
+
+    const measure = () => {
+      // scrollHeight: full content even while outer width/height still animating
+      setContentHeight(Math.ceil(el.scrollHeight))
+      // measureRef uses w-max so width is intrinsic, not clamped by the panel’s animated width
+      setContentWidth(Math.ceil(el.offsetWidth))
+    }
+
+    let ro: ResizeObserver | null = null
+    let raf1 = 0
+    let raf2 = 0
+
+    const attachRo = () => {
+      ro = new ResizeObserver(measure)
+      ro.observe(el)
+    }
+
+    // Opening from closed: handlers set 0×0 so we avoid width:auto → px (no CSS transition).
+    // Two rAFs let the browser commit 0×0 before we set target size so width/height can animate.
+    const openedFromClosed = contentWidth === 0 && contentHeight === 0
+
+    if (openedFromClosed && !prefersReducedMotion) {
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          measure()
+          attachRo()
+        })
+      })
+    } else {
+      measure()
+      attachRo()
+    }
+
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+      ro?.disconnect()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- contentWidth/Height only for open-from-closed; remeasuring on their updates would interrupt transitions
+  }, [activeTab, prefersReducedMotion])
 
   useEffect(() => {
     if (activeTab === null) return
@@ -158,6 +203,10 @@ export function ExpandableTabBar({
       if (!hasPointerFine && activeTab === id) {
         setActiveTab(null)
       } else {
+        if (activeTab === null) {
+          setContentWidth(0)
+          setContentHeight(0)
+        }
         setActiveTab(id)
       }
     },
@@ -168,9 +217,13 @@ export function ExpandableTabBar({
     (id: string) => {
       if (!hasPointerFine) return
       clearHoverTimer()
+      if (activeTab === null) {
+        setContentWidth(0)
+        setContentHeight(0)
+      }
       setActiveTab(id)
     },
-    [clearHoverTimer, hasPointerFine],
+    [clearHoverTimer, hasPointerFine, activeTab],
   )
 
   const handleContainerLeave = useCallback(
@@ -290,7 +343,8 @@ export function ExpandableTabBar({
         ref={containerRef}
         style={style}
         className={cn(
-          "tab-bar border-border/50 border-2 bg-card shadow-xl backdrop-blur-md overflow-hidden",
+          /* inline-flex + items-center: panel narrower than nav stays horizontally centered so width animates from the middle, not the left edge */
+          "tab-bar inline-flex max-w-full flex-col items-center border-border/50 border-2 bg-card shadow-xl backdrop-blur-md overflow-hidden",
         )}
         onMouseLeave={handleContainerLeave}
       >
@@ -304,25 +358,24 @@ export function ExpandableTabBar({
           aria-hidden={activeTab === null}
           style={{
             height: contentHeight,
-            transition: prefersReducedMotion ? "none" : "height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)",
+            width: contentWidth,
+            transition: panelTransition,
           }}
-          className="overflow-hidden"
+          className="grid grid-cols-1 items-start justify-items-center overflow-hidden"
         >
-          <div ref={measureRef}>
-            <AnimatePresence initial={false} mode="popLayout">
-              {activeTab !== null && activeContent && (
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
-                  className="px-5 pt-3"
-                >
-                  {activeContent}
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* w-max for intrinsic measure; grid centers in panel (no translate on measured box). */}
+          <div ref={measureRef} className="w-max">
+            {activeTab !== null && activeContent ? (
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
+                animate={{ opacity: 1 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
+                className="px-5 pt-3"
+              >
+                {activeContent}
+              </motion.div>
+            ) : null}
           </div>
         </div>
 
