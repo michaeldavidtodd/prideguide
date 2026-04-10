@@ -146,35 +146,39 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
       stripes: ["#e40303", "#ff8c00", "#ffed00", "#008018", "#004cff", "#732982"],
       stripeMeanings: ["Life", "Healing", "Sunlight", "Nature", "Harmony", "Spirit"],
       svgForeground: {
-        viewBox: "0 0 1025 654",
+        /*
+         * 3:2 canvas (1025×684) to match stripe-only flags. Path coords are the original
+         * 1025×654 Quasar geometry uniformly scaled by 684/654 about the origin.
+         */
+        viewBox: "0 0 1025 684",
         paths: [
           {
             id: "progress-black-chevron",
-            d: "M492 327.5L167.169 654H0V0H166.168L492 327.5Z",
+            d: "M514.5688 342.5229L174.8373 684H0V0H173.7904L514.5688 342.5229Z",
             fill: "#000000",
             meaning: "Black and LGBTQIA+ communities of color",
           },
           {
             id: "progress-brown-chevron",
-            d: "M410 327.5L84.1016 654H0V0H84.1016L410 327.5Z",
+            d: "M428.8073 342.5229L87.9595 684H0V0H87.9595L428.8073 342.5229Z",
             fill: "#613915",
             meaning: "Brown and LGBTQIA+ communities of color",
           },
           {
             id: "progress-lightblue-triangle",
-            d: "M0 0L327.534 326.534L0 654Z",
+            d: "M0 0L342.5585 341.5126L0 684Z",
             fill: "#5BCEFA",
             meaning: "Trans pride — light blue (often read as boys / trans masculine)",
           },
           {
             id: "progress-pink-triangle",
-            d: "M0 82.5339L245.534 326.534L0 570.534V82.5339Z",
+            d: "M0 86.3199L256.797 341.5126L0 596.7053V86.3199Z",
             fill: "#F5A9B8",
             meaning: "Trans pride — pink (often read as girls / trans feminine)",
           },
           {
             id: "progress-white-triangle",
-            d: "M0 164.034L163.068 326.534L0 489.034V164.034Z",
+            d: "M0 171.5585L170.5482 341.5126L0 511.4668V171.5585Z",
             fill: "#FFFFFF",
             meaning: "Trans pride — center for those transitioning or outside the binary",
           },
