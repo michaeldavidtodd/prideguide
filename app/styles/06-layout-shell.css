@@ -5,5 +5,8 @@
 }
 
 [data-slot="layout-body"] {
-  @apply flex w-full flex-col flex-1 lg:overflow-hidden pt-20;
+  @apply flex w-full flex-col flex-1 pt-20;
+  [data-page="/explore"] & {
+    @apply lg:overflow-hidden;
+  }
 }
