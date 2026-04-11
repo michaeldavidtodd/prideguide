@@ -19,7 +19,7 @@ export function PrideAboutAppPageClient() {
   return (
     <PrideLearnPageContent
       kicker="Prism · about"
-      title="About Pride Guide"
+      title="About the guide"
       description="Education and celebration through accurate colors, history, and the stories flags carry."
       introAnimation
       introBodyStagger
@@ -27,33 +27,30 @@ export function PrideAboutAppPageClient() {
       {[
         <motion.div key="about-features" variants={itemVariants}>
         <Card
-          className={cn("border-foreground/15 bg-background/40 shadow-none", cornerRadius <= 0 && "rounded-none")}
+          className={cn("border-foreground/15 bg-background/40 xl:p-12 shadow-none", cornerRadius <= 0 && "rounded-none")}
           style={studioShellStyle}
         >
-          <CardHeader className="space-y-0 pb-2">
+          <CardHeader className="max-w-prose mx-auto space-y-0 pb-2">
             <CardTitle className="flex items-center gap-2.5 font-display text-xl font-bold leading-tight tracking-tight sm:text-2xl">
               <BookOpen className="size-5 shrink-0 opacity-80" aria-hidden />
-              What you get
+              Queer Education
             </CardTitle>
           </CardHeader>
-          <CardContent className="max-w-prose space-y-6">
+          <CardContent className="max-w-prose mx-auto space-y-6">
             <p className="text-balance text-base leading-relaxed text-muted-foreground">
               Pride Guide is an educational app celebrating the diversity and beauty of the LGBTQIA+ community through
-              its flags and symbols.
+              its flags. More flags will be added over time. And we plan to support contributions from the community.
             </p>
             <div className="space-y-3">
               <h4 className="font-display text-[0.7rem] font-bold uppercase leading-none tracking-[0.2em] text-foreground">
                 Features
               </h4>
               <ul className="list-disc space-y-2.5 pl-5 text-base leading-relaxed text-muted-foreground marker:text-foreground/35">
-                <li>Immersive flag explorer with {PRIDE_FLAGS.length} flags</li>
+                <li>Immersive flag explorer with {PRIDE_FLAGS.length} flags (more to come)</li>
                 <li>Interactive quiz with {QUIZ_QUESTIONS.length} questions</li>
                 <li>Ally guidance and tips</li>
                 <li>Historical context and meanings per flag</li>
               </ul>
-            </div>
-            <div className="border-t border-foreground/10 pt-5">
-              <p className="text-center text-sm leading-relaxed text-muted-foreground">Made with 🏳️‍🌈 for education and celebration</p>
             </div>
           </CardContent>
         </Card>
@@ -83,18 +80,9 @@ export function PrideAboutAppPageClient() {
         </Card>
         </motion.div>,
 
-        <motion.p
-          key="about-links"
-          variants={itemVariants}
-          className="text-center text-base leading-normal text-muted-foreground"
-        >
-          <Link
-            href={PRIDE_EXPLORE_PATH}
-            className="font-display text-sm font-bold uppercase tracking-[0.14em] underline underline-offset-4 hover:text-foreground"
-          >
-            Explore flags
-          </Link>
-        </motion.p>,
+        <div key="about-footer">
+          <p className="text-center text-sm leading-relaxed text-muted-foreground">Made with 🏳️‍🌈 for education and celebration</p>
+        </div>
       ]}
     </PrideLearnPageContent>
   )

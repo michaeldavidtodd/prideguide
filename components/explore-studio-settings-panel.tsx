@@ -57,7 +57,7 @@ export function ExploreStudioSettingsPanel(props: ExploreStudioSettingsPanelProp
   const motionId = variant === "explore" ? "explore" : "prism"
 
   return (
-    <div className="space-y-4 pb-1">
+    <div className="space-y-4">
       <header className="space-y-1 pb-1">
         <p className="font-display text-[0.65rem] font-bold uppercase tracking-[0.2em] text-primary">
           Studio

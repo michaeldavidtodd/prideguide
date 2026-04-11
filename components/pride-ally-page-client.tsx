@@ -38,7 +38,7 @@ export function PrideAllyPageClient() {
             >
               <Card
                 className={cn(
-                  "group relative flex h-full flex-col overflow-hidden border border-foreground/12 bg-background/60 p-0 shadow-none",
+                  "group relative flex h-full flex-col overflow-hidden border border-foreground/12 p-0",
                   "transition-[border-color,box-shadow,background-color] duration-200 ease-out",
                   "hover:border-foreground/25 hover:bg-background/80 hover:shadow-md",
                   cornerRadius <= 0 && "rounded-none",
