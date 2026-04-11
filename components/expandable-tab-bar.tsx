@@ -3,7 +3,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type ComponentPropsWithoutRef,
@@ -14,6 +13,7 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
+import { DockExpandingPanel } from "@/components/dock-expanding-panel"
 import { cn } from "@/lib/utils"
 
 /** Navigates in-app; no expandable panel. */
@@ -100,76 +100,12 @@ export function ExpandableTabBar({
   const hasLinkTabs = tabs.some((t) => !isPanelItem(t))
   const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const measureRef = useRef<HTMLDivElement>(null)
-  const [contentHeight, setContentHeight] = useState(0)
-  const [contentWidth, setContentWidth] = useState<number | undefined>(undefined)
-
-  const panelTransition = prefersReducedMotion
-    ? "none"
-    : "height 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)"
-
-  useLayoutEffect(() => {
-    if (activeTab === null) {
-      setContentHeight(0)
-      setContentWidth(undefined)
-      return
-    }
-
-    const el = measureRef.current
-    if (!el) return
-
-    const measure = () => {
-      // scrollHeight: full content even while outer width/height still animating
-      setContentHeight(Math.ceil(el.scrollHeight))
-      // measureRef uses w-max so width is intrinsic, not clamped by the panel’s animated width
-      setContentWidth(Math.ceil(el.offsetWidth))
-    }
-
-    let ro: ResizeObserver | null = null
-    let raf1 = 0
-    let raf2 = 0
-
-    const attachRo = () => {
-      ro = new ResizeObserver(measure)
-      ro.observe(el)
-    }
-
-    // Opening from closed: handlers set 0×0 so we avoid width:auto → px (no CSS transition).
-    // Two rAFs let the browser commit 0×0 before we set target size so width/height can animate.
-    const openedFromClosed = contentWidth === 0 && contentHeight === 0
-
-    if (openedFromClosed && !prefersReducedMotion) {
-      raf1 = requestAnimationFrame(() => {
-        raf2 = requestAnimationFrame(() => {
-          measure()
-          attachRo()
-        })
-      })
-    } else {
-      measure()
-      attachRo()
-    }
-
-    return () => {
-      cancelAnimationFrame(raf1)
-      cancelAnimationFrame(raf2)
-      ro?.disconnect()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- contentWidth/Height only for open-from-closed; remeasuring on their updates would interrupt transitions
-  }, [activeTab, prefersReducedMotion])
 
   useEffect(() => {
     if (activeTab === null) return
     const stillOpen = tabs.some((t) => isPanelItem(t) && t.id === activeTab)
     if (!stillOpen) setActiveTab(null)
   }, [activeTab, tabs])
-
-  useEffect(() => {
-    if (activeTab !== null) {
-      document.body.style.overflow = "hidden"
-      return () => { document.body.style.overflow = "" }
-    }
-  }, [activeTab])
 
   useEffect(() => {
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)")
@@ -203,10 +139,6 @@ export function ExpandableTabBar({
       if (!hasPointerFine && activeTab === id) {
         setActiveTab(null)
       } else {
-        if (activeTab === null) {
-          setContentWidth(0)
-          setContentHeight(0)
-        }
         setActiveTab(id)
       }
     },
@@ -217,10 +149,6 @@ export function ExpandableTabBar({
     (id: string) => {
       if (!hasPointerFine) return
       clearHoverTimer()
-      if (activeTab === null) {
-        setContentWidth(0)
-        setContentHeight(0)
-      }
       setActiveTab(id)
     },
     [clearHoverTimer, hasPointerFine, activeTab],
@@ -325,20 +253,6 @@ export function ExpandableTabBar({
 
   return (
     <>
-      <AnimatePresence>
-        {activeTab !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
-            className="fixed inset-0 z-[-1]"
-            style={{ background: "linear-gradient(to top, hsl(var(--background) / 0.5), hsl(var(--background) / 0) 70%)" }}
-            onClick={handleClose}
-            aria-hidden
-          />
-        )}
-      </AnimatePresence>
       <div
         ref={containerRef}
         style={style}
@@ -348,36 +262,23 @@ export function ExpandableTabBar({
         )}
         onMouseLeave={handleContainerLeave}
       >
-        <div
+        <DockExpandingPanel
           ref={panelRef}
+          fill
           id="expandable-tab-panel"
           role={hasLinkTabs ? "region" : "tabpanel"}
           tabIndex={activeTab !== null ? -1 : undefined}
           aria-label={hasLinkTabs ? panelAriaLabel : undefined}
           aria-labelledby={!hasLinkTabs && activeTab ? `tab-${activeTab}` : undefined}
           aria-hidden={activeTab === null}
-          style={{
-            height: contentHeight,
-            width: contentWidth,
-            transition: panelTransition,
-          }}
-          className="grid grid-cols-1 items-start justify-items-center overflow-hidden"
+          open={activeTab !== null && activeContent != null}
+          measureKey={activeTab}
+          onClose={handleClose}
+          motionContentKey={activeTab ?? "closed"}
+          withBackdrop
         >
-          {/* w-max for intrinsic measure; grid centers in panel (no translate on measured box). */}
-          <div ref={measureRef} className="w-max">
-            {activeTab !== null && activeContent ? (
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
-                animate={{ opacity: 1 }}
-                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
-                className="px-5 pt-3"
-              >
-                {activeContent}
-              </motion.div>
-            ) : null}
-          </div>
-        </div>
+          {activeContent}
+        </DockExpandingPanel>
 
         <div
           role={hasLinkTabs ? "navigation" : "tablist"}

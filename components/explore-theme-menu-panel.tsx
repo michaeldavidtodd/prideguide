@@ -26,7 +26,7 @@ export function ExploreThemeMenuPanel({
   return (
     <div
       className={cn(
-        "min-w-0 w-full max-w-[min(100vw-2.5rem,28rem)]",
+        "min-w-0 w-full max-w-full",
         hasSecondary && "xl:max-w-[min(100vw-2.5rem,56rem)]",
       )}
     >

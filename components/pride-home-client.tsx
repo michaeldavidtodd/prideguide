@@ -1423,6 +1423,32 @@ export function HomeV2ExploreContent() {
 							/>
 						</div>
 					}
+					themePanel={
+						<ExploreThemeMenuPanel
+							theme={theme}
+							setTheme={setTheme}
+							shellStyle={studioShellStyle}
+							cornerRadius={cornerRadius}
+						/>
+					}
+					studioPanel={
+						<ExploreStudioSettingsPanel
+							variant="explore"
+							studioShellStyle={studioShellStyle}
+							cornerRadius={cornerRadius}
+							motionPreference={motionPreference}
+							onMotionPreferenceChange={onMotionPreferenceChange}
+							columnCount={columnCount}
+							setColumnCount={setColumnCount}
+							stripeGap={stripeGap}
+							setStripeGap={setStripeGap}
+							setCornerRadius={setCornerRadius}
+							studioPersist={studioPersist}
+							onStudioPersistChange={onStudioPersistChange}
+							gifExporting={gifExporting}
+							onDownloadGif={() => void handleDownloadAnimatedGif()}
+						/>
+					}
 					appearancePanel={
 						<ExploreThemeMenuPanel
 							theme={theme}

@@ -51,6 +51,26 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
         style={studioShellStyle}
         chipsSoftCorners={cornerRadius > 0}
         appearanceTriggerIcon={<ThemeDockIcon className="size-3.5" aria-hidden />}
+        themePanel={
+          <ExploreThemeMenuPanel
+            theme={theme}
+            setTheme={setTheme}
+            shellStyle={studioShellStyle}
+            cornerRadius={cornerRadius}
+          />
+        }
+        studioPanel={
+          <ExploreStudioSettingsPanel
+            variant="prism"
+            studioShellStyle={studioShellStyle}
+            cornerRadius={cornerRadius}
+            motionPreference={motionPreference}
+            onMotionPreferenceChange={setMotionPreference}
+            setCornerRadius={setCornerRadius}
+            studioPersist={studioPersist}
+            onStudioPersistChange={setStudioPersist}
+          />
+        }
         appearancePanel={
           <ExploreThemeMenuPanel
             theme={theme}

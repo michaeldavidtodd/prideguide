@@ -23,6 +23,10 @@
     /* Tablet and below: fixed to bottom of screen */
     z-50 fixed bottom-3 left-3 right-3
   ;
+
+  [data-slot="dock-mobile"] {
+    @apply w-full max-w-full min-w-0;
+  }
   button {
     cursor: pointer;
   }
