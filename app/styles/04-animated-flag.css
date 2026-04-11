@@ -43,6 +43,7 @@
 
 .flag-column {
   flex: 1;
+  min-width: 1px;
   display: flex;
   flex-direction: column;
   animation: oscillate 650ms alternate infinite ease-in-out both;

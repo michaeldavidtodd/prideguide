@@ -1,8 +1,40 @@
 "use client"
 
 import type React from "react"
-import { useMemo } from "react"
+import { useLayoutEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
+
+const FLAG_COLUMN_MIN_WIDTH_PX = 1
+
+/**
+ * Horizontal gap clamped so each column can be at least `FLAG_COLUMN_MIN_WIDTH_PX` wide
+ * inside `containerWidthPx` (flex: n·minW + (n−1)·gap ≤ width).
+ * When width is not laid out yet (0), uses a viewport fallback so max gap + max columns
+ * does not consume the whole row before ResizeObserver fires (common on mobile).
+ */
+export function effectiveFlagColumnGapPx(
+  requestedGapPx: number,
+  numColumns: number,
+  containerWidthPx: number,
+): number {
+  const requested = Math.max(0, requestedGapPx)
+  if (numColumns <= 1) return requested
+
+  let w = containerWidthPx
+  if (!Number.isFinite(w) || w <= 0) {
+    if (typeof window !== "undefined" && window.innerWidth > 0) {
+      /* Underestimate row width until ResizeObserver runs (margins / max-width < innerWidth). */
+      w = Math.max(numColumns * FLAG_COLUMN_MIN_WIDTH_PX, window.innerWidth * 0.38)
+    } else {
+      return 0
+    }
+  }
+
+  const minBand = numColumns * FLAG_COLUMN_MIN_WIDTH_PX
+  if (w <= minBand) return 0
+  const maxGap = (w - minBand) / (numColumns - 1)
+  return Math.min(requested, maxGap)
+}
 
 interface SvgPathDefinition {
   d: string
@@ -67,6 +99,29 @@ export function AnimatedFlag({
   style,
   dropShadowColor,
 }: AnimatedFlagProps) {
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [containerWidthPx, setContainerWidthPx] = useState(0)
+
+  useLayoutEffect(() => {
+    const el = rootRef.current
+    if (!el) return
+    const read = () => {
+      const rw = el.getBoundingClientRect().width
+      const cw = el.clientWidth
+      const w = Number.isFinite(rw) && rw > 0 ? rw : cw > 0 ? cw : 0
+      setContainerWidthPx(w)
+    }
+    read()
+    const ro = new ResizeObserver(() => read())
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const effectiveColumnGapPx = useMemo(
+    () => effectiveFlagColumnGapPx(columnGapPx, numOfColumns, containerWidthPx),
+    [columnGapPx, containerWidthPx, numOfColumns],
+  )
+
   const gradientString = useMemo(() => {
     if (!backgroundColors || backgroundColors.length === 0) return "transparent"
     if (backgroundColors.length === 1) return backgroundColors[0] // Solid color
@@ -105,21 +160,21 @@ export function AnimatedFlag({
     } else {
       s.aspectRatio = overallAspectRatio
     }
-    if (columnGapPx > 0) {
-      s.gap = columnGapPx
+    if (effectiveColumnGapPx > 0) {
+      s.gap = effectiveColumnGapPx
     }
     if (dropShadowColor !== undefined && dropShadowColor.length > 0) {
       s.filter = `drop-shadow(0 0 7rem color-mix(in srgb, ${dropShadowColor} 70%, transparent))`
     }
     return s
-  }, [columnGapPx, dropShadowColor, fit, overallAspectRatio])
+  }, [dropShadowColor, effectiveColumnGapPx, fit, overallAspectRatio])
 
   const columnBorderRadius = useMemo(() => {
     if (stripeCornerRadiusPx === undefined) {
       return (_index: number) => ({} as React.CSSProperties)
     }
     const r = stripeCornerRadiusPx
-    if (columnGapPx > 0) {
+    if (effectiveColumnGapPx > 0) {
       return (_index: number) =>
         ({
           borderRadius: r,
@@ -137,10 +192,11 @@ export function AnimatedFlag({
       }
       return edge
     }
-  }, [columnGapPx, numOfColumns, stripeCornerRadiusPx])
+  }, [effectiveColumnGapPx, numOfColumns, stripeCornerRadiusPx])
 
   return (
     <div
+      ref={rootRef}
       className={cn(
         "animated-flag",
         fit === "contain" && "animated-flag--contain",
