@@ -542,7 +542,7 @@ function HomeV2StripePaletteStrip({
 					)}
 				</div>
 			)}
-			<div className="mt-4 pt-4">
+			<div className="max-md:hidden mt-4 pt-4">
 				<div
 					className={cn(
 						"flex gap-3",

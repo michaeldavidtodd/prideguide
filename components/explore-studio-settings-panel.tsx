@@ -205,7 +205,7 @@ export function ExploreStudioSettingsPanel(props: ExploreStudioSettingsPanelProp
 
       {exploreExtras ? (
         <div
-          className={cn("space-y-2 bg-foreground/5 p-4", cornerRadius > 0 && "rounded-lg")}
+          className={cn("max-md:hidden space-y-2 bg-foreground/5 p-4", cornerRadius > 0 && "rounded-lg")}
           style={studioShellStyle}
         >
           <Label className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-muted-foreground">
