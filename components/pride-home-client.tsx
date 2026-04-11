@@ -478,16 +478,15 @@ function HomeV2StripePaletteStrip({
 	return (
 		<div className="space-y-2">
 			{variant === "rail" && (
-				<div className="px-4">
+				<>
 					<p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:text-[0.65rem]">Flag colors</p>
 					<p className="my-1 mb-4 text-base leading-snug">
 						Tap a swatch for hex and what that color represents.
 					</p>
-				</div>
+				</>
 			)}
 			<div
 				data-slot="stripe-palette"
-				className="flex gap-1 overflow-hidden rounded-sm shadow-sm px-4"
 				role="list"
 				aria-label="Flag color palette"
 			>
@@ -546,7 +545,7 @@ function HomeV2StripePaletteStrip({
 			<div className="mt-4 pt-4">
 				<div
 					className={cn(
-						"flex gap-3 px-4",
+						"flex gap-3",
 						endAction ? "flex-wrap items-end justify-between" : "flex-col"
 					)}
 				>
@@ -1218,95 +1217,98 @@ export function HomeV2ExploreContent() {
 
 						{/* Explore Body */}
 						<div data-slot="explore-body">
-							<div
-								data-slot="explore-flag"
-								ref={stageRef}
-								className="explore-flag flag-container"
-								onMouseMove={handleStageMove}
-								onMouseLeave={resetTilt}
-								onPointerDown={(e) => {
-									pointerStart.current = { x: e.clientX }
-								}}
-								onPointerUp={(e) => {
-									if (!pointerStart.current) return
-									const dx = e.clientX - pointerStart.current.x
-									pointerStart.current = null
-									if (Math.abs(dx) < 52) return
-									if (dx > 0) prev()
-									else next()
-								}}
-								style={{ perspective: effectiveReduceMotion ? undefined : "1100px" }}
-							>
-								<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
-									<motion.div
-										key={flag.id}
-										role="presentation"
-										custom={flagNavDir}
-										variants={flagStageSlideVariants}
-										initial="initial"
-										animate="animate"
-										exit="exit"
-										className="explore-flag-motion-container"
-									>
-										<AnimatedFlag
-											backgroundColors={stripes}
-											svgForeground={flag.display.svgForeground}
-											fit="contain"
-											numOfColumns={columnCount}
-											billow={billow}
-											columnGapPx={stripeGap}
-											stripeCornerRadiusPx={cornerRadius}
-											dropShadowColor={stripeAccent}
-											className="explore-flag-stage"
-										/>
-									</motion.div>
-								</AnimatePresence>
 
-							</div>
-
-							<nav
-								data-slot="explore-flag-thumbs"
-								className="explore-flag-thumbs max-lg:hidden shrink-0 py-3 min-w-0 w-full"
-								aria-label="All flags"
-							>
+							<div data-slot="explore-flag-and-thumbs">
 								<div
-									ref={exploreThumbnailsScrollRef}
-									data-slot="explore-flag-thumbnails"
-									className="explore-flag-thumbnails"
+									data-slot="explore-flag"
+									ref={stageRef}
+									className="explore-flag flag-container"
+									onMouseMove={handleStageMove}
+									onMouseLeave={resetTilt}
+									onPointerDown={(e) => {
+										pointerStart.current = { x: e.clientX }
+									}}
+									onPointerUp={(e) => {
+										if (!pointerStart.current) return
+										const dx = e.clientX - pointerStart.current.x
+										pointerStart.current = null
+										if (Math.abs(dx) < 52) return
+										if (dx > 0) prev()
+										else next()
+									}}
+									style={{ perspective: effectiveReduceMotion ? undefined : "1100px" }}
 								>
-									{PRIDE_FLAGS.map((f, i) => {
-										const thumbStripes = f.display.stripes ?? []
-										const selected = i === index
-										return (
-											<button
-												key={f.id}
-												ref={selected ? activeThumbRef : undefined}
-												type="button"
-												onClick={() => goToIndex(i)}
-												aria-label={`Show ${f.name}`}
-												aria-current={selected ? "true" : undefined}
-												className="explore-flag-thumbnail relative outline-none px-1"
-											>
-												<AnimatedFlag
-													backgroundColors={thumbStripes}
-													svgForeground={f.display.svgForeground}
-													fit="contain"
-													numOfColumns={10}
-													billow={0}
-													columnGapPx={0}
-													className={cn(
-														"animated-flag--radius-controlled max-h-[92%] max-w-full overflow-hidden! focus-visible:ring-2 focus-visible:ring-ring ring-offset-4 ring-offset-background hover:opacity-100 transition-all duration-200 ease-out",
-														selected
-															? "ring-2 ring-foreground"
-															: "opacity-75"
-													)}
-													style={studioShellStyle}
-												/>
-											</button>
-										)
-									})}
+									<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
+										<motion.div
+											key={flag.id}
+											role="presentation"
+											custom={flagNavDir}
+											variants={flagStageSlideVariants}
+											initial="initial"
+											animate="animate"
+											exit="exit"
+											className="explore-flag-motion-container"
+										>
+											<AnimatedFlag
+												backgroundColors={stripes}
+												svgForeground={flag.display.svgForeground}
+												fit="contain"
+												numOfColumns={columnCount}
+												billow={billow}
+												columnGapPx={stripeGap}
+												stripeCornerRadiusPx={cornerRadius}
+												dropShadowColor={stripeAccent}
+												className="explore-flag-stage"
+											/>
+										</motion.div>
+									</AnimatePresence>
+
 								</div>
-							</nav>
+
+								<nav
+									data-slot="explore-flag-thumbs"
+									className="explore-flag-thumbs max-lg:hidden shrink-0 py-3 min-w-0 w-full"
+									aria-label="All flags"
+								>
+									<div
+										ref={exploreThumbnailsScrollRef}
+										data-slot="explore-flag-thumbnails"
+										className="explore-flag-thumbnails"
+									>
+										{PRIDE_FLAGS.map((f, i) => {
+											const thumbStripes = f.display.stripes ?? []
+											const selected = i === index
+											return (
+												<button
+													key={f.id}
+													ref={selected ? activeThumbRef : undefined}
+													type="button"
+													onClick={() => goToIndex(i)}
+													aria-label={`Show ${f.name}`}
+													aria-current={selected ? "true" : undefined}
+													className="explore-flag-thumbnail relative outline-none px-1"
+												>
+													<AnimatedFlag
+														backgroundColors={thumbStripes}
+														svgForeground={f.display.svgForeground}
+														fit="contain"
+														numOfColumns={10}
+														billow={0}
+														columnGapPx={0}
+														className={cn(
+															"animated-flag--radius-controlled max-h-[92%] max-w-full overflow-hidden! focus-visible:ring-2 focus-visible:ring-ring ring-offset-4 ring-offset-background hover:opacity-100 transition-all duration-200 ease-out",
+															selected
+																? "ring-2 ring-foreground"
+																: "opacity-75"
+														)}
+														style={studioShellStyle}
+													/>
+												</button>
+											)
+										})}
+									</div>
+								</nav>
+							</div>
 
 							<aside
 								data-slot="explore-content"

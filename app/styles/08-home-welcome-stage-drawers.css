@@ -98,6 +98,10 @@
  * and clip-path on the same box as the rim fights stacking. Fill uses .home-stripe-cut; overlay
  * uses .home-stripe-rim ::before/::after with the same polygon.
  */
+[data-slot="stripe-palette"] {
+@apply flex gap-1;
+}
+
 [data-slot="stripe-palette"] .home-stripe-swatch {
   --stripe-cut-notch: 6px;
 }
