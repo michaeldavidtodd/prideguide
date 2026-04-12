@@ -480,7 +480,7 @@ function HomeV2StripePaletteStrip({
 			{variant === "rail" && (
 				<>
 					<p className="font-display text-[0.6rem] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:text-[0.65rem]">Flag colors</p>
-					<p className="my-1 mb-4 text-base leading-snug">
+					<p className="my-1 mb-4 text-sm leading-snug">
 						Tap a swatch for hex and what that color represents.
 					</p>
 				</>

@@ -203,7 +203,7 @@ export function ExploreStudioSettingsPanel(props: ExploreStudioSettingsPanelProp
         />
       </div>
 
-      {exploreExtras ? (
+      {/* {exploreExtras ? (
         <div
           className={cn("max-md:hidden space-y-2 bg-foreground/5 p-4", cornerRadius > 0 && "rounded-lg")}
           style={studioShellStyle}
@@ -226,7 +226,7 @@ export function ExploreStudioSettingsPanel(props: ExploreStudioSettingsPanelProp
             {exploreExtras.gifExporting ? "Encoding…" : "Download GIF"}
           </Button>
         </div>
-      ) : null}
+      ) : null} */}
     </div>
   )
 }

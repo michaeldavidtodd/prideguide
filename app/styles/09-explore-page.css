@@ -4,7 +4,7 @@
  */
 .explore-page-root {
   flex: 1;
-  padding-bottom: 6rem;
+  padding-bottom: 8rem;
 }
 @media (max-width: 1279px) {
   /* .explore-page-root,
@@ -28,7 +28,7 @@
   }
 }
 
-.site-header {
+[data-slot="site-header"] {
   view-transition-name: site-header;
   @apply
     fixed top-0 left-0 right-0 z-50
@@ -38,6 +38,18 @@
   @media (max-height: 1024px) {
     padding-top: 1rem;
     padding-bottom: 0;
+  }
+  &:after {
+    position: absolute;
+    content: "";
+    top: -200%;
+    left: -3rem;
+    width: calc(100% + 6rem);
+    height: 10rem;
+    background: hsl(var(--background) / 0.8);
+    box-shadow: 0 0 2rem 0 hsl(var(--background) / 0.5);
+    z-index: -2;
+    filter: blur(2rem);
   }
 }
 
