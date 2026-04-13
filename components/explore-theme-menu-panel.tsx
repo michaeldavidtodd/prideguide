@@ -31,7 +31,7 @@ export function ExploreThemeMenuPanel({
       )}
     >
       <div
-        className={cn("grid gap-6", hasSecondary && "xl:grid-cols-2 xl:items-start xl:gap-8")}
+        className={cn("grid gap-6", hasSecondary && "lg:grid-cols-2 lg:items-start lg:gap-10")}
       >
         <div className="min-w-0">
           <header className="space-y-1 pt-1 pb-2">
@@ -50,7 +50,7 @@ export function ExploreThemeMenuPanel({
           />
         </div>
         {hasSecondary ? (
-          <div className="min-w-0 border-border/40 border-t pt-6 xl:border-t-0 xl:border-l xl:pt-0 xl:pl-8">
+          <div className="min-w-0 border-border/40 border-t xl:border-t-0 ">
             {secondaryColumn}
           </div>
         ) : null}

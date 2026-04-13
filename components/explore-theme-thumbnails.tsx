@@ -233,7 +233,7 @@ export function ExploreThemeThumbnailGrid({
 						onClick={() => setTheme(id)}
 						onKeyDown={(e) => onThemeKeyDown(e, index)}
 						className={cn(
-							"group relative flex flex-col gap-2 rounded-md text-left outline-none",
+							"group relative flex flex-col gap-2 p-2 rounded-md text-left outline-none",
 							"transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none",
 							"motion-safe:group-hover:-translate-y-0.5 motion-reduce:group-hover:translate-y-0",
 							"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"

@@ -193,7 +193,7 @@ export const DockExpandingPanel = forwardRef<HTMLDivElement, DockExpandingPanelP
               initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
               animate={{ opacity: 1 }}
               transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.15 }}
-              className={cn("px-5 py-3", fill && "min-w-0 w-full")}
+              className={cn("p-5 md:p-6", fill && "min-w-0 w-full")}
             >
               {children}
             </motion.div>

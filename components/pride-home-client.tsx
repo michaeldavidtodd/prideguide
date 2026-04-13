@@ -23,11 +23,11 @@ import {
 } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+// import { Label } from "@/components/ui/label"
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
+// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+// import { Slider } from "@/components/ui/slider"
+// import { Switch } from "@/components/ui/switch"
 import { AnimatedFlag } from "@/components/animated-flag"
 import {
 	ExploreStudioSettingsPanel,

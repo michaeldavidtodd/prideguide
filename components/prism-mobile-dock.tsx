@@ -187,9 +187,9 @@ export function PrismMobileDock({
       </DockExpandingPanel>
 
       <div
+        data-slot="dock-mobile-bar"
         role="navigation"
         aria-label="Prism dock"
-        className="flex w-full shrink-0 items-center justify-between gap-2 px-3 py-2.5 sm:gap-2"
       >
         <button
           type="button"

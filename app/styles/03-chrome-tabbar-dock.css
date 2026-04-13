@@ -17,6 +17,7 @@
 } */
 
 [data-slot="dock-container"] {
+  max-height: calc(100dvh - 1.5rem);
   @apply
     /* Layout */
     flex justify-center
@@ -42,4 +43,16 @@
     z-index: -2;
     filter: blur(2rem);
   }
+}
+
+#prism-mobile-dock-panel {
+  @apply grid grid-cols-1 items-start;
+  overflow-y: auto;
+  &[aria-hidden="false"] + [data-slot="dock-mobile-bar"] {
+    @apply border-t border-border/50;
+  }
+}
+
+[data-slot="dock-mobile-bar"] {
+  @apply flex w-full shrink-0 items-center justify-between gap-2 px-3 py-2.5 sm:gap-2;
 }
