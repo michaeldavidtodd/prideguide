@@ -1,30 +1,33 @@
-# LGBTQIA+ community app
+# Pride Guide
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+Education and celebration through accurate colors, history, and the stories flags carry.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/michaeldavidtodds-projects/v0-lgbtqia-community-app)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/F6WQot7fZBy)
+**Live app:** [pride-guide.com](https://pride-guide.com) · **About:** [pride-guide.com/about](https://pride-guide.com/about)
 
-## Overview
+## What it is
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+Pride Guide is an educational app celebrating the diversity and beauty of the queer community through its flags. More flags will be added over time, and we plan to support contributions from the community.
 
-## Deployment
+### Features
 
-Your project is live at:
+- Immersive flag explorer (more flags added over time)
+- Interactive quiz
+- Ally guidance and tips
+- Historical context and meanings per flag
 
-**[https://vercel.com/michaeldavidtodds-projects/v0-lgbtqia-community-app](https://vercel.com/michaeldavidtodds-projects/v0-lgbtqia-community-app)**
+## PRISM
 
-## Build your app
+**PRISM** — Promoting Representation, Inclusivity, and Social justice through Multimedia — is a grassroots group of queer and ally individuals looking to use our voices, experiences, skills, and talents to help make the world a brighter place for all.
 
-Continue building your app on:
+Made with 🏳️‍🌈 for education and celebration.
 
-**[https://v0.dev/chat/projects/F6WQot7fZBy](https://v0.dev/chat/projects/F6WQot7fZBy)**
+## Developers
 
-## How It Works
+This repository is a [Next.js](https://nextjs.org/) application. After cloning:
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+```bash
+pnpm install
+pnpm dev
+```
+
+Then open the URL shown in the terminal (typically [http://localhost:3000](http://localhost:3000)).
