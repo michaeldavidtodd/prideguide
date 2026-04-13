@@ -66,7 +66,7 @@
     height: auto;
     min-height: 0;
   }
-  .explore-flag-thumbs {
+  [data-slot="explore-flag-thumbs"] {
     grid-row-start: 2;
   }
 }
@@ -208,8 +208,8 @@
 
 
 /* Explore carousel: static mini flags (no column oscillation, no drop shadow) */
-.explore-flag-thumbs {
-  @apply max-lg:hidden shrink-0 overflow-hidden lg:h-fit;
+[data-slot="explore-flag-thumbs"] {
+  @apply min-w-0 shrink-0 overflow-hidden lg:h-fit;
   @media (max-height: 1024px) {
     padding-top: 0;
     padding-bottom: 0;
@@ -223,9 +223,17 @@
 }
 
 .explore-flag-thumbnails {
+  --explore-flag-thumb-min-w: 2.75rem;
+  @media (min-width: 640px) {
+    --explore-flag-thumb-min-w: 3rem;
+  }
   @apply
-    mx-auto flex w-full max-w-full justify-center gap-0 overflow-x-auto overscroll-x-contain h-20 [scrollbar-width:thin]
+    mx-auto flex h-20 px-4 w-full min-w-0 max-w-full flex-nowrap gap-0 overflow-x-auto overscroll-x-contain [scrollbar-width:thin]
   ;
+  /* Plain `center` + overflow hides the first/last items from scroll; `safe` uses start when overflowing. */
+  justify-content: flex-start;
+  justify-content: safe center;
+  scroll-padding-inline: 1.25rem;
   /* Horizontal edge fade while scrolling (mask keeps pointer events on children in supporting browsers) */
   mask-image: linear-gradient(
     to right,
@@ -255,12 +263,10 @@
  * Right: .thumb:hover + .thumb …   Left: .thumb:has(+ .thumb:has(+ … :hover)).
  */
 .explore-flag-thumbnails > .explore-flag-thumbnail {
-  /* display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: stretch;
   flex-shrink: 0;
-  width: 2.75rem; */
+  min-width: var(--explore-flag-thumb-min-w);
+  width: 2.75rem;
+  scroll-margin-inline: 1.25rem;
   cursor: pointer;
   transition-property: width, border-color, box-shadow, opacity;
   transition-duration: 0.40s;

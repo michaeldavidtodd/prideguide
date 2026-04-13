@@ -1267,7 +1267,6 @@ export function HomeV2ExploreContent() {
 
 								<nav
 									data-slot="explore-flag-thumbs"
-									className="explore-flag-thumbs max-lg:hidden shrink-0 py-3 min-w-0 w-full"
 									aria-label="All flags"
 								>
 									<div
@@ -1380,7 +1379,7 @@ export function HomeV2ExploreContent() {
 								</AnimatePresence>
 							</aside>
 
-							<div
+							{/* <div
 								className="max-lg:order-2 max-lg:pb-8 lg:hidden flex flex-row items-center justify-center gap-4 p-4 h-fit"
 								aria-hidden
 								style={studioShellStyle}
@@ -1391,7 +1390,7 @@ export function HomeV2ExploreContent() {
 									className="size-6"
 								/>
 								Swipe the flag
-							</div>
+							</div> */}
 						</div>
 
 					</motion.div>
