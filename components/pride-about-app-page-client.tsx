@@ -31,18 +31,18 @@ export function PrideAboutAppPageClient() {
           style={studioShellStyle}
         >
           <CardHeader className="max-w-prose mx-auto space-y-0 pb-2">
-            <CardTitle className="flex items-center gap-2.5 font-display text-xl font-bold leading-tight tracking-tight sm:text-2xl">
-              <BookOpen className="size-5 shrink-0 opacity-80" aria-hidden />
+            <CardTitle className="flex items-center gap-2.5 font-display text-xl font-bold leading-tight tracking-tight sm:text-4xl">
+              <BookOpen className="size-8 sm:mt-1.5 shrink-0 opacity-80" aria-hidden />
               Queer Education
             </CardTitle>
           </CardHeader>
           <CardContent className="max-w-prose mx-auto space-y-6">
-            <p className="text-balance text-base leading-relaxed text-muted-foreground">
+            <p className="text-balance text-lg leading-relaxed text-muted-foreground">
               Pride Guide is an educational app celebrating the diversity and beauty of the LGBTQIA+ community through
               its flags. More flags will be added over time. And we plan to support contributions from the community.
             </p>
             <div className="space-y-3">
-              <h4 className="font-display text-[0.7rem] font-bold uppercase leading-none tracking-[0.2em] text-foreground">
+              <h4 className="font-display text-xs font-bold uppercase leading-tight tracking-[0.18em] text-primary sm:text-sm">
                 Features
               </h4>
               <ul className="list-disc space-y-2.5 pl-5 text-base leading-relaxed text-muted-foreground marker:text-foreground/35">
@@ -57,7 +57,7 @@ export function PrideAboutAppPageClient() {
         </motion.div>,
 
         <motion.div key="about-prism" variants={itemVariants}>
-        <Card
+        {/* <Card
           className={cn(
             "border-foreground/15 bg-background/40 shadow-none lg:flex lg:flex-row lg:justify-center lg:gap-8",
             cornerRadius <= 0 && "rounded-none",
@@ -77,11 +77,11 @@ export function PrideAboutAppPageClient() {
               world a brighter place for all.
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
         </motion.div>,
 
         <div key="about-footer">
-          <p className="text-center text-sm leading-relaxed text-muted-foreground">Made with 🏳️‍🌈 for education and celebration</p>
+          <p className="text-center text-sm leading-relaxed text-muted-foreground">Made with 🏳️‍🌈 pride for education and celebration by <Link href="https://pixeluiz.com" target="_blank" className="underline">Pixel Uiz</Link></p>
         </div>
       ]}
     </PrideLearnPageContent>
