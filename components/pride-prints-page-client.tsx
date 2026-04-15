@@ -34,7 +34,7 @@ const QUEER_FLAG_GUIDE_THUMB = {
 
 /** Same fixed height for every print product thumbnail (covers + sticker). */
 const PRINT_THUMB_FRAME =
-  "flex h-56 min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-xl border border-foreground/10 bg-background/30 px-2 py-2 sm:h-60 sm:px-3 sm:py-3"
+  "flex h-56 min-h-0 w-full shrink-0 flex-col rounded-xl sm:h-60 mb-4"
 
 const PRINT_THUMB_IMAGE_SIZES = "(max-width: 768px) 92vw, (max-width: 1280px) 34vw, 400px" as const
 
@@ -198,7 +198,7 @@ export function PridePrintsPageClient() {
             <Card
               key={product.id}
               className={cn(
-                "flex h-full flex-col border-foreground/15 bg-background/40 shadow-none",
+                "flex h-full flex-col border-foreground/15 bg-card shadow-none",
                 cornerRadius <= 0 && "rounded-none",
               )}
               style={studioShellStyle}
