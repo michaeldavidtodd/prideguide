@@ -74,6 +74,11 @@ interface AnimatedFlagProps {
    * matching the default `.animated-flag` glow strength.
    */
   dropShadowColor?: string
+  /**
+   * When true, the column wave is frozen with `animation-play-state: paused` — same `oscillate`
+   * keyframes and staggered delays as the animated flag (one snapshot of the live wave).
+   */
+  motionless?: boolean
 }
 
 function parseViewBoxDims(viewBox: string | undefined): { w: number; h: number } | null {
@@ -98,6 +103,7 @@ export function AnimatedFlag({
   fit = "fill",
   style,
   dropShadowColor,
+  motionless = false,
 }: AnimatedFlagProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [containerWidthPx, setContainerWidthPx] = useState(0)
@@ -200,6 +206,7 @@ export function AnimatedFlag({
       className={cn(
         "animated-flag",
         fit === "contain" && "animated-flag--contain",
+        motionless && "animated-flag--static",
         className,
         stripeCornerRadiusPx !== undefined && "animated-flag--radius-controlled"
       )}
@@ -224,19 +231,15 @@ export function AnimatedFlag({
 
         const radiusStyle = columnBorderRadius(index)
 
+        const columnStyle: React.CSSProperties = {
+          ...radiusStyle,
+          background: gradientString,
+          animationDelay: `${colData.animationDelay}ms`,
+        }
+        ;(columnStyle as Record<string, string | undefined>)["--billow"] = `${colData.billowAmount}px`
+
         return (
-          <div
-            key={index}
-            className="flag-column"
-            style={
-              {
-                "--billow": `${colData.billowAmount}px`, // Use the calculated billowAmount
-                background: gradientString,
-                animationDelay: `${colData.animationDelay}ms`,
-                ...radiusStyle,
-              } as React.CSSProperties
-            }
-          >
+          <div key={index} className="flag-column" style={columnStyle}>
             {svgForeground && svgForeground.paths.length > 0 && columnSpecificViewBox && (
               <svg
                 width="100%"

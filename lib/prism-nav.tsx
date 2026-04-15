@@ -1,10 +1,11 @@
 import type { LucideIcon } from "lucide-react"
-import { BookOpen, ClipboardList, Heart, House, Info, Telescope, Trophy } from "lucide-react"
+import { BookOpen, ClipboardList, Heart, House, Info, ShoppingBag, Telescope, Trophy } from "lucide-react"
 import type { ExpandableTabBarLinkItem } from "@/components/expandable-tab-bar"
 import {
   PRIDE_ABOUT_APP_PATH,
   PRIDE_ALLY_PATH,
   PRIDE_EXPLORE_PATH,
+  PRIDE_PRINTS_PATH,
   PRIDE_QUIZ_PATH,
 } from "@/lib/pride-routes"
 
@@ -47,6 +48,12 @@ export const PRISM_APP_SECTIONS: readonly PrismAppSection[] = [
     href: PRIDE_ABOUT_APP_PATH,
     dock: { label: "About", Icon: BookOpen },
     moreGrid: { label: "About app", Icon: Info },
+  },
+  {
+    id: "products",
+    href: PRIDE_PRINTS_PATH,
+    dock: { label: "Prints", Icon: ShoppingBag },
+    moreGrid: { label: "Print shop", Icon: ShoppingBag },
   },
 ]
 
