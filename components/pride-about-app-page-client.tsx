@@ -18,7 +18,7 @@ export function PrideAboutAppPageClient() {
 
   return (
     <PrideLearnPageContent
-      kicker="Prism · about"
+      kicker="About"
       title="About the guide"
       description="Education and celebration through accurate colors, history, and the stories flags carry."
       introAnimation

@@ -607,7 +607,7 @@ function HomeV2BootOverlay({ phase, prideStripes }: { phase: BootPhase; prideStr
 					ease: [0.22, 1, 0.36, 1],
 				}}
 			>
-				Prism · loading signal
+				Loading signal
 			</motion.p>
 		</motion.div>
 	)
@@ -781,7 +781,7 @@ export function HomeV2WelcomeContent() {
 											reduceMotion ? "text-primary" : "home-welcome-accent-text"
 										)}
 									>
-										Prism · queer education
+										Queer education
 									</p>
 									<h1 className="font-display text-[clamp(3rem,12vw,6.5rem)] font-black leading-[0.88] tracking-tight">
 										<span

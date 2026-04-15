@@ -113,7 +113,7 @@ export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransition
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                      Prism · flag details
+                      Flag details
                     </p>
                     <Button
                       variant="ghost"

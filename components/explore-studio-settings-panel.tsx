@@ -68,7 +68,7 @@ export function ExploreStudioSettingsPanel(props: ExploreStudioSettingsPanelProp
         <p className="text-sm leading-snug text-muted-foreground">
           {variant === "explore"
             ? "Fine-tune motion, slice layout, and frames."
-            : "Fine-tune motion and rounded edges across Prism."}
+            : "Fine-tune motion and rounded edges across the site."}
         </p>
       </header>
 

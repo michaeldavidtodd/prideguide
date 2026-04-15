@@ -127,9 +127,9 @@ export function PrismMobileDock({
   let panelBody: ReactNode = null
   let panelRegionLabel = "Options"
   if (mobileSheet === "nav") {
-    panelRegionLabel = "Prism pages"
+    panelRegionLabel = "Pages"
     panelBody = (
-      <nav aria-label="Prism pages" className="flex min-w-0 w-full flex-col gap-1 py-1">
+      <nav aria-label="Pages" className="flex min-w-0 w-full flex-col gap-1 py-1">
         {linkTabs.map((tab) => {
           const routeActive = pathname === tab.href
           return (
@@ -189,7 +189,7 @@ export function PrismMobileDock({
       <div
         data-slot="dock-mobile-bar"
         role="navigation"
-        aria-label="Prism dock"
+        aria-label="Dock"
       >
         <button
           type="button"

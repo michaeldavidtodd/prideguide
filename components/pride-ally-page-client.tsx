@@ -21,7 +21,7 @@ export function PrideAllyPageClient() {
 
   return (
     <PrideLearnPageContent
-      kicker="Prism · allyship"
+      kicker="Allyship"
       title="Ally guide"
       description="Practical ways to show up—without centering yourself or treating people as a lesson plan."
     >

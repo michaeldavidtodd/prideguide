@@ -269,7 +269,7 @@ export function PrideQuizPageClient() {
 
   return (
     <PrideLearnPageContent
-      kicker="Prism · quiz"
+      kicker="Quiz"
       title="Flag knowledge quiz"
       description="Test what you know about LGBTQIA+ flags—ten questions, no pressure."
       wideLayout
