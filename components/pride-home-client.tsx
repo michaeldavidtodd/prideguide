@@ -59,15 +59,9 @@ import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
 import { PrismExpandableDock } from "@/components/prism-expandable-dock"
 import { PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
 import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
+import { useExploreStudioSlice } from "@/components/explore-studio-slice-context"
 import { usePrismMotionReduced, useStudioShell } from "@/components/studio-shell-context"
 import { usePersistedExploreFlagSlice } from "@/hooks/use-persisted-explore-flag-slice"
-import {
-	LS_EXPLORE_STUDIO,
-	type ExploreStudioSnapshot,
-	parseExploreStudioSnapshot,
-	randomExploreStudioSnapshot,
-} from "@/lib/explore-studio-persist"
-import { notifyStudioShellSync } from "@/lib/studio-shell-sync"
 import {
 	collectWelcomeStripeCandidates,
 	pickWelcomeTextColorsAgainstBackground,
@@ -877,17 +871,20 @@ export function HomeV2ExploreContent() {
 		studioShellStyle,
 		setCornerRadius,
 		setMotionPreference,
-		setStudioPersist,
 	} = useStudioShell()
-	const [explorePrefsHydrated, setExplorePrefsHydrated] = useState(false)
+	const {
+		columnCount,
+		setColumnCount,
+		stripeGap,
+		setStripeGap,
+		waveBoost,
+		onStudioPersistChange,
+	} = useExploreStudioSlice()
 
 	const [index, setIndex] = useState(0)
 	const [activeStripe, setActiveStripe] = useState<number | null>(null)
-	const [waveBoost, setWaveBoost] = useState(false)
-	const [columnCount, setColumnCount] = useState(18)
 	const [tilt, setTilt] = useState({ x: 0, y: 0 })
 	const [flagNavDir, setFlagNavDir] = useState<1 | -1>(1)
-	const [stripeGap, setStripeGap] = useState(0)
 	const [gifExporting, setGifExporting] = useState(false)
 	const pointerStart = useRef<{ x: number } | null>(null)
 	const stageRef = useRef<HTMLDivElement>(null)
@@ -907,85 +904,12 @@ export function HomeV2ExploreContent() {
 				? false
 				: systemPrefersReducedMotion === true
 
-	const applyStudioSnapshot = useCallback(
-		(s: ExploreStudioSnapshot) => {
-			setColumnCount(s.columnCount)
-			setWaveBoost(s.waveBoost)
-			setStripeGap(s.stripeGap)
-			setCornerRadius(s.cornerRadius)
-		},
-		[setCornerRadius]
-	)
-
 	const onMotionPreferenceChange = useCallback(
 		(value: ExploreStudioMotionPreference) => {
 			setMotionPreference(value)
 		},
 		[setMotionPreference]
 	)
-
-	const onStudioPersistChange = useCallback(
-		(persist: boolean) => {
-			setStudioPersist(persist)
-			if (!persist) return
-			try {
-				localStorage.setItem(
-					LS_EXPLORE_STUDIO,
-					JSON.stringify({
-						columnCount,
-						waveBoost,
-						stripeGap,
-						cornerRadius,
-					} satisfies ExploreStudioSnapshot)
-				)
-				notifyStudioShellSync()
-			} catch {
-				/* ignore */
-			}
-		},
-		[columnCount, cornerRadius, setStudioPersist, stripeGap, waveBoost]
-	)
-
-	useEffect(() => {
-		try {
-			if (studioPersist) {
-				const raw = localStorage.getItem(LS_EXPLORE_STUDIO)
-				const parsed = raw ? (JSON.parse(raw) as unknown) : null
-				const snap = parseExploreStudioSnapshot(parsed)
-				if (snap) {
-					applyStudioSnapshot(snap)
-				} else {
-					const r = randomExploreStudioSnapshot()
-					applyStudioSnapshot(r)
-					localStorage.setItem(LS_EXPLORE_STUDIO, JSON.stringify(r))
-					notifyStudioShellSync()
-				}
-			} else {
-				applyStudioSnapshot(randomExploreStudioSnapshot())
-			}
-		} catch {
-			applyStudioSnapshot(randomExploreStudioSnapshot())
-		}
-		setExplorePrefsHydrated(true)
-	}, [applyStudioSnapshot, studioPersist])
-
-	useEffect(() => {
-		if (!explorePrefsHydrated || !studioPersist) return
-		try {
-			localStorage.setItem(
-				LS_EXPLORE_STUDIO,
-				JSON.stringify({
-					columnCount,
-					waveBoost,
-					stripeGap,
-					cornerRadius,
-				} satisfies ExploreStudioSnapshot)
-			)
-			notifyStudioShellSync()
-		} catch {
-			/* ignore */
-		}
-	}, [columnCount, cornerRadius, explorePrefsHydrated, stripeGap, studioPersist, waveBoost])
 
 	const flag = PRIDE_FLAGS[index]
 	const stripes = flag.display.stripes ?? []

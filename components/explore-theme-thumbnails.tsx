@@ -44,7 +44,7 @@ function MiniChrome({
 }) {
 	return (
 		<div
-			className="relative aspect-5/3 w-full overflow-hidden shadow-inner"
+			className="relative md:min-w-[200px] aspect-5/3 w-full overflow-hidden shadow-inner"
 			style={{ background: bg }}
 		>
 			{children}

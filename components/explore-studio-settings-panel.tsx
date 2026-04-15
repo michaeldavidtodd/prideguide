@@ -21,7 +21,7 @@ export type ExploreStudioSettingsPanelProps = {
   setCornerRadius: (n: number) => void
   studioPersist: boolean
   onStudioPersistChange: (persist: boolean) => void
-  /** Explore only */
+  /** Explore / quiz (slice + optional GIF) */
   columnCount?: number
   setColumnCount?: (n: number) => void
   stripeGap?: number
@@ -50,7 +50,7 @@ export function ExploreStudioSettingsPanel(props: ExploreStudioSettingsPanelProp
   } = props
 
   const exploreExtras =
-    variant === "explore" && setColumnCount && setStripeGap && onDownloadGif
+    variant === "explore" && setColumnCount != null && setStripeGap != null
       ? { columnCount, setColumnCount, stripeGap, setStripeGap, gifExporting, onDownloadGif }
       : null
 

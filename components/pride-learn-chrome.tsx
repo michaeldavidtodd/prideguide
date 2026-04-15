@@ -4,10 +4,13 @@ import type { ReactNode } from "react"
 import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { useTheme } from "next-themes"
+import { usePathname } from "next/navigation"
 import { ExploreStudioSettingsPanel } from "@/components/explore-studio-settings-panel"
+import { useExploreStudioSlice } from "@/components/explore-studio-slice-context"
 import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
 import { PrismExpandableDock } from "@/components/prism-expandable-dock"
 import { usePrismMotionReduced, useStudioShell } from "@/components/studio-shell-context"
+import { PRIDE_QUIZ_PATH } from "@/lib/pride-routes"
 import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
 
 /**
@@ -21,6 +24,8 @@ export function PrideLearnShell({ children }: { children: ReactNode }) {
 }
 
 function PrideLearnShellInner({ children }: { children: ReactNode }) {
+  const pathname = usePathname()
+  const quizStudio = pathname === PRIDE_QUIZ_PATH
   const { theme, setTheme, themes: availableThemes } = useTheme()
   const [themeIconMounted, setThemeIconMounted] = useState(false)
   const {
@@ -30,8 +35,14 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
     studioPersist,
     setCornerRadius,
     setMotionPreference,
-    setStudioPersist,
   } = useStudioShell()
+  const {
+    columnCount,
+    setColumnCount,
+    stripeGap,
+    setStripeGap,
+    onStudioPersistChange,
+  } = useExploreStudioSlice()
 
   useEffect(() => {
     setThemeIconMounted(true)
@@ -61,14 +72,22 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
         }
         studioPanel={
           <ExploreStudioSettingsPanel
-            variant="prism"
+            variant={quizStudio ? "explore" : "prism"}
             studioShellStyle={studioShellStyle}
             cornerRadius={cornerRadius}
             motionPreference={motionPreference}
             onMotionPreferenceChange={setMotionPreference}
             setCornerRadius={setCornerRadius}
             studioPersist={studioPersist}
-            onStudioPersistChange={setStudioPersist}
+            onStudioPersistChange={onStudioPersistChange}
+            {...(quizStudio
+              ? {
+                  columnCount,
+                  setColumnCount,
+                  stripeGap,
+                  setStripeGap,
+                }
+              : {})}
           />
         }
       />
