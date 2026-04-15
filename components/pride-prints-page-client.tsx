@@ -19,14 +19,14 @@ const STICKER_PREVIEW_MODE: "svg-asset" | "animated-flag" = "svg-asset"
 const FLAG_STICKER_IMAGE_PATH = "/images/flag-sticker.svg" as const
 
 const QUEER_RESOURCE_GUIDE_THUMB = {
-  src: "/Queer-Resource-Guide.png",
+  src: "/images/Queer-Resource-Guide.png",
   width: 922,
   height: 1275,
   label: "Queer Resource Guide cover, Atlanta edition",
 } as const
 
 const QUEER_FLAG_GUIDE_THUMB = {
-  src: "/Queer-Flag-Guide.png",
+  src: "/images/Queer-Flag-Guide.png",
   width: 1790,
   height: 2526,
   label: "LGBTQIA+ flags and their meanings — cover thumbnail",
