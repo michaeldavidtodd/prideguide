@@ -184,7 +184,7 @@ export function PridePrintsPageClient() {
 
   return (
     <PrideLearnPageContent
-      kicker="Print shop"
+      kicker="Print Shop"
       title="Small-batch Prints"
       description="Small-batch print pieces and stickers from the project. Coming soon."
       // description="Small-batch print pieces and stickers from the project. Everything here is coming soon — leave your email per item if you want a ping when we open orders."

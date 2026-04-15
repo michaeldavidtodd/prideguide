@@ -50,10 +50,10 @@ export const PRISM_APP_SECTIONS: readonly PrismAppSection[] = [
     moreGrid: { label: "About app", Icon: Info },
   },
   {
-    id: "products",
+    id: "print-shop",
     href: PRIDE_PRINTS_PATH,
-    dock: { label: "Prints", Icon: ShoppingBag },
-    moreGrid: { label: "Print shop", Icon: ShoppingBag },
+    dock: { label: "Print Shop", Icon: ShoppingBag },
+    moreGrid: { label: "Print Shop", Icon: ShoppingBag },
   },
 ]
 
