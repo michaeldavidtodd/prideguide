@@ -59,7 +59,15 @@ import { ExploreThemeMenuPanel } from "@/components/explore-theme-menu-panel"
 import { PrismExpandableDock } from "@/components/prism-expandable-dock"
 import { PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
 import { resolveThemeDockTriggerIcon } from "@/lib/site-theme-meta"
-import { useStudioShell } from "@/components/studio-shell-context"
+import { usePrismMotionReduced, useStudioShell } from "@/components/studio-shell-context"
+import { usePersistedExploreFlagSlice } from "@/hooks/use-persisted-explore-flag-slice"
+import {
+	LS_EXPLORE_STUDIO,
+	type ExploreStudioSnapshot,
+	parseExploreStudioSnapshot,
+	randomExploreStudioSnapshot,
+} from "@/lib/explore-studio-persist"
+import { notifyStudioShellSync } from "@/lib/studio-shell-sync"
 import {
 	collectWelcomeStripeCandidates,
 	pickWelcomeTextColorsAgainstBackground,
@@ -69,43 +77,6 @@ import {
 export const HOME_V2_EXPLORE_PATH = PRIDE_EXPLORE_PATH
 
 const FLAG_COUNT = PRIDE_FLAGS.length
-
-const LS_EXPLORE_STUDIO = "prideguide-explore-studio-v1"
-
-type ExploreStudioSnapshot = {
-	columnCount: number
-	waveBoost: boolean
-	stripeGap: number
-	cornerRadius: number
-}
-
-function clampInt(n: number, min: number, max: number) {
-	return Math.min(max, Math.max(min, Math.round(n)))
-}
-
-function randomExploreStudioSnapshot(): ExploreStudioSnapshot {
-	return {
-		columnCount: 10 + Math.floor(Math.random() * 23),
-		waveBoost: Math.random() < 0.5,
-		stripeGap: Math.floor(Math.random() * 17),
-		cornerRadius: Math.floor(Math.random() * 29),
-	}
-}
-
-function parseExploreStudioSnapshot(raw: unknown): ExploreStudioSnapshot | null {
-	if (!raw || typeof raw !== "object") return null
-	const o = raw as Record<string, unknown>
-	const columnCount =
-		typeof o.columnCount === "number" ? clampInt(o.columnCount, 10, 32) : null
-	const stripeGap = typeof o.stripeGap === "number" ? clampInt(o.stripeGap, 0, 16) : null
-	const cornerRadius =
-		typeof o.cornerRadius === "number" ? clampInt(o.cornerRadius, 0, 28) : null
-	const waveBoost = typeof o.waveBoost === "boolean" ? o.waveBoost : null
-	if (columnCount === null || stripeGap === null || cornerRadius === null || waveBoost === null) {
-		return null
-	}
-	return { columnCount, waveBoost, stripeGap, cornerRadius }
-}
 
 /* ---- Aurora BG: soft color blobs cycling through flag palettes ---- */
 const AURORA_CYCLE_MS = 5000
@@ -617,6 +588,18 @@ export function HomeV2WelcomeContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const reduceMotion = useReducedMotion()
+	const { cornerRadius: studioCornerRadius } = useStudioShell()
+	const prismMotionReduced = usePrismMotionReduced()
+	const persistedExploreSlice = usePersistedExploreFlagSlice()
+	const welcomeFlagColumns = persistedExploreSlice?.columnCount ?? 22
+	const welcomeStripeGap = persistedExploreSlice?.stripeGap ?? 0
+	const welcomeFlagBillow = prismMotionReduced
+		? 0
+		: persistedExploreSlice
+			? persistedExploreSlice.waveBoost
+				? 1.35
+				: 0.85
+			: 0.75
 	const { blob1, blob2, blob3, paletteFlag } = useWelcomeAuroraPalette(reduceMotion)
 	const welcomeFlag =
 		paletteFlag ?? PRIDE_FLAGS.find((f) => f.id === "pride") ?? PRIDE_FLAGS[0]
@@ -852,8 +835,12 @@ export function HomeV2WelcomeContent() {
 												backgroundColors={welcomeFlag.display.stripes ?? []}
 												svgForeground={welcomeFlag.display.svgForeground}
 												fit="contain"
-												numOfColumns={22}
-												billow={reduceMotion ? 0 : 0.75}
+												numOfColumns={welcomeFlagColumns}
+												columnGapPx={welcomeStripeGap}
+												billow={welcomeFlagBillow}
+												stripeCornerRadiusPx={
+													studioCornerRadius > 0 ? studioCornerRadius : undefined
+												}
 												className="drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]!"
 											/>
 										</motion.div>
@@ -893,7 +880,6 @@ export function HomeV2ExploreContent() {
 		setStudioPersist,
 	} = useStudioShell()
 	const [explorePrefsHydrated, setExplorePrefsHydrated] = useState(false)
-	const exploreStudioHydratedRef = useRef(false)
 
 	const [index, setIndex] = useState(0)
 	const [activeStripe, setActiveStripe] = useState<number | null>(null)
@@ -952,6 +938,7 @@ export function HomeV2ExploreContent() {
 						cornerRadius,
 					} satisfies ExploreStudioSnapshot)
 				)
+				notifyStudioShellSync()
 			} catch {
 				/* ignore */
 			}
@@ -960,8 +947,6 @@ export function HomeV2ExploreContent() {
 	)
 
 	useEffect(() => {
-		if (exploreStudioHydratedRef.current) return
-		exploreStudioHydratedRef.current = true
 		try {
 			if (studioPersist) {
 				const raw = localStorage.getItem(LS_EXPLORE_STUDIO)
@@ -973,6 +958,7 @@ export function HomeV2ExploreContent() {
 					const r = randomExploreStudioSnapshot()
 					applyStudioSnapshot(r)
 					localStorage.setItem(LS_EXPLORE_STUDIO, JSON.stringify(r))
+					notifyStudioShellSync()
 				}
 			} else {
 				applyStudioSnapshot(randomExploreStudioSnapshot())
@@ -995,6 +981,7 @@ export function HomeV2ExploreContent() {
 					cornerRadius,
 				} satisfies ExploreStudioSnapshot)
 			)
+			notifyStudioShellSync()
 		} catch {
 			/* ignore */
 		}

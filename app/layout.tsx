@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import "./globals.css"
 import { DM_Sans, Syne } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+import { StudioShellProvider } from "@/components/studio-shell-context"
 import { Toaster } from "@/components/toaster"
 import { Analytics } from "@vercel/analytics/next"
 
@@ -37,9 +38,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className={`${dmSans.variable} ${syne.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="chillwave" enableSystem disableTransitionOnChange={false}>
-          {children}
-          <Toaster />
-          <Analytics />
+          <StudioShellProvider>
+            {children}
+            <Toaster />
+            <Analytics />
+          </StudioShellProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -6,6 +6,7 @@ import { Check, Trophy, X } from "lucide-react"
 import { AnimatedFlag } from "@/components/animated-flag"
 import { PrideLearnPageContent } from "@/components/pride-learn-chrome"
 import { usePrismMotionReduced, useStudioShell } from "@/components/studio-shell-context"
+import { usePersistedExploreFlagSlice } from "@/hooks/use-persisted-explore-flag-slice"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,6 +18,16 @@ import { cn } from "@/lib/utils"
 export function PrideQuizPageClient() {
   const { cornerRadius, studioShellStyle } = useStudioShell()
   const shouldReduceMotion = usePrismMotionReduced()
+  const persistedExploreSlice = usePersistedExploreFlagSlice()
+  const quizFlagColumns = persistedExploreSlice?.columnCount ?? 18
+  const quizStripeGap = persistedExploreSlice?.stripeGap ?? 0
+  const quizBillow = shouldReduceMotion
+    ? 0
+    : persistedExploreSlice
+      ? persistedExploreSlice.waveBoost
+        ? 1.35
+        : 0.85
+      : 0.8
   const [quizScore, setQuizScore] = useState(0)
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0)
   const [showQuizResult, setShowQuizResult] = useState(false)
@@ -202,6 +213,10 @@ export function PrideQuizPageClient() {
             <AnimatedFlag
               backgroundColors={relatedFlag.display.stripes || []}
               svgForeground={relatedFlag.display.svgForeground}
+              numOfColumns={quizFlagColumns}
+              columnGapPx={quizStripeGap}
+              billow={quizBillow}
+              stripeCornerRadiusPx={cornerRadius > 0 ? cornerRadius : undefined}
               className={cn("mt-3 w-full max-w-lg self-start lg:mt-5 lg:max-w-xl", softRadius)}
               style={studioShellStyle}
             />

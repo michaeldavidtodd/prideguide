@@ -71,7 +71,9 @@ export function writeSyncedMotionPreference(value: StudioMotionPreference): void
 export function readSyncedStudioPersist(): boolean {
   if (typeof window === "undefined") return false
   try {
-    return localStorage.getItem(LS_PRISM_STUDIO_PERSIST) === "1"
+    const raw = localStorage.getItem(LS_PRISM_STUDIO_PERSIST)
+    /* "1" is canonical; accept legacy truthy strings seen in older builds / dev data. */
+    return raw === "1" || raw === "true"
   } catch {
     /* ignore */
   }
