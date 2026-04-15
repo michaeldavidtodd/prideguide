@@ -1,7 +1,7 @@
 "use client"
 
 import type { LucideIcon } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { BookMarked, MapPin, Sticker } from "lucide-react"
@@ -9,10 +9,7 @@ import { AnimatedFlag } from "@/components/animated-flag"
 import { PrideLearnPageContent, useLearnPageIntroVariants } from "@/components/pride-learn-chrome"
 import { useStudioShell } from "@/components/studio-shell-context"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import type { FlagDefinition } from "@/lib/flags"
 import { PRIDE_FLAGS } from "@/lib/flags"
 import { cn } from "@/lib/utils"
@@ -110,6 +107,7 @@ function PrintRasterThumbnail({
   )
 }
 
+/*
 function ProductInterestForm({ productId, productTitle }: { productId: PrintProductId; productTitle: string }) {
   const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -177,6 +175,7 @@ function ProductInterestForm({ productId, productTitle }: { productId: PrintProd
     </div>
   )
 }
+*/
 
 export function PridePrintsPageClient() {
   const { cornerRadius, studioShellStyle } = useStudioShell()
@@ -266,9 +265,11 @@ export function PridePrintsPageClient() {
                 <p className="text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
                   {product.description}
                 </p>
+                {/*
                 <div className="mt-auto">
                   <ProductInterestForm productId={product.id} productTitle={product.title} />
                 </div>
+                */}
               </CardContent>
             </Card>
           ))}
