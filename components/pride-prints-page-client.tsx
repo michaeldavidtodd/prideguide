@@ -35,14 +35,14 @@ const PRINT_PRODUCTS: readonly PrintProduct[] = [
     id: "atlanta-resource-guide",
     title: "Atlanta queer resource guide",
     description:
-      "A print-ready queer resource guide focused on Atlanta, Georgia — organizations, mutual aid, health, safety, and community entry points in one place.",
+      "A pocket-sized queer resource guide focused on Atlanta, Georgia — organizations, mutual aid, health, safety, and community entry points in one place.",
     Icon: MapPin,
   },
   {
     id: "queer-flag-guide",
     title: "Queer flag guide",
     description:
-      "A printed companion to flag meanings, color symbolism, and historical context — designed to pair with the Pride Guide app or stand alone on a coffee table.",
+      "A printed companion to flag meanings, color symbolism, and historical context — all in a convenient pocket-sized format.",
     Icon: BookMarked,
   },
   {
