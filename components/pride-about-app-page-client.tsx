@@ -1,13 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import { motion } from "framer-motion"
 import { BookOpen } from "lucide-react"
 import { PrideLearnPageContent, useLearnPageIntroVariants } from "@/components/pride-learn-chrome"
 import { useStudioShell } from "@/components/studio-shell-context"
 import { PrismMarkLogo } from "@/components/prism-mark-logo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PRIDE_EXPLORE_PATH } from "@/lib/pride-routes"
 import { PRIDE_FLAGS } from "@/lib/flags"
 import { QUIZ_QUESTIONS } from "@/lib/quiz-questions"
 import { cn } from "@/lib/utils"
