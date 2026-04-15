@@ -10,7 +10,7 @@ import { PrideLearnPageContent, useLearnPageIntroVariants } from "@/components/p
 import { useStudioShell } from "@/components/studio-shell-context"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { FlagDefinition } from "@/lib/flags"
@@ -20,6 +20,26 @@ import { cn } from "@/lib/utils"
 /** Sticker card: export asset from `public/images/flag-sticker.svg`. Switch to `"animated-flag"` for the in-app paused `AnimatedFlag` preview. */
 const STICKER_PREVIEW_MODE: "svg-asset" | "animated-flag" = "svg-asset"
 const FLAG_STICKER_IMAGE_PATH = "/images/flag-sticker.svg" as const
+
+const QUEER_RESOURCE_GUIDE_THUMB = {
+  src: "/Queer-Resource-Guide.png",
+  width: 922,
+  height: 1275,
+  label: "Queer Resource Guide cover, Atlanta edition",
+} as const
+
+const QUEER_FLAG_GUIDE_THUMB = {
+  src: "/Queer-Flag-Guide.png",
+  width: 1790,
+  height: 2526,
+  label: "LGBTQIA+ flags and their meanings — cover thumbnail",
+} as const
+
+/** Same fixed height for every print product thumbnail (covers + sticker). */
+const PRINT_THUMB_FRAME =
+  "flex h-56 min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-xl border border-foreground/10 bg-background/30 px-2 py-2 sm:h-60 sm:px-3 sm:py-3"
+
+const PRINT_THUMB_IMAGE_SIZES = "(max-width: 768px) 92vw, (max-width: 1280px) 34vw, 400px" as const
 
 type PrintProductId = "atlanta-resource-guide" | "queer-flag-guide" | "animated-flag-stickers"
 
@@ -33,7 +53,7 @@ type PrintProduct = {
 const PRINT_PRODUCTS: readonly PrintProduct[] = [
   {
     id: "atlanta-resource-guide",
-    title: "Atlanta queer resource guide",
+    title: "Atlanta resource guide",
     description:
       "A pocket-sized queer resource guide focused on Atlanta, Georgia — organizations, mutual aid, health, safety, and community entry points in one place.",
     Icon: MapPin,
@@ -57,6 +77,37 @@ const PRINT_PRODUCTS: readonly PrintProduct[] = [
 function stickerPreviewFlag(): FlagDefinition {
   const progress = PRIDE_FLAGS.find((f) => f.id === "progress")
   return progress ?? PRIDE_FLAGS[0]!
+}
+
+function PrintRasterThumbnail({
+  src,
+  width,
+  height,
+  label,
+}: {
+  src: string
+  width: number
+  height: number
+  label: string
+}) {
+  return (
+    <div className={PRINT_THUMB_FRAME}>
+      <div
+        className="flex min-h-0 flex-1 items-center justify-center"
+        role="img"
+        aria-label={label}
+      >
+        <Image
+          src={src}
+          alt=""
+          width={width}
+          height={height}
+          sizes={PRINT_THUMB_IMAGE_SIZES}
+          className="h-auto max-h-full w-auto max-w-full object-contain drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]"
+        />
+      </div>
+    </div>
+  )
 }
 
 function ProductInterestForm({ productId, productTitle }: { productId: PrintProductId; productTitle: string }) {
@@ -152,27 +203,26 @@ export function PridePrintsPageClient() {
               )}
               style={studioShellStyle}
             >
-              <CardHeader className="space-y-3 pb-2">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <CardTitle className="flex items-start gap-2.5 font-display text-lg font-bold leading-tight tracking-tight sm:text-xl">
-                    <product.Icon className="mt-0.5 size-6 shrink-0 opacity-80" aria-hidden />
-                    <span>{product.title}</span>
-                  </CardTitle>
-                  <Badge variant="secondary" className="shrink-0 font-display text-[0.65rem] uppercase tracking-wider">
-                    Coming soon
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col gap-5 pt-0">
-                {product.id === "animated-flag-stickers" ? (
-                  <div
-                    className={cn(
-                      "flag-bounds w-full overflow-hidden rounded-xl border border-foreground/10 bg-background/30 px-4 py-5 sm:px-6 sm:py-7",
-                      STICKER_PREVIEW_MODE === "svg-asset" ? "aspect-243/188" : "aspect-[3/2.3]",
-                    )}
-                  >
+              <CardContent className="flex flex-1 flex-col gap-5 pt-6">
+                <div className="flex flex-col gap-3">
+                {product.id === "atlanta-resource-guide" ? (
+                  <PrintRasterThumbnail
+                    src={QUEER_RESOURCE_GUIDE_THUMB.src}
+                    width={QUEER_RESOURCE_GUIDE_THUMB.width}
+                    height={QUEER_RESOURCE_GUIDE_THUMB.height}
+                    label={QUEER_RESOURCE_GUIDE_THUMB.label}
+                  />
+                ) : product.id === "queer-flag-guide" ? (
+                  <PrintRasterThumbnail
+                    src={QUEER_FLAG_GUIDE_THUMB.src}
+                    width={QUEER_FLAG_GUIDE_THUMB.width}
+                    height={QUEER_FLAG_GUIDE_THUMB.height}
+                    label={QUEER_FLAG_GUIDE_THUMB.label}
+                  />
+                ) : product.id === "animated-flag-stickers" ? (
+                  <div className={PRINT_THUMB_FRAME}>
                     <div
-                      className="grid min-h-0 w-full place-items-center"
+                      className="flex min-h-0 flex-1 flex-col items-center justify-center"
                       role="img"
                       aria-label={
                         STICKER_PREVIEW_MODE === "svg-asset"
@@ -184,10 +234,11 @@ export function PridePrintsPageClient() {
                         <Image
                           src={FLAG_STICKER_IMAGE_PATH}
                           alt=""
-                          width={259}
-                          height={204}
+                          width={243}
+                          height={188}
+                          sizes={PRINT_THUMB_IMAGE_SIZES}
                           unoptimized
-                          className="h-auto max-h-[min(88cqh,100%)] w-full max-w-full m-auto object-contain drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]"
+                          className="h-auto max-h-full w-auto max-w-full object-contain drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]"
                         />
                       ) : (
                         <AnimatedFlag
@@ -198,12 +249,20 @@ export function PridePrintsPageClient() {
                           staggeredDelay={150}
                           billow={0.75}
                           motionless
-                          className="w-auto! max-h-[min(68cqh,100%)] max-w-[min(100%,96cqi)] shrink-0 drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]!"
+                          className="w-auto! max-h-full max-w-full shrink-0 drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]!"
                         />
                       )}
                     </div>
                   </div>
                 ) : null}
+                <CardTitle className="flex items-start gap-2.5 font-display text-lg font-bold leading-tight tracking-tight sm:text-xl">
+                  <product.Icon className="mt-0.5 size-6 shrink-0 opacity-80" aria-hidden />
+                  <span>{product.title}</span>
+                </CardTitle>
+                <Badge variant="secondary" className="w-fit shrink-0 font-display text-[0.65rem] uppercase tracking-wider">
+                  Coming soon
+                </Badge>
+                </div>
                 <p className="text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
                   {product.description}
                 </p>
