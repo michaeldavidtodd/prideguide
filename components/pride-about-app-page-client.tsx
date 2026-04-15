@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { BookOpen } from "lucide-react"
 import { PrideLearnPageContent, useLearnPageIntroVariants } from "@/components/pride-learn-chrome"
@@ -79,7 +80,14 @@ export function PrideAboutAppPageClient() {
         </motion.div>,
 
         <div key="about-footer">
-          <p className="text-center text-sm leading-relaxed text-muted-foreground">Made with 🏳️‍🌈 pride for education and celebration by <Link href="https://pixeluiz.com" target="_blank" className="underline">Pixel Uiz</Link></p>
+          <p className="text-center text-sm leading-relaxed text-muted-foreground">Made with 🏳️‍🌈 pride for education and celebration by <Link
+            href="https://pixeluiz.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            Pixel Uiz
+          </Link></p>
         </div>
       ]}
     </PrideLearnPageContent>

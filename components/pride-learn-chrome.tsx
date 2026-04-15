@@ -71,26 +71,6 @@ function PrideLearnShellInner({ children }: { children: ReactNode }) {
             onStudioPersistChange={setStudioPersist}
           />
         }
-        appearancePanel={
-          <ExploreThemeMenuPanel
-            theme={theme}
-            setTheme={setTheme}
-            shellStyle={studioShellStyle}
-            cornerRadius={cornerRadius}
-            secondaryColumn={
-              <ExploreStudioSettingsPanel
-                variant="prism"
-                studioShellStyle={studioShellStyle}
-                cornerRadius={cornerRadius}
-                motionPreference={motionPreference}
-                onMotionPreferenceChange={setMotionPreference}
-                setCornerRadius={setCornerRadius}
-                studioPersist={studioPersist}
-                onStudioPersistChange={setStudioPersist}
-              />
-            }
-          />
-        }
       />
     </>
   )
