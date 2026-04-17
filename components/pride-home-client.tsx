@@ -41,6 +41,7 @@ import {
 import {
 	canonicalFlagHex,
 	collectFlagPalette,
+	flagStripeCssStops,
 	PRIDE_FLAGS,
 	type FlagPaletteSwatch,
 } from "@/lib/flags"
@@ -97,7 +98,8 @@ function normalizeStripeHex(raw: string | undefined, fallback: string): string {
 /** Horizontal colorband for the welcome kicker rule (matches full flag stripes when present). */
 function welcomeKickerBandBackground(
 	stripes: string[] | undefined,
-	fallbacks: readonly [string, string, string]
+	fallbacks: readonly [string, string, string],
+	stripeFractions?: readonly number[] | undefined,
 ): string {
 	const list = (stripes?.filter((c) => typeof c === "string" && c.trim()) ?? []).map(
 		(c) => canonicalFlagHex(c.trim()) ?? c.trim()
@@ -105,14 +107,10 @@ function welcomeKickerBandBackground(
 	const colors = list.length > 0 ? list : [...fallbacks]
 	if (colors.length === 0) return "hsl(var(--muted-foreground) / 0.45)"
 	if (colors.length === 1) return colors[0]!
-	const n = colors.length
-	const stops: string[] = []
-	for (let i = 0; i < n; i++) {
-		const start = (i / n) * 100
-		const end = ((i + 1) / n) * 100
-		stops.push(`${colors[i]} ${start}% ${end}%`)
-	}
-	return `linear-gradient(90deg, ${stops.join(", ")})`
+	const parts = flagStripeCssStops(colors, stripeFractions).map(
+		(s) => `${s.color} ${s.fromPct}% ${s.toPct}%`,
+	)
+	return `linear-gradient(90deg, ${parts.join(", ")})`
 }
 
 function auroraBlobsForIndex(
@@ -598,7 +596,8 @@ export function HomeV2WelcomeContent() {
 	const welcomeFlag =
 		paletteFlag ?? PRIDE_FLAGS.find((f) => f.id === "pride") ?? PRIDE_FLAGS[0]
 	const kickerBandBackground = useMemo(
-		() => welcomeKickerBandBackground(welcomeFlag.display.stripes, [blob1, blob2, blob3]),
+		() =>
+			welcomeKickerBandBackground(welcomeFlag.display.stripes, [blob1, blob2, blob3], welcomeFlag.display.stripeFractions),
 		[welcomeFlag, blob1, blob2, blob3]
 	)
 	const homeRootRef = useRef<HTMLDivElement>(null)
@@ -827,6 +826,7 @@ export function HomeV2WelcomeContent() {
 										>
 											<AnimatedFlag
 												backgroundColors={welcomeFlag.display.stripes ?? []}
+												stripeFractions={welcomeFlag.display.stripeFractions}
 												svgForeground={welcomeFlag.display.svgForeground}
 												fit="contain"
 												numOfColumns={welcomeFlagColumns}
@@ -1042,6 +1042,7 @@ export function HomeV2ExploreContent() {
 	const exploreGifSpec = useMemo((): AnimatedFlagGifSpec => {
 		return {
 			backgroundColors: stripes,
+			stripeFractions: flag.display.stripeFractions,
 			svgForeground: flag.display.svgForeground,
 			numOfColumns: columnCount,
 			staggeredDelayMs: 150,
@@ -1049,7 +1050,7 @@ export function HomeV2ExploreContent() {
 			columnGapPx: stripeGap,
 			stripeCornerRadiusPx: cornerRadius > 0 ? cornerRadius : undefined,
 		}
-	}, [billow, columnCount, cornerRadius, flag.display.svgForeground, stripeGap, stripes])
+	}, [billow, columnCount, cornerRadius, flag.display.stripeFractions, flag.display.svgForeground, stripeGap, stripes])
 
 	const handleDownloadAnimatedGif = useCallback(async () => {
 		if (gifExporting) return
@@ -1162,6 +1163,7 @@ export function HomeV2ExploreContent() {
 										>
 											<AnimatedFlag
 												backgroundColors={stripes}
+												stripeFractions={flag.display.stripeFractions}
 												svgForeground={flag.display.svgForeground}
 												fit="contain"
 												numOfColumns={columnCount}
@@ -1200,6 +1202,7 @@ export function HomeV2ExploreContent() {
 												>
 													<AnimatedFlag
 														backgroundColors={thumbStripes}
+														stripeFractions={f.display.stripeFractions}
 														svgForeground={f.display.svgForeground}
 														fit="contain"
 														numOfColumns={10}

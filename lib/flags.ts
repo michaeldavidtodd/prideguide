@@ -13,6 +13,11 @@ export interface FlagDisplayData {
   stripes?: string[]
   /** Same length as `stripes` when set — what each horizontal band represents. */
   stripeMeanings?: string[]
+  /**
+   * Same length as `stripes` when set: relative band heights (any positive numbers, normalized).
+   * When omitted, horizontal bands are equal height.
+   */
+  stripeFractions?: number[]
   svgForeground?: {
     viewBox: string
     paths: SvgPathDefinition[]
@@ -101,6 +106,66 @@ export function collectFlagPalette(display: FlagDisplayData): FlagPaletteSwatch[
   }
 
   return out
+}
+
+export interface FlagStripeCssStop {
+  color: string
+  fromPct: number
+  toPct: number
+}
+
+/** Percentage ranges for `linear-gradient(to bottom, …)` (0% = top). */
+export function flagStripeCssStops(
+  colors: readonly string[],
+  fractions?: readonly number[] | undefined,
+): FlagStripeCssStop[] {
+  const n = colors.length
+  if (n === 0) return []
+  if (n === 1) return [{ color: colors[0]!, fromPct: 0, toPct: 100 }]
+
+  const okFrac =
+    fractions !== undefined &&
+    fractions.length === n &&
+    fractions.every((f) => Number.isFinite(f) && f > 0)
+
+  const edges = new Array<number>(n + 1)
+  edges[0] = 0
+  if (okFrac) {
+    const sum = fractions!.reduce((a, b) => a + b, 0)
+    if (sum <= 0) {
+      for (let i = 1; i <= n; i++) edges[i] = i / n
+    } else {
+      let acc = 0
+      for (let i = 0; i < n; i++) {
+        acc += fractions![i]! / sum
+        edges[i + 1] = i === n - 1 ? 1 : acc
+      }
+    }
+  } else {
+    for (let i = 1; i <= n; i++) edges[i] = i / n
+  }
+
+  return colors.map((color, i) => ({
+    color,
+    fromPct: Math.round(edges[i]! * 10000) / 100,
+    toPct: Math.round(edges[i + 1]! * 10000) / 100,
+  }))
+}
+
+/** Normalized band heights (sum 1). `null` means equal `1/n` bands. */
+export function normalizedStripeHeights(
+  stripeCount: number,
+  fractions?: readonly number[] | undefined,
+): number[] | null {
+  if (stripeCount <= 1) return null
+  const ok =
+    fractions !== undefined &&
+    fractions.length === stripeCount &&
+    fractions.every((f) => Number.isFinite(f) && f > 0)
+  if (!ok) return null
+  const sum = fractions!.reduce((a, b) => a + b, 0)
+  if (sum <= 0) return null
+  return fractions!.map((w) => w / sum)
 }
 
 export const PRIDE_FLAGS: FlagDefinition[] = [
@@ -215,6 +280,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     name: "Bisexual Pride Flag",
     display: {
       stripes: ["#d60270", "#9b59b6", "#0038a8"],
+      stripeFractions: [2, 1, 2],
       stripeMeanings: [
         "Same-gender attraction",
         "Attraction across the spectrum",
@@ -223,7 +289,7 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     },
     description: "Represents bisexual identity and attraction to multiple genders.",
     history:
-      "Created by Michael Page in 1998. Pink represents same-sex attraction, blue represents opposite-sex attraction, purple represents attraction to all genders.",
+      "Created by Michael Page in 1998. Pink and blue stripes are twice the height of the center lavender band (40% / 20% / 40%). Pink represents same-sex attraction, blue opposite-sex attraction, lavender the blend across the spectrum.",
     significance: "Celebrates bisexual visibility and challenges misconceptions.",
     category: "Sexual Orientation",
   },
@@ -361,18 +427,25 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     id: "demisexual",
     name: "Demisexual Pride Flag",
     display: {
-      stripes: ["#222222", "#a3a3a3", "#ffffff", "#800080"],
-      stripeMeanings: [
-        "Asexuality",
-        "Grey-asexuality and demisexuality",
-        "Sexuality when it emerges",
-        "Community",
-      ],
+      stripes: ["#ffffff", "#7e277d", "#a3a3a3"],
+      stripeFractions: [41, 26, 41],
+      stripeMeanings: ["Sexuality when it emerges", "Community", "Grey-asexuality and demisexuality"],
+      svgForeground: {
+        viewBox: "0 0 159 108",
+        paths: [
+          {
+            id: "demisexual-chevron",
+            d: "M69.0337 54L0.0336914 108V0L69.0337 54Z",
+            fill: "#030404",
+            meaning: "Asexuality",
+          },
+        ],
+      },
     },
     description:
       "Represents demisexual identity, experiencing sexual attraction only after forming strong emotional bonds.",
     history:
-      "Created in 2010. Black for asexuality, grey for grey-asexuality and demisexuality, white for sexuality, purple for community.",
+      "Created in 2010. Black for asexuality, grey for grey-asexuality and demisexuality, white for sexuality, purple for community — with the black chevron on the hoist as on the original design.",
     significance: "Validates demisexual experiences and promotes understanding of the asexual spectrum.",
     category: "Sexual Orientation",
   },

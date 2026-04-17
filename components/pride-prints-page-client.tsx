@@ -243,6 +243,7 @@ export function PridePrintsPageClient() {
                       ) : (
                         <AnimatedFlag
                           backgroundColors={stickerFlag.display.stripes ?? []}
+                          stripeFractions={stickerFlag.display.stripeFractions}
                           svgForeground={stickerFlag.display.svgForeground}
                           fit="contain"
                           numOfColumns={16}

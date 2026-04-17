@@ -22,6 +22,7 @@ interface FlagData {
   category: string
   display: {
     stripes?: string[]
+    stripeFractions?: number[]
     svgForeground?: {
       viewBox: string
       paths: { id: string; d: string; fill: string; transform?: string; stroke?: string; strokeWidth?: string }[]
@@ -127,6 +128,7 @@ export function FlagCardTransition({ flag, onClose, isOpen }: FlagCardTransition
                   </div>
                   <AnimatedFlag
                     backgroundColors={flag.display.stripes || []}
+                    stripeFractions={flag.display.stripeFractions}
                     svgForeground={flag.display.svgForeground}
                     className="w-full overflow-hidden rounded-xl"
                   />

@@ -4,6 +4,7 @@
  * Behavior and the integer-width math are documented in docs/animated-flag-gif.md.
  */
 import type { FlagDefinition } from "@/lib/flags"
+import { normalizedStripeHeights } from "@/lib/flags"
 import { GIFEncoder, quantize, applyPalette } from "gifenc"
 
 /** Matches `.flag-column` in app/styles/04-animated-flag.css */
@@ -115,6 +116,7 @@ function resolveGifLayoutWidth(spec: AnimatedFlagGifSpec, requestedWidth: number
 
 export type AnimatedFlagGifSpec = {
   backgroundColors: string[]
+  stripeFractions?: FlagDefinition["display"]["stripeFractions"]
   svgForeground?: FlagDefinition["display"]["svgForeground"]
   numOfColumns: number
   staggeredDelayMs: number
@@ -231,7 +233,8 @@ export function columnTranslateYAt(
 
 function addStripeGradientStops(
   g: CanvasGradient,
-  backgroundColors: string[]
+  backgroundColors: string[],
+  stripeFractions?: readonly number[] | undefined,
 ): void {
   if (!backgroundColors.length) {
     g.addColorStop(0, "transparent")
@@ -244,10 +247,21 @@ function addStripeGradientStops(
     return
   }
   const n = backgroundColors.length
-  const segment = 1 / n
+  const weights = normalizedStripeHeights(n, stripeFractions)
+  const edges = new Array<number>(n + 1)
+  edges[0] = 0
+  if (weights) {
+    let acc = 0
+    for (let i = 0; i < n; i++) {
+      acc += weights[i]!
+      edges[i + 1] = i === n - 1 ? 1 : acc
+    }
+  } else {
+    for (let i = 1; i <= n; i++) edges[i] = i / n
+  }
   for (let i = 0; i < n; i++) {
-    const from = i * segment
-    const to = (i + 1) * segment
+    const from = edges[i]!
+    const to = edges[i + 1]!
     const c = backgroundColors[i]!
     g.addColorStop(from, c)
     g.addColorStop(to, c)
@@ -389,7 +403,7 @@ function renderFlagFrame(
     clipRoundedColumn(ctx, x, flagTopY, colW, flagHeight, tl, tr, br, bl)
 
     const grad = ctx.createLinearGradient(x, flagTopY, x, flagTopY + flagHeight)
-    addStripeGradientStops(grad, spec.backgroundColors)
+    addStripeGradientStops(grad, spec.backgroundColors, spec.stripeFractions)
     ctx.fillStyle = grad
     ctx.fillRect(x, flagTopY, colW, flagHeight)
 
@@ -408,6 +422,7 @@ function renderFlagFrame(
 export function defaultGifSpecFromFlag(flag: FlagDefinition): AnimatedFlagGifSpec {
   return {
     backgroundColors: flag.display.stripes ?? [],
+    stripeFractions: flag.display.stripeFractions,
     svgForeground: flag.display.svgForeground,
     numOfColumns: 18,
     staggeredDelayMs: 150,

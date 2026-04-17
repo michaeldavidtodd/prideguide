@@ -204,6 +204,7 @@ export function PrideQuizPageClient() {
           {relatedFlag ? (
             <AnimatedFlag
               backgroundColors={relatedFlag.display.stripes || []}
+              stripeFractions={relatedFlag.display.stripeFractions}
               svgForeground={relatedFlag.display.svgForeground}
               numOfColumns={quizFlagColumns}
               columnGapPx={quizStripeGap}

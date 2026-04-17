@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useLayoutEffect, useMemo, useRef, useState } from "react"
+import { flagStripeCssStops } from "@/lib/flags"
 import { cn } from "@/lib/utils"
 
 const FLAG_COLUMN_MIN_WIDTH_PX = 1
@@ -47,6 +48,8 @@ interface SvgPathDefinition {
 
 interface AnimatedFlagProps {
   backgroundColors: string[] // Stripes or solid color for background
+  /** Same length as `backgroundColors` when set — relative band heights (see `FlagDisplayData.stripeFractions`). */
+  stripeFractions?: number[]
   className?: string
   numOfColumns?: number
   staggeredDelay?: number
@@ -93,6 +96,7 @@ function parseViewBoxDims(viewBox: string | undefined): { w: number; h: number }
 
 export function AnimatedFlag({
   backgroundColors,
+  stripeFractions,
   className = "",
   numOfColumns = 15, // 100. Increased default for smoother waves on complex designs
   staggeredDelay = 150, // 20
@@ -132,15 +136,11 @@ export function AnimatedFlag({
     if (!backgroundColors || backgroundColors.length === 0) return "transparent"
     if (backgroundColors.length === 1) return backgroundColors[0] // Solid color
 
-    const numOfBgColors = backgroundColors.length
-    const segmentHeight = 100 / numOfBgColors
-    const gradientStops = backgroundColors.map((color, index) => {
-      const from = Math.round(index * segmentHeight * 100) / 100
-      const to = Math.round((index + 1) * segmentHeight * 100) / 100
-      return `${color} ${from}% ${to}%`
-    })
+    const gradientStops = flagStripeCssStops(backgroundColors, stripeFractions).map(
+      ({ color, fromPct, toPct }) => `${color} ${fromPct}% ${toPct}%`,
+    )
     return `linear-gradient(to bottom, ${gradientStops.join(", ")})`
-  }, [backgroundColors])
+  }, [backgroundColors, stripeFractions])
 
   const firstColumnDelay = numOfColumns * staggeredDelay * -1
 
