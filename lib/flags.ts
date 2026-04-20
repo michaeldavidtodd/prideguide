@@ -257,6 +257,41 @@ export const PRIDE_FLAGS: FlagDefinition[] = [
     category: "General",
   },
   {
+    id: "queer",
+    name: "Queer Pride Flag",
+    display: {
+      stripes: [
+        "#000000",
+        "#9ad9ea",
+        "#00a3e8",
+        "#b5e51d",
+        "#ffffff",
+        "#ffca0d",
+        "#fc6667",
+        "#feaec9",
+        "#000000",
+      ],
+      stripeMeanings: [
+        "Asexual, aromantic, and agender-spectrum people",
+        "Same-gender attraction (light and dark blues next to each other)",
+        "Same-gender attraction (light and dark blues next to each other)",
+        "Non-binary and gender-nonconforming people",
+        "Asexual, aromantic, and agender-spectrum people",
+        "Non-binary and gender-nonconforming people",
+        "Same-gender attraction (light and dark pinks next to each other)",
+        "Same-gender attraction (light and dark pinks next to each other)",
+        "Asexual, aromantic, and agender-spectrum people",
+      ],
+    },
+    description:
+      "The most commonly adopted queer pride flag, designed by DeviantArt user Pastelmemer in 2015. According to the creator, the adjacent pinks and blues represent same-gender attraction, the orange and green are for non-binary people, and black and white represent individuals on the ace/aro/agender spectrum.",
+    history:
+      "The term \"queer\" used to be commonly used as a slur. However, in the early 2000s, a major shift in the community occurred as people began to reclaim it as an umbrella term for the LGBTQIA+ community. This design was created by DeviantArt user Pastelmemer, posted online in August, 2015. Though other designs, including newer ones, have been proposed, Pastelmemer's design is the by in large the most widely-recognized queer pride flag found online.",
+    significance:
+      "The flag stands as a symbol of pride for those who have reclaimed “queer” as an umbrella term for the LGBTQIA+ community.",
+    category: "General",
+  },
+  {
     id: "transgender",
     name: "Transgender Pride Flag",
     display: {
