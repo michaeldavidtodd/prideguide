@@ -12,6 +12,7 @@ import {
 	type ReactNode,
 } from "react"
 import Link from "next/link"
+import { createPortal } from "react-dom"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTheme } from "next-themes"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
@@ -49,6 +50,7 @@ import { useToast } from "@/hooks/use-toast"
 import {
 	ArrowLeft,
 	ArrowRight,
+	ChevronDown,
 	Download,
 	CircleArrowRight,
 	Telescope,
@@ -890,11 +892,25 @@ export function HomeV2ExploreContent() {
 	const stageRef = useRef<HTMLDivElement>(null)
 	const activeThumbRef = useRef<HTMLButtonElement>(null)
 	const exploreThumbnailsScrollRef = useRef<HTMLDivElement>(null)
+	const exploreContentBodyRef = useRef<HTMLDivElement>(null)
+	const exploreContentBodyInnerRef = useRef<HTMLDivElement>(null)
+	const exploreBodyScrollEndSentinelRef = useRef<HTMLDivElement>(null)
+	const [exploreScrollHintPortalReady, setExploreScrollHintPortalReady] = useState(false)
+	const [exploreBodyMoreBelow, setExploreBodyMoreBelow] = useState(false)
+	const [exploreScrollHintLayout, setExploreScrollHintLayout] = useState<{
+		left: number
+		width: number
+		bottom: number
+	} | null>(null)
 	const { theme, setTheme, themes: availableThemeIds } = useTheme()
 	const [exploreThemeMounted, setExploreThemeMounted] = useState(false)
 
 	useEffect(() => {
 		setExploreThemeMounted(true)
+	}, [])
+
+	useEffect(() => {
+		setExploreScrollHintPortalReady(true)
 	}, [])
 
 	const effectiveReduceMotion =
@@ -925,6 +941,79 @@ export function HomeV2ExploreContent() {
 		}
 		return averageStripeAccent(uniqueHexes)
 	}, [flagPalette])
+
+	const syncExploreContentBodyScrollEnd = useCallback(() => {
+		const root = exploreContentBodyRef.current
+		const sentinel = exploreBodyScrollEndSentinelRef.current
+		if (!root || !sentinel) {
+			setExploreBodyMoreBelow(false)
+			setExploreScrollHintLayout(null)
+			return
+		}
+		const overflow = root.scrollHeight > root.clientHeight + 1
+		if (!overflow) {
+			setExploreBodyMoreBelow(false)
+			setExploreScrollHintLayout(null)
+			return
+		}
+		const sr = sentinel.getBoundingClientRect()
+		const rr = root.getBoundingClientRect()
+		const sentinelVisible = sr.top < rr.bottom - 0.5 && sr.bottom > rr.top + 0.5
+		const moreBelow = !sentinelVisible
+		setExploreBodyMoreBelow(moreBelow)
+		setExploreScrollHintLayout({
+			left: rr.left,
+			width: rr.width,
+			bottom: window.innerHeight - rr.bottom,
+		})
+	}, [])
+
+	useLayoutEffect(() => {
+		const root = exploreContentBodyRef.current
+		if (!root) return
+		syncExploreContentBodyScrollEnd()
+		root.addEventListener("scroll", syncExploreContentBodyScrollEnd, { passive: true })
+		const scrollers: Element[] = []
+		let p: HTMLElement | null = root.parentElement
+		while (p && p !== document.body) {
+			const st = window.getComputedStyle(p)
+			if (/(auto|scroll|overlay)/.test(st.overflowY) || /(auto|scroll|overlay)/.test(st.overflow)) {
+				scrollers.push(p)
+			}
+			p = p.parentElement
+		}
+		const onAncestorScroll = () => {
+			syncExploreContentBodyScrollEnd()
+		}
+		for (const el of scrollers) {
+			el.addEventListener("scroll", onAncestorScroll, { passive: true })
+		}
+		window.addEventListener("scroll", onAncestorScroll, { passive: true })
+		const ro = new ResizeObserver(syncExploreContentBodyScrollEnd)
+		ro.observe(root)
+		const inner = exploreContentBodyInnerRef.current
+		if (inner) ro.observe(inner)
+		const sentinel = exploreBodyScrollEndSentinelRef.current
+		if (sentinel) ro.observe(sentinel)
+		window.addEventListener("resize", syncExploreContentBodyScrollEnd)
+		const mq = window.matchMedia("(min-width: 1024px)")
+		mq.addEventListener("change", syncExploreContentBodyScrollEnd)
+		return () => {
+			root.removeEventListener("scroll", syncExploreContentBodyScrollEnd)
+			window.removeEventListener("scroll", onAncestorScroll)
+			for (const el of scrollers) {
+				el.removeEventListener("scroll", onAncestorScroll)
+			}
+			window.removeEventListener("resize", syncExploreContentBodyScrollEnd)
+			mq.removeEventListener("change", syncExploreContentBodyScrollEnd)
+			ro.disconnect()
+		}
+	}, [flag.id, syncExploreContentBodyScrollEnd])
+
+	useEffect(() => {
+		const id = window.requestAnimationFrame(syncExploreContentBodyScrollEnd)
+		return () => window.cancelAnimationFrame(id)
+	}, [flag.id, syncExploreContentBodyScrollEnd])
 
 	const variants = useMemo(
 		() => ({
@@ -1227,70 +1316,94 @@ export function HomeV2ExploreContent() {
 								data-slot="explore-content"
 								aria-label="About this flag and colors"
 							>
-								<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
-									<motion.div
-										key={flag.id}
-										custom={flagNavDir}
-										variants={flagStageSlideVariants}
-										initial="initial"
-										animate="animate"
-										exit="exit"
-										data-slot="explore-content-inner"
-									>
-										<div className="relative flex flex-row items-center justify-between min-w-0 max-lg:flex-1 max-md:flex-col lg:-ml-[1.1rem]">
-											<span
-												data-slot="explore-flag-index"
-												aria-hidden
-											>
-												{String(index + 1).padStart(2, "0")}
-											</span>
-											<div data-slot="site-header-title">
-												<h2 className="line-clamp-2 font-display text-2xl lg:text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-none tracking-tight text-balance">
-													{flag.name}
-												</h2>
-												<div className="flex min-h-7 shrink-0 items-center mt-1 ml-1">
-													<Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
-														{flag.category}
-													</Badge>
+								<div data-slot="explore-content-inner">
+									<AnimatePresence mode="wait" initial={false} custom={flagNavDir}>
+										<motion.div
+											key={flag.id}
+											custom={flagNavDir}
+											variants={flagStageSlideVariants}
+											initial="initial"
+											animate="animate"
+											exit="exit"
+										>
+											<div className="relative flex flex-row items-center justify-between min-w-0 max-lg:flex-1 max-md:flex-col lg:-ml-[1.1rem]">
+												<span
+													data-slot="explore-flag-index"
+													aria-hidden
+												>
+													{String(index + 1).padStart(2, "0")}
+												</span>
+												<div data-slot="site-header-title">
+													<h2 className="line-clamp-2 font-display text-2xl lg:text-[clamp(1.35rem,4.2vw,2.75rem)] font-extrabold leading-none tracking-tight text-balance">
+														{flag.name}
+													</h2>
+													<div className="flex min-h-7 shrink-0 items-center mt-1 ml-1">
+														<Badge className="rounded-none border-transparent bg-foreground px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-background">
+															{flag.category}
+														</Badge>
+													</div>
 												</div>
 											</div>
+										</motion.div>
+									</AnimatePresence>
+									<div
+										key={flag.id}
+										className={cn(
+											"flex min-h-0 min-w-0 flex-1 flex-col",
+											!effectiveReduceMotion && "explore-flag-panel-enter"
+										)}
+									>
+										<div
+											ref={exploreContentBodyRef}
+											data-slot="explore-content-body"
+											data-explore-body-more-below={exploreBodyMoreBelow ? "true" : undefined}
+											style={studioShellStyle}
+										>
+											<div
+												ref={exploreContentBodyInnerRef}
+												className="flex min-h-0 min-w-0 flex-col gap-4"
+											>
+												<HomeV2AboutBlock
+													flag={flag}
+													stripeAccent={stripeAccent}
+													studioShellStyle={studioShellStyle}
+												/>
+												<HomeV2StripePaletteStrip
+													flagId={flag.id}
+													palette={flagPalette}
+													activeStripe={activeStripe}
+													variant="rail"
+													position={{ current: index + 1, total: FLAG_COUNT }}
+													onStripeToggle={(swatchIndex) => {
+														setActiveStripe((prev) => (prev === swatchIndex ? null : swatchIndex))
+													}}
+													endAction={
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															className={cn(
+																"gap-2 px-6 font-display text-xs font-bold uppercase tracking-wide",
+																cornerRadius <= 0 && "rounded-none"
+															)}
+															style={studioShellStyle}
+															disabled={gifExporting}
+															onClick={() => void handleDownloadAnimatedGif()}
+														>
+															<Download className="size-3.5 shrink-0 opacity-80" aria-hidden />
+															{gifExporting ? "Encoding GIF…" : "Download GIF"}
+														</Button>
+													}
+												/>
+												<div
+													ref={exploreBodyScrollEndSentinelRef}
+													className="pointer-events-none h-px w-full shrink-0"
+													aria-hidden
+												/>
+											</div>
 										</div>
-										<div data-slot="explore-content-body" style={studioShellStyle}>
-											<HomeV2AboutBlock
-												flag={flag}
-												stripeAccent={stripeAccent}
-												studioShellStyle={studioShellStyle}
-											/>
-											<HomeV2StripePaletteStrip
-												flagId={flag.id}
-												palette={flagPalette}
-												activeStripe={activeStripe}
-												variant="rail"
-												position={{ current: index + 1, total: FLAG_COUNT }}
-												onStripeToggle={(swatchIndex) => {
-													setActiveStripe((prev) => (prev === swatchIndex ? null : swatchIndex))
-												}}
-												endAction={
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														className={cn(
-															"gap-2 px-6 font-display text-xs font-bold uppercase tracking-wide",
-															cornerRadius <= 0 && "rounded-none"
-														)}
-														style={studioShellStyle}
-														disabled={gifExporting}
-														onClick={() => void handleDownloadAnimatedGif()}
-													>
-														<Download className="size-3.5 shrink-0 opacity-80" aria-hidden />
-														{gifExporting ? "Encoding GIF…" : "Download GIF"}
-													</Button>
-												}
-											/>
-										</div>
-									</motion.div>
-								</AnimatePresence>
+									</div>
+								</div>
 							</aside>
 
 							{/* <div
@@ -1364,6 +1477,38 @@ export function HomeV2ExploreContent() {
 					}
 				/>
 
+				{exploreScrollHintPortalReady &&
+					exploreScrollHintLayout &&
+					createPortal(
+						<motion.div
+							className="explore-content-scroll-end-hint-portal pointer-events-none"
+							style={{
+								position: "fixed",
+								left: exploreScrollHintLayout.left,
+								width: exploreScrollHintLayout.width,
+								bottom: exploreScrollHintLayout.bottom,
+								zIndex: 70,
+								...(cornerRadius > 0
+									? {
+											borderBottomLeftRadius: `${cornerRadius}px`,
+											borderBottomRightRadius: `${cornerRadius}px`,
+										}
+									: {}),
+							}}
+							initial={{ opacity: 0 }}
+							animate={{ opacity: exploreBodyMoreBelow ? 1 : 0 }}
+							transition={{
+								opacity: {
+									duration: effectiveReduceMotion ? 0.01 : 0.28,
+									ease: [0.22, 1, 0.36, 1] as const,
+								},
+							}}
+							aria-hidden
+						>
+							<ChevronDown className="size-4 shrink-0 text-muted-foreground" strokeWidth={2.25} />
+						</motion.div>,
+						document.body
+					)}
 			</div>
 		</div>
 	)
