@@ -12,7 +12,6 @@ import {
 	type ReactNode,
 } from "react"
 import Link from "next/link"
-import { createPortal } from "react-dom"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTheme } from "next-themes"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
@@ -902,22 +901,13 @@ export function HomeV2ExploreContent() {
 	const exploreContentBodyRef = useRef<HTMLDivElement>(null)
 	const exploreContentBodyInnerRef = useRef<HTMLDivElement>(null)
 	const exploreBodyScrollEndSentinelRef = useRef<HTMLDivElement>(null)
-	const [exploreScrollHintPortalReady, setExploreScrollHintPortalReady] = useState(false)
+	const exploreBodyMoreBelowRef = useRef(false)
 	const [exploreBodyMoreBelow, setExploreBodyMoreBelow] = useState(false)
-	const [exploreScrollHintLayout, setExploreScrollHintLayout] = useState<{
-		left: number
-		width: number
-		bottom: number
-	} | null>(null)
 	const { theme, setTheme, themes: availableThemeIds } = useTheme()
 	const [exploreThemeMounted, setExploreThemeMounted] = useState(false)
 
 	useEffect(() => {
 		setExploreThemeMounted(true)
-	}, [])
-
-	useEffect(() => {
-		setExploreScrollHintPortalReady(true)
 	}, [])
 
 	const effectiveReduceMotion =
@@ -952,27 +942,25 @@ export function HomeV2ExploreContent() {
 	const syncExploreContentBodyScrollEnd = useCallback(() => {
 		const root = exploreContentBodyRef.current
 		const sentinel = exploreBodyScrollEndSentinelRef.current
+		const setIfChanged = (next: boolean) => {
+			if (next === exploreBodyMoreBelowRef.current) return
+			exploreBodyMoreBelowRef.current = next
+			setExploreBodyMoreBelow(next)
+		}
 		if (!root || !sentinel) {
-			setExploreBodyMoreBelow(false)
-			setExploreScrollHintLayout(null)
+			setIfChanged(false)
 			return
 		}
 		const overflow = root.scrollHeight > root.clientHeight + 1
 		if (!overflow) {
-			setExploreBodyMoreBelow(false)
-			setExploreScrollHintLayout(null)
+			setIfChanged(false)
 			return
 		}
 		const sr = sentinel.getBoundingClientRect()
 		const rr = root.getBoundingClientRect()
 		const sentinelVisible = sr.top < rr.bottom - 0.5 && sr.bottom > rr.top + 0.5
 		const moreBelow = !sentinelVisible
-		setExploreBodyMoreBelow(moreBelow)
-		setExploreScrollHintLayout({
-			left: rr.left,
-			width: rr.width,
-			bottom: window.innerHeight - rr.bottom,
-		})
+		setIfChanged(moreBelow)
 	}, [])
 
 	useLayoutEffect(() => {
@@ -1361,15 +1349,18 @@ export function HomeV2ExploreContent() {
 										)}
 									>
 										<div
-											ref={exploreContentBodyRef}
 											data-slot="explore-content-body"
 											data-explore-body-more-below={exploreBodyMoreBelow ? "true" : undefined}
 											style={studioShellStyle}
 										>
 											<div
-												ref={exploreContentBodyInnerRef}
-												className="flex min-h-0 min-w-0 flex-col gap-4"
+												ref={exploreContentBodyRef}
+												data-slot="explore-content-body-scroll"
 											>
+												<div
+													ref={exploreContentBodyInnerRef}
+													className="flex min-h-0 min-w-0 flex-col gap-4"
+												>
 												<HomeV2AboutBlock
 													flag={flag}
 													stripeAccent={stripeAccent}
@@ -1404,8 +1395,26 @@ export function HomeV2ExploreContent() {
 												/>
 												<div
 													ref={exploreBodyScrollEndSentinelRef}
-													className="pointer-events-none h-px w-full shrink-0"
+													className="pointer-events-none h-px w-full shrink-0 -mb-4"
 													aria-hidden
+												/>
+											</div>
+											</div>
+											<div
+												className="explore-content-scroll-end-hint"
+												style={
+													cornerRadius > 0
+														? {
+																borderBottomLeftRadius: `${cornerRadius}px`,
+																borderBottomRightRadius: `${cornerRadius}px`,
+															}
+														: undefined
+												}
+												aria-hidden
+											>
+												<ChevronDown
+													className="size-4 shrink-0 text-muted-foreground"
+													strokeWidth={2.25}
 												/>
 											</div>
 										</div>
@@ -1484,38 +1493,6 @@ export function HomeV2ExploreContent() {
 					}
 				/>
 
-				{exploreScrollHintPortalReady &&
-					exploreScrollHintLayout &&
-					createPortal(
-						<motion.div
-							className="explore-content-scroll-end-hint-portal pointer-events-none"
-							style={{
-								position: "fixed",
-								left: exploreScrollHintLayout.left,
-								width: exploreScrollHintLayout.width,
-								bottom: exploreScrollHintLayout.bottom,
-								zIndex: 70,
-								...(cornerRadius > 0
-									? {
-											borderBottomLeftRadius: `${cornerRadius}px`,
-											borderBottomRightRadius: `${cornerRadius}px`,
-										}
-									: {}),
-							}}
-							initial={{ opacity: 0 }}
-							animate={{ opacity: exploreBodyMoreBelow ? 1 : 0 }}
-							transition={{
-								opacity: {
-									duration: effectiveReduceMotion ? 0.01 : 0.28,
-									ease: [0.22, 1, 0.36, 1] as const,
-								},
-							}}
-							aria-hidden
-						>
-							<ChevronDown className="size-4 shrink-0 text-muted-foreground" strokeWidth={2.25} />
-						</motion.div>,
-						document.body
-					)}
 			</div>
 		</div>
 	)
