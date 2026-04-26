@@ -82,6 +82,25 @@
   outline-offset: 4px;
 }
 
+/*
+ * Homepage flag uses the same contain sizing model as Explore, but reserves
+ * vertical room for wave amplitude so stronger custom motion scales down
+ * instead of overflowing the card.
+ */
+.flag-bounds .animated-flag.home-welcome-flag.animated-flag--contain {
+  width: min(
+    100cqw,
+    calc((100cqh - (var(--home-flag-wave-pad, 0px) * 2)) * var(--flag-ar, 1.5))
+  );
+  height: min(
+    calc(100cqh - (var(--home-flag-wave-pad, 0px) * 2)),
+    calc(100cqw / var(--flag-ar, 1.5))
+  );
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: unset !important;
+}
+
 .home-stripe-cut {
   --stripe-cut-notch: 6px;
   clip-path: polygon(

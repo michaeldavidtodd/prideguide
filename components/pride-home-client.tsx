@@ -594,6 +594,10 @@ export function HomeV2WelcomeContent() {
 				? 1.35
 				: 0.85
 			: 0.75
+	const welcomeWavePadPx = useMemo(
+		() => Math.max(0, (welcomeFlagColumns / 2) * welcomeFlagBillow),
+		[welcomeFlagColumns, welcomeFlagBillow]
+	)
 	const { blob1, blob2, blob3, paletteFlag } = useWelcomeAuroraPalette(reduceMotion)
 	const welcomeFlag =
 		paletteFlag ?? PRIDE_FLAGS.find((f) => f.id === "pride") ?? PRIDE_FLAGS[0]
@@ -825,6 +829,9 @@ export function HomeV2WelcomeContent() {
 											exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
 											transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
 											className="grid h-full min-h-0 w-full place-items-center"
+											style={{
+												["--home-flag-wave-pad" as string]: `${welcomeWavePadPx}px`,
+											}}
 										>
 											<AnimatedFlag
 												backgroundColors={welcomeFlag.display.stripes ?? []}
@@ -837,7 +844,7 @@ export function HomeV2WelcomeContent() {
 												stripeCornerRadiusPx={
 													studioCornerRadius > 0 ? studioCornerRadius : undefined
 												}
-												className="drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]!"
+												className="home-welcome-flag drop-shadow-[0_8px_28px_hsl(var(--foreground)/0.12)]!"
 											/>
 										</motion.div>
 									</AnimatePresence>
